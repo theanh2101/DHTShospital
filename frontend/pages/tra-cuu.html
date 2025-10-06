@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tra cứu kết quả khám - DHST Healthcare</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+<style>
+/* ===== RESET ===== */
+* {margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif;}
+body {background:#f8fafc; color:#333; line-height:1.6;}
+
+/* ===== HEADER ===== */
+.main-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* TOP BAR */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 60px;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #0064d2;
+}
+.logo img {
+    border-radius: 50%;
+    border: 2px solid #007bff;
+    width: 42px;
+    height: 42px;
+}
+.header-info {
+    font-style: italic;
+    color: #333;
+    font-size: 15px;
+}
+.language img {
+    width: 28px;
+    height: 20px;
+    border-radius: 3px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+
+/* NAVBAR */
+.main-nav {
+    background: linear-gradient(90deg, #005fcc, #007bff);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 60px;
+}
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+.nav-link {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    position: relative;
+    padding: 8px 4px;
+    transition: 0.3s ease;
+}
+.nav-link::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background: #fff;
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+.nav-link:hover,
+.nav-link.active {
+    color: #d8e9ff;
+}
+
+/* SEARCH BAR */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.search-bar input {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    width: 180px;
+}
+.search-bar button {
+    background: white;
+    color: #007bff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.search-bar button:hover {
+    background: #d1e9ff;
+}
+
+/* ===== TRA CỨU SECTION ===== */
+.lookup-section {
+    background: #f8fbff;
+    padding: 40px 20px 70px;
+    margin-top: 0;
+}
+.lookup-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.lookup-header h2 {
+    font-size: 30px;
+    color: #2b65ec;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.lookup-header p {
+    color: #555;
+    font-size: 16px;
+}
+
+.lookup-form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 35px 40px;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+.lookup-form-container h3 {
+    text-align: center;
+    color: #007bff;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.lookup-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.lookup-form-container input {
+    padding: 14px 16px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 2px solid #d0e4ff;
+    transition: 0.3s;
+    outline: none;
+}
+.lookup-form-container input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+}
+
+.lookup-form-container button {
+    background: linear-gradient(45deg, #007bff, #00c6ff);
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+.lookup-form-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 123, 255, 0.4);
+}
+.lookup-form-container button i {
+    margin-right: 8px;
+}
+
+/* KẾT QUẢ TRA CỨU */
+.result-container {
+    margin-top: 30px;
+    padding: 20px;
+    background: #eef7ff;
+    border-radius: 12px;
+    text-align: center;
+    display: none;
+}
+.result-container.active {
+    display: block;
+}
+.result-container h4 {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+.result-container p {
+    color: #333;
+    font-size: 15px;
+}
+
+/* FOOTER */
+.main-footer {
+    background: #007bff;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 50px;
+}
+</style>
+</head>
+
+<body>
+
+<header class="main-header">
+    <div class="top-bar">
+        <div class="logo">
+            <img src="logo.jpg" alt="DHST Healthcare Logo"> 
+            <span>DHST Healthcare</span>
+        </div>
+        <div class="header-info">Bệnh viện đa khoa - Vì sức khỏe nhân dân</div>
+        <div class="language">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/125px-Flag_of_Vietnam.svg.png" alt="Vietnamese Flag">
+        </div>
+    </div>
+
+    <nav class="main-nav">
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+            <li><a href="tin-tuc.html" class="nav-link">Tin tức & Bài viết</a></li>
+            <li><a href="#" class="nav-link">Dịch vụ</a></li>
+            <li><a href="#" class="nav-link">Đội ngũ bác sĩ</a></li>
+            <li><a href="#" class="nav-link">Thiết bị</a></li>
+            <li><a href="dat-lich.html" class="nav-link">Đặt lịch khám</a></li>
+            <li><a href="tra-cuu.html" class="nav-link active">Tra cứu kết quả</a></li>
+        </ul>
+        <div class="search-bar">
+            <input type="text" placeholder="Tìm kiếm...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="lookup-section">
+        <div class="lookup-header">
+            <h2>TRA CỨU KẾT QUẢ KHÁM</h2>
+            <p>Nhập số điện thoại để xem kết quả khám của bạn</p>
+        </div>
+
+        <div class="lookup-form-container">
+            <h3>THÔNG TIN TRA CỨU</h3>
+            <form id="lookupForm">
+                <input type="text" id="lookupInput" placeholder="Nhập số điện thoại" required>
+                <button type="submit"><i class="fas fa-search"></i> TRA CỨU NGAY</button>
+            </form>
+
+            <div id="lookupResult" class="result-container">
+                <h4>Kết quả tra cứu</h4>
+                <p id="resultText"></p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="main-footer">
+    <p>© 2025 DHST Healthcare | Liên hệ: 098.999.9999</p>
+</footer>
+
+<script>
+// Giả lập dữ liệu mẫu
+const fakeData = {
+    "0987654321": {
+        name: "Nguyễn Văn A",
+        department: "Tim mạch",
+        date: "05/10/2025",
+        result: "Bác sĩ chẩn đoán ổn định, hẹn tái khám sau 2 tuần."
+    },
+    "0912345678": {
+        name: "Trần Thị B",
+        department: "Nhi khoa",
+        date: "02/10/2025",
+        result: "Bé bị viêm họng nhẹ, cần uống thuốc theo toa."
+    }
+};
+
+document.getElementById("lookupForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const input = document.getElementById("lookupInput").value.trim();
+    const resultBox = document.getElementById("lookupResult");
+    const resultText = document.getElementById("resultText");
+
+    if (fakeData[input]) {
+        const data = fakeData[input];
+        resultText.innerHTML = `
+            <b>Bệnh nhân:</b> ${data.name}<br>
+            <b>Khoa khám:</b> ${data.department}<br>
+            <b>Ngày khám:</b> ${data.date}<br>
+            <b>Kết quả:</b> ${data.result}
+        `;
+        resultBox.classList.add("active");
+    } else {
+        resultText.innerHTML = `Không tìm thấy kết quả cho số điện thoại hoặc mã bệnh nhân này.`;
+        resultBox.classList.add("active");
+    }
+});
+</script>
+
+</body>
+</html>

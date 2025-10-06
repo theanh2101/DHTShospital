@@ -30,6 +30,8 @@ const accountRoutes = require('./routes/account.routes');
 // Gắn route
 app.use('/api/accounts', accountRoutes);
 
+const newsRoutes = require('./routes/news.routes'); 
+app.use("/api/news", newsRoutes); 
 
 app.listen(PORT, () => {
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`);

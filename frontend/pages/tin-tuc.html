@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tin tức & Bài viết - DHST Healthcare</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+<style>
+/* CSS giữ nguyên từ file bạn gửi */
+* {margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif;}
+body {background:#f8fafc; color:#333; line-height:1.6;}
+.main-header {position: sticky; top: 0; z-index: 1000; box-shadow: 0 3px 10px rgba(0,0,0,0.1);}
+.top-bar {display: flex; justify-content: space-between; align-items: center; padding: 12px 60px; background: rgba(255,255,255,0.6); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.2);}
+.logo {display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: bold; color: #0064d2;}
+.logo img {border-radius: 50%; border: 2px solid #007bff; width: 42px; height: 42px;}
+.header-info {font-style: italic; color: #333; font-size: 15px;}
+.language img {width: 28px; height: 20px; border-radius: 3px; box-shadow: 0 0 3px rgba(0,0,0,0.2);}
+.main-nav {background: linear-gradient(90deg, #005fcc, #007bff); display: flex; justify-content: space-between; align-items: center; padding: 10px 60px;}
+.nav-links {list-style: none; display: flex; gap: 30px;}
+.nav-link {text-decoration: none; color: #fff; font-weight: 500; position: relative; padding: 8px 4px; transition: 0.3s ease;}
+.nav-link::after {content: ""; position: absolute; width: 0%; height: 2px; background: #fff; bottom: 0; left: 0; transition: width 0.3s ease;}
+.nav-link:hover::after, .nav-link.active::after {width: 100%;}
+.nav-link:hover, .nav-link.active {color: #d8e9ff;}
+.search-bar {display: flex; align-items: center; gap: 6px;}
+.search-bar input {padding: 8px 10px; border: none; border-radius: 5px; outline: none; width: 180px;}
+.search-bar button {background: white; color: #007bff; border: none; padding: 8px 10px; border-radius: 5px; cursor: pointer; transition: 0.3s;}
+.search-bar button:hover {background: #d1e9ff;}
+.news-section {padding: 50px 60px;}
+.news-header {text-align: center; margin-bottom: 40px;}
+.news-header h2 {font-size: 32px; color: #007bff; margin-bottom: 8px;}
+.news-header p {color: #555; font-size: 16px;}
+.news-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;}
+.news-card {background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 16px rgba(0,0,0,0.1); transition: 0.3s ease;}
+.news-card:hover {transform: translateY(-6px); box-shadow: 0 10px 20px rgba(0,0,0,0.15);}
+.news-card img {width: 100%; height: 200px; object-fit: cover;}
+.news-card-content {padding: 20px;}
+.news-card-content h3 {font-size: 18px; color: #222; margin-bottom: 10px;}
+.news-card-content p {font-size: 15px; color: #555; margin-bottom: 15px;}
+.news-card-content a {color: #007bff; font-weight: 500; text-decoration: none;}
+.news-card-content a:hover {text-decoration: underline;}
+.main-footer {background: #007bff; color: white; text-align: center; padding: 15px 0; margin-top: 50px;}
+</style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="top-bar">
+        <div class="logo">
+            <img src="logo.jpg" alt="DHST Healthcare Logo"> 
+            <span>DHST Healthcare</span>
+        </div>
+        <div class="header-info">Bệnh viện đa khoa - Vì sức khỏe nhân dân</div>
+        <div class="language">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/125px-Flag_of_Vietnam.svg.png" alt="Vietnamese Flag">
+        </div>
+    </div>
+    <nav class="main-nav">
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+            <li><a href="tin-tuc.html" class="nav-link active">Tin tức & Bài viết</a></li>
+            <li><a href="#" class="nav-link">Dịch vụ</a></li>
+            <li><a href="#" class="nav-link">Đội ngũ bác sĩ</a></li>
+            <li><a href="#" class="nav-link">Thiết bị</a></li>
+            <li><a href="dat-lich.html" class="nav-link">Đặt lịch khám</a></li>
+            <li><a href="tra-cuu.html" class="nav-link">Tra cứu kết quả</a></li>
+        </ul>
+        <div class="search-bar">
+            <input type="text" placeholder="Tìm kiếm...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="news-section">
+        <div class="news-header">
+            <h2>TIN TỨC & BÀI VIẾT</h2>
+            <p>Cập nhật thông tin y tế mới nhất, kiến thức sức khỏe và hoạt động tại DHST Healthcare</p>
+        </div>
+        <div class="news-grid">
+            <!-- Dynamic news sẽ chèn ở đây -->
+        </div>
+    </section>
+</main>
+
+<footer class="main-footer">
+    <p>© 2025 DHST Healthcare | Liên hệ: 098.999.9999</p>
+</footer>
+
+<script>
+const newsGrid = document.querySelector(".news-grid");
+
+fetch("http://localhost:3000/api/news")
+    .then(response => response.json())
+    .then(newsList => {
+        newsGrid.innerHTML = ""; 
+        newsList.forEach(news => {
+            const card = document.createElement("div");
+            card.className = "news-card";
+            card.innerHTML = `
+                <img src="${news.image}" alt="${news.title}">
+                <div class="news-card-content">
+                    <h3>${news.title}</h3>
+                    <p>${news.content}</p>
+                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                </div>
+            `;
+            newsGrid.appendChild(card);
+        });
+    })
+    .catch(err => {
+        console.error("Lỗi khi lấy dữ liệu news:", err);
+        newsGrid.innerHTML = "<p>Không thể tải dữ liệu tin tức.</p>";
+    });
+</script>
+
+</body>
+</html>
