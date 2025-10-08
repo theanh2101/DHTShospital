@@ -422,117 +422,219 @@ main {padding: 0;}
 </header>
 
 <main>
-    <section class="news-section">
-        <div class="news-header">
-            <h2>TIN TỨC & BÀI VIẾT Y TẾ</h2>
-            <p>Cập nhật thông tin y tế chuyên sâu, hoạt động bệnh viện và lời khuyên sức khỏe từ chuyên gia.</p>
-        </div>
+  <section class="news-section">
+    <div class="news-header">
+      <h2>TIN TỨC & BÀI VIẾT Y TẾ</h2>
+      <p>Cập nhật thông tin y tế chuyên sâu, hoạt động bệnh viện và lời khuyên sức khỏe từ chuyên gia.</p>
+    </div>
 
-        <div class="news-categories">
-            <button class="category-btn active">Tất cả</button>
-            <button class="category-btn">Tin hoạt động</button>
-            <button class="category-btn">Kiến thức Y khoa</button>
-            <button class="category-btn">Lời khuyên Sức khỏe</button>
-            <button class="category-btn">Nghiên cứu & Đổi mới</button>
-        </div>
+    <div class="news-categories">
+      <button class="category-btn active">Tất cả</button>
+      <button class="category-btn">Tin hoạt động</button>
+      <button class="category-btn">Kiến thức Y khoa</button>
+      <button class="category-btn">Lời khuyên Sức khỏe</button>
+      <button class="category-btn">Nghiên cứu & Đổi mới</button>
+    </div>
 
-        <div class="featured-news-card">
-            <div class="featured-img">
-                <img src="bia.jpg" alt="Nghiên cứu y học">
-            </div>
-            <div class="featured-content">
-                <span class="featured-tag">NỔI BẬT</span>
-                <h3>DHST Đạt Chứng Nhận ISO 15189:2022 cho Hệ thống Xét nghiệm</h3>
-                <p>Chứng nhận mới khẳng định chất lượng và độ tin cậy của các dịch vụ xét nghiệm tại DHST, tuân thủ nghiêm ngặt các tiêu chuẩn quốc tế mới nhất. Đây là bước tiến quan trọng trong việc nâng cao dịch vụ khám chữa bệnh cho người dân.</p>
-                <a href="#">
-                    Xem chi tiết 
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
+    <!-- 🌟 Tin nổi bật -->
+    <div class="featured-news-card">
+      <div class="featured-img">
+        <img src="bia.jpg" alt="Nghiên cứu y học">
+      </div>
+      <div class="featured-content">
+        <span class="featured-tag">NỔI BẬT</span>
+        <h3>DHST Đạt Chứng Nhận ISO 15189:2022 cho Hệ thống Xét nghiệm</h3>
+        <p>Chứng nhận mới khẳng định chất lượng và độ tin cậy của các dịch vụ xét nghiệm tại DHST, tuân thủ nghiêm ngặt các tiêu chuẩn quốc tế mới nhất. Đây là bước tiến quan trọng trong việc nâng cao dịch vụ khám chữa bệnh cho người dân.</p>
+        <a href="#">
+          Xem chi tiết 
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
 
-        <div class="news-grid" id="news-grid-container">
-            <div class="news-card">
-                <img src="tt1.png" alt="Phòng ngừa bệnh tim">
-                <div class="news-card-content">
-                    <span class="news-date"><i class="far fa-calendar-alt"></i> 05/10/2025</span>
-                    <h3>10 Lời Khuyên Vàng giúp phòng ngừa bệnh tim mạch</h3>
-                    <p>Chế độ ăn uống và tập luyện đóng vai trò then chốt trong việc bảo vệ trái tim khỏe mạnh...</p>
-                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="news-card">
-                <img src="tt2.png" alt="Ứng dụng AI">
-                <div class="news-card-content">
-                    <span class="news-date"><i class="far fa-calendar-alt"></i> 03/10/2025</span>
-                    <h3>Phát triển công nghệ AI trong chẩn đoán ung thư sớm</h3>
-                    <p>DHST ứng dụng Trí tuệ Nhân tạo để tăng độ chính xác và tốc độ trong việc phát hiện các khối u ác tính...</p>
-                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="news-card">
-                <img src="tt3.png" alt="Hợp tác chuyên môn">
-                <div class="news-card-content">
-                    <span class="news-date"><i class="far fa-calendar-alt"></i> 01/10/2025</span>
-                    <h3>Lễ ký kết hợp tác chuyên môn với Bệnh viện Quốc tế A</h3>
-                    <p>Nâng cao chất lượng khám chữa bệnh qua các chương trình đào tạo và chuyển giao công nghệ mới...</p>
-                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="news-card">
-                <img src="tt4.png" alt="Tiêm chủng người lớn tuổi">
-                <div class="news-card-content">
-                    <span class="news-date"><i class="far fa-calendar-alt"></i> 28/09/2025</span>
-                    <h3>Sự thật về tiêm chủng Vắc xin cho người lớn tuổi</h3>
-                    <p>Những điều cần biết về các loại vắc xin quan trọng dành cho nhóm đối tượng trên 60 tuổi...</p>
-                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="news-card">
-                <img src="tt5.png" alt="Xử lý đột quỵ">
-                <div class="news-card-content">
-                    <span class="news-date"><i class="far fa-calendar-alt"></i> 25/09/2025</span>
-                    <h3>Dấu hiệu nhận biết và xử lý đột quỵ kịp thời</h3>
-                    <p>Khả năng phục hồi của bệnh nhân đột quỵ phụ thuộc rất nhiều vào thời gian cấp cứu ban đầu...</p>
-                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="news-card">
-                <img src="tt6.png" alt="Gói khám sức khỏe">
-                <div class="news-card-content">
-                    <span class="news-date"><i class="far fa-calendar-alt"></i> 20/09/2025</span>
-                    <h3>Chương trình khám sức khỏe tổng quát ưu đãi cuối năm</h3>
-                    <p>Cơ hội vàng để kiểm tra toàn diện tình trạng sức khỏe với gói khám chuyên sâu, giá tốt...</p>
-                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
-        </div>
+    <!-- 📰 Danh sách tin động -->
+    <div class="news-grid" id="news-grid-container">
+      <p style="text-align:center;">Đang tải tin tức...</p>
+    </div>
 
-        <div class="pagination">
-            <a href="#" class="page-link"><i class="fas fa-angle-left"></i></a>
-            <a href="#" class="page-link active">1</a>
-            <a href="#" class="page-link">2</a>
-            <a href="#" class="page-link">3</a>
-            <a href="#" class="page-link"><i class="fas fa-angle-right"></i></a>
-        </div>
-    </section>
+    <!-- 🔢 Phân trang -->
+    <div class="pagination">
+      <a href="#" class="page-link"><i class="fas fa-angle-left"></i></a>
+      <a href="#" class="page-link active">1</a>
+      <a href="#" class="page-link">2</a>
+      <a href="#" class="page-link">3</a>
+      <a href="#" class="page-link"><i class="fas fa-angle-right"></i></a>
+    </div>
+  </section>
 </main>
+
 
 <footer class="main-footer">
     <p>© 2025 DHST Healthcare | Liên hệ: 098.999.9999</p>
 </footer>
 
 <script>
-// Xử lý sự kiện cho thanh phân loại (chỉ demo hiệu ứng active)
-const categoryButtons = document.querySelectorAll('.category-btn');
-categoryButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
-        categoryButtons.forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        // Ở đây sẽ gọi hàm lọc dữ liệu thực tế
+const API_URL = "http://localhost:3000/api/news";
+let currentPage = 1;
+const perPage = 6;
+
+// ===== HIỂN THỊ TIN NỔI BẬT =====
+async function loadFeaturedNews() {
+  try {
+    const res = await fetch(API_URL);
+    const newsList = await res.json();
+    if (!newsList || newsList.length === 0) return;
+
+    // Chỉ lấy những tin đã published
+    const publishedNews = newsList.filter(news => news.status === 'published');
+    if (publishedNews.length === 0) return;
+
+    const featured = publishedNews[0];
+    const imageUrl = featured.image
+      ? (featured.image.startsWith("/uploads") ? `http://localhost:3000${featured.image}` : featured.image)
+      : "https://via.placeholder.com/600x400?text=No+Image";
+
+    const featuredCard = `
+      <div class="featured-img">
+        <img src="${imageUrl}" alt="${featured.title}">
+      </div>
+      <div class="featured-content">
+        <span class="featured-tag">NỔI BẬT</span>
+        <h3>${featured.title}</h3>
+        <p>${featured.summary || (featured.content ? featured.content.substring(0, 250) + "..." : "")}</p>
+        <a href="#" onclick="viewDetail(${featured.id}); return false;">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+      </div>
+    `;
+    document.querySelector(".featured-news-card").innerHTML = featuredCard;
+  } catch (err) {
+    console.error("❌ Lỗi khi tải tin nổi bật:", err);
+  }
+}
+
+// ===== HIỂN THỊ DANH SÁCH TIN (CÓ PHÂN TRANG) =====
+async function loadNews(api = API_URL, page = 1) {
+  try {
+    const res = await fetch(api);
+    const allNews = await res.json();
+
+    // Lọc chỉ những tin đã published
+    const publishedNews = allNews.filter(news => news.status === 'published');
+
+    const container = document.getElementById("news-grid-container");
+    container.innerHTML = "";
+
+    if (!publishedNews || publishedNews.length === 0) {
+      container.innerHTML = "<p style='text-align:center;'>Chưa có tin tức nào.</p>";
+      document.querySelector(".pagination").style.display = "none";
+      return;
+    }
+
+    const currentCategory = document.querySelector(".category-btn.active")?.textContent.trim();
+    const list = currentCategory === "Tất cả" ? publishedNews.slice(1) : publishedNews.filter(n => n.category === currentCategory);
+
+    const totalPages = Math.ceil(list.length / perPage);
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const pageData = list.slice(start, end);
+
+    pageData.forEach(news => {
+      const imageUrl = news.image
+        ? (news.image.startsWith("/uploads") ? `http://localhost:3000${news.image}` : news.image)
+        : "https://via.placeholder.com/400x250?text=No+Image";
+
+      const date = new Date(news.created_at || Date.now()).toLocaleDateString("vi-VN");
+
+      const card = `
+        <div class="news-card">
+          <img src="${imageUrl}" alt="${news.title}">
+          <div class="news-card-content">
+            <span class="news-date"><i class="far fa-calendar-alt"></i> ${date}</span>
+            <h3>${news.title}</h3>
+            <p>${news.summary || (news.content ? news.content.substring(0, 120) + "..." : "")}</p>
+            <a href="#" onclick="viewDetail(${news.id}); return false;">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      `;
+      container.innerHTML += card;
     });
+
+    renderPagination(totalPages, page, api);
+  } catch (err) {
+    console.error("❌ Lỗi khi tải tin:", err);
+  }
+}
+
+
+// ===== PHÂN TRANG =====
+function renderPagination(totalPages, currentPage, api) {
+  const pagination = document.querySelector(".pagination");
+  pagination.innerHTML = "";
+
+  pagination.innerHTML += `<a href="#" class="page-link" data-page="prev"><i class="fas fa-angle-left"></i></a>`;
+
+  for (let i = 1; i <= totalPages; i++) {
+    pagination.innerHTML += `<a href="#" class="page-link ${i === currentPage ? "active" : ""}" data-page="${i}">${i}</a>`;
+  }
+
+  pagination.innerHTML += `<a href="#" class="page-link" data-page="next"><i class="fas fa-angle-right"></i></a>`;
+
+  pagination.querySelectorAll(".page-link").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      const type = btn.dataset.page;
+
+      if (type === "prev" && currentPage > 1) currentPage--;
+      else if (type === "next" && currentPage < totalPages) currentPage++;
+      else if (!isNaN(type)) currentPage = parseInt(type);
+
+      loadNews(api, currentPage);
+    });
+  });
+}
+
+// ===== LỌC THEO DANH MỤC =====
+async function loadByCategory(category) {
+  const featuredSection = document.querySelector(".featured-news-card");
+
+  if (category === "Tất cả") {
+    featuredSection.style.display = "flex";
+    await loadFeaturedNews();
+    await loadNews(API_URL, 1);
+  } else {
+    featuredSection.style.display = "none";
+    const url = `${API_URL}/category/${encodeURIComponent(category)}`;
+    await loadNews(url, 1);
+  }
+}
+
+// ===== XEM CHI TIẾT =====
+async function viewDetail(id) {
+  try {
+    localStorage.setItem("selectedNewsId", id);
+    window.location.href = "news-detail.html";
+  } catch (err) {
+    console.error("❌ Không thể xem chi tiết:", err);
+  }
+}
+
+// ===== KHI TRANG TẢI XONG =====
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadFeaturedNews();
+  await loadNews(API_URL, 1);
+
+  const categoryButtons = document.querySelectorAll(".category-btn");
+  categoryButtons.forEach(btn => {
+    btn.addEventListener("click", function() {
+      categoryButtons.forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+      const category = this.textContent.trim();
+      loadByCategory(category);
+    });
+  });
 });
 </script>
+
+
 
 </body>
 </html>

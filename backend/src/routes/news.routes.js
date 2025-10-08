@@ -23,19 +23,28 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ================== CÁC ROUTE TIN TỨC ==================
-// Lấy toàn bộ tin tức
+
+// 📌 Lấy toàn bộ tin tức
 router.get("/", NewsController.getAll);
 
-// Lấy chi tiết theo ID
+// 📌 Lấy tin tức theo phân loại
+router.get("/category/:category", NewsController.getByCategory);
+
+// 📌 Lấy chi tiết theo ID
 router.get("/:id", NewsController.getById);
 
-// Tạo mới tin tức (có upload ảnh)
+// 📌 Tạo mới tin tức (có upload ảnh)
 router.post("/", upload.single("image"), NewsController.create);
 
-// Cập nhật tin tức
+// 📌 Cập nhật tin tức
 router.put("/:id", upload.single("image"), NewsController.update);
 
-// Xóa tin tức
+// 📌 Xóa tin tức
 router.delete("/:id", NewsController.delete);
 
+// 🔄 Đổi trạng thái bài viết
+router.patch("/:id/status", NewsController.updateStatus);
+
+
 module.exports = router;
+

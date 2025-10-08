@@ -25,6 +25,7 @@ if (!fs.existsSync(uploadDir)) {
 // thì nó sẽ đọc file từ backend/public/uploads/news/abc.png
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
+
 // ================== IMPORT CÁC ROUTE ==================
 const userRoutes = require("./routes/user.routes");
 const khoaRoutes = require("./routes/khoa.routes");
