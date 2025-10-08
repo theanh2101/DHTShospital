@@ -1,12 +1,16 @@
 // controllers/khoa.controller.js
-const Khoa = require("../models/khoa.model");
+const KhoaModel = require('../models/khoa.model');
 
-exports.getAllKhoa = async (req, res) => {
+const getAllKhoa = async (req, res) => {
+  console.log("📥 Nhận request GET /api/khoa");
   try {
-    const data = await Khoa.getAll();
-    res.json(data);
-  } catch (err) {
-    console.error("Lỗi lấy danh sách khoa:", err);
-    res.status(500).json({ error: "Lỗi server khi lấy danh sách khoa" });
+    const khoaList = await KhoaModel.findAll();
+    console.log("✅ Lấy được danh sách khoa:", khoaList);
+    res.status(200).json(khoaList);
+  } catch (error) {
+    console.error("❌ Lỗi khi lấy danh sách khoa:", error);
+    res.status(500).json({ message: error.message || "Lỗi khi lấy danh sách khoa." });
   }
 };
+
+module.exports = { getAllKhoa };

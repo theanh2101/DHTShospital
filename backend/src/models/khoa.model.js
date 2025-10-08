@@ -1,11 +1,9 @@
 // models/khoa.model.js
-const pool = require("../../config/db");
+const db = require("../../config/db");
 
-const Khoa = {
-  getAll: async () => {
-    const [rows] = await pool.query("SELECT id_khoa, ten_khoa, mo_ta FROM khoa");
-    return rows;
-  }
+const findAll = async () => {
+  const [rows] = await db.query("SELECT id_khoa, ten_khoa FROM khoa ORDER BY ten_khoa ASC");
+  return rows;
 };
 
-module.exports = Khoa;
+module.exports = { findAll };
