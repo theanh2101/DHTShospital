@@ -377,9 +377,147 @@ main {min-height:70vh; padding:40px 20px;}
     </section>
 </main>
 
-<footer class="main-footer">
-    <p>© 2025 DHST Healthcare | Liên hệ: 098.999.9999</p>
+<!-- ===== FOOTER ===== -->
+<footer class="footer-section">
+  <div class="footer-container">
+    <div class="footer-logo-col">
+      <img src="logo.jpg" alt="DHST Logo" class="footer-logo" />
+      <h3>DHST HEALTHCARE</h3>
+      <p>Bệnh viện đa khoa quốc tế - Vì sức khỏe nhân dân</p>
+      <div class="footer-socials">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <h4>Liên kết nhanh</h4>
+      <ul>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="dat-lich.html">Đặt lịch khám</a></li>
+        <li><a href="tin-tuc.html">Tin tức & Bài viết</a></li>
+        <li><a href="bac-si.html">Đội ngũ bác sĩ</a></li>
+        <li><a href="tra-cuu.html">Tra cứu kết quả</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-contact">
+      <h4>Liên hệ</h4>
+      <p><i class="fas fa-map-marker-alt"></i> 78 Giải Phóng, Kim Liên, Hà Nội</p>
+      <p><i class="fas fa-phone"></i> Hotline: <strong>1900 888 999</strong></p>
+      <p><i class="fas fa-envelope"></i> Email: contact@dhsthealth.vn</p>
+    </div>
+
+    <div class="footer-hours">
+      <h4>Giờ làm việc</h4>
+      <p>Thứ 2 - Thứ 6: 07:00 - 17:00</p>
+      <p>Thứ 7 - CN: 07:30 - 16:00</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 <strong>DHST Healthcare</strong> | All Rights Reserved.</p>
+  </div>
 </footer>
+
+<style>
+.footer-section {
+  background: linear-gradient(135deg, #005fcc, #007bff);
+  color: #fff;
+  padding: 60px 80px 30px;
+  font-family: "Poppins", sans-serif;
+}
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 50px;
+  align-items: flex-start;
+}
+.footer-logo-col {
+  text-align: left;
+}
+.footer-logo {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  margin-bottom: 10px;
+}
+.footer-logo-col h3 {
+  margin: 5px 0;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.footer-logo-col p {
+  color: #dbe9ff;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.footer-socials a {
+  display: inline-block;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+  transition: 0.3s;
+}
+.footer-socials a:hover {
+  background: #fff;
+  color: #007bff;
+  transform: translateY(-3px);
+}
+.footer-links h4,
+.footer-contact h4,
+.footer-hours h4 {
+  font-size: 17px;
+  margin-bottom: 10px;
+  color: #fff;
+}
+.footer-links ul {
+  list-style: none;
+}
+.footer-links ul li {
+  margin-bottom: 8px;
+}
+.footer-links ul li a {
+  color: #dce7ff;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.footer-links ul li a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.footer-contact p,
+.footer-hours p {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #e8f1ff;
+}
+.footer-contact i {
+  color: #ffde59;
+  margin-right: 6px;
+}
+.footer-bottom {
+  text-align: center;
+  margin-top: 50px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  padding-top: 20px;
+  font-size: 14px;
+  color: #cfe2ff;
+}
+@media (max-width: 768px) {
+  .footer-section {
+    padding: 40px 20px;
+  }
+  .footer-container {
+    gap: 30px;
+  }
+}
+</style>
+
 
 </body>
 </html>

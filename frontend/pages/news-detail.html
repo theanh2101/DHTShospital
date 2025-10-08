@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chi tiết bài viết - DHST Healthcare</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+<style>
+body {font-family: "Poppins", sans-serif; background:#f9fafc; color:#333; line-height:1.6; margin:0; padding:0;}
+.container {max-width:900px; margin:60px auto; background:white; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.1); padding:30px;}
+.article-image {width:100%; height:380px; object-fit:cover; border-radius:10px; margin-bottom:25px;}
+.article-title {color:#007bff; font-size:26px; margin-bottom:15px;}
+.article-meta {color:#666; font-size:14px; margin-bottom:20px;}
+.article-content {white-space:pre-line; font-size:16px; color:#333;}
+.back-btn {display:inline-block; margin-top:30px; background:#007bff; color:white; padding:10px 20px; border-radius:6px; text-decoration:none; transition:0.3s;}
+.back-btn:hover {background:#005fcc;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <img id="articleImage" class="article-image" src="" alt="Ảnh bài viết">
+    <h1 id="articleTitle" class="article-title"></h1>
+    <div id="articleMeta" class="article-meta"></div>
+    <div id="articleContent" class="article-content"></div>
+    <a href="tin-tuc.html" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại danh sách</a>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+if (!id) {
+    document.body.innerHTML = "<h2 style='text-align:center;color:red;'>❌ Không tìm thấy bài viết!</h2>";
+} else {
+    fetch(`http://localhost:3000/api/news/${id}`)
+        .then(res => res.json())
+        .then(news => {
+            document.getElementById("articleImage").src = news.image ? `http://localhost:3000${news.image}` : "default.jpg";
+            document.getElementById("articleTitle").textContent = news.title;
+            document.getElementById("articleMeta").textContent = `Tác giả: ${news.author || "Không rõ"} | Chuyên mục: ${news.category || "Tin tức"}`;
+            document.getElementById("articleContent").textContent = news.content;
+        })
+        .catch(err => {
+            console.error("Lỗi khi tải bài viết:", err);
+            document.body.innerHTML = "<h2 style='text-align:center;color:red;'>❌ Lỗi tải bài viết!</h2>";
+        });
+}
+</script>
+
+</body>
+</html>

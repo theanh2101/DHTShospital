@@ -6,7 +6,6 @@
 <title>Tin tức & Bài viết - DHST Healthcare</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 <style>
-/* CSS giữ nguyên từ file bạn gửi */
 * {margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif;}
 body {background:#f8fafc; color:#333; line-height:1.6;}
 .main-header {position: sticky; top: 0; z-index: 1000; box-shadow: 0 3px 10px rgba(0,0,0,0.1);}
@@ -36,8 +35,8 @@ body {background:#f8fafc; color:#333; line-height:1.6;}
 .news-card-content {padding: 20px;}
 .news-card-content h3 {font-size: 18px; color: #222; margin-bottom: 10px;}
 .news-card-content p {font-size: 15px; color: #555; margin-bottom: 15px;}
-.news-card-content a {color: #007bff; font-weight: 500; text-decoration: none;}
-.news-card-content a:hover {text-decoration: underline;}
+.news-card-content button {background:#007bff; border:none; color:white; padding:8px 14px; border-radius:6px; cursor:pointer; transition:0.3s;}
+.news-card-content button:hover {background:#005fcc;}
 .main-footer {background: #007bff; color: white; text-align: center; padding: 15px 0; margin-top: 50px;}
 </style>
 </head>
@@ -78,7 +77,7 @@ body {background:#f8fafc; color:#333; line-height:1.6;}
             <p>Cập nhật thông tin y tế mới nhất, kiến thức sức khỏe và hoạt động tại DHST Healthcare</p>
         </div>
         <div class="news-grid">
-            <!-- Dynamic news sẽ chèn ở đây -->
+            <!-- Dynamic news -->
         </div>
     </section>
 </main>
@@ -91,18 +90,20 @@ body {background:#f8fafc; color:#333; line-height:1.6;}
 const newsGrid = document.querySelector(".news-grid");
 
 fetch("http://localhost:3000/api/news")
-    .then(response => response.json())
+    .then(res => res.json())
     .then(newsList => {
-        newsGrid.innerHTML = ""; 
+        newsGrid.innerHTML = "";
         newsList.forEach(news => {
             const card = document.createElement("div");
             card.className = "news-card";
+            const imageSrc = news.image ? `http://localhost:3000${news.image}` : "default.jpg";
+
             card.innerHTML = `
-                <img src="${news.image}" alt="${news.title}">
+                <img src="${imageSrc}" alt="${news.title}">
                 <div class="news-card-content">
                     <h3>${news.title}</h3>
-                    <p>${news.content}</p>
-                    <a href="#">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                    <p>${news.summary || ""}</p>
+                    <button onclick="viewDetail(${news.id})">Xem thêm</button>
                 </div>
             `;
             newsGrid.appendChild(card);
@@ -112,6 +113,10 @@ fetch("http://localhost:3000/api/news")
         console.error("Lỗi khi lấy dữ liệu news:", err);
         newsGrid.innerHTML = "<p>Không thể tải dữ liệu tin tức.</p>";
     });
+
+function viewDetail(id) {
+    window.location.href = `news-detail.html?id=${id}`;
+}
 </script>
 
 </body>
