@@ -1,10 +1,10 @@
-
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
-require("dotenv").config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,6 +34,7 @@ const authRoutes = require("./routes/auth.routes");
 const accountRoutes = require("./routes/account.routes");
 const newsRoutes = require("./routes/news.routes");
 const appointmentRoutes = require("./routes/datlich.routes.js");
+const chatRoutes = require('./routes/chat.routes.js');
 
 // 👉 PHỤC VỤ FILE TĨNH (HTML, CSS, JS, ảnh...)
 app.use(express.static(path.join(__dirname, "../../frontend/page")));
@@ -51,6 +52,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/accounts", accountRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/datlich", appointmentRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: `Không tìm thấy route: ${req.originalUrl}` });

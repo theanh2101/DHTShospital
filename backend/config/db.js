@@ -12,9 +12,18 @@ const pool = mysql.createPool({
 // Kiểm tra kết nối
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error("❌ Kết nối database thất bại:", err.message);
+    switch (err.code) {
+      case 'ER_ACCESS_DENIED_ERROR':
+        console.error('❌ Sai tài khoản hoặc mật khẩu MySQL.');
+        break;
+      case 'ENOTFOUND':
+        console.error('❌ Không tìm thấy host MySQL.');
+        break;
+      default:
+        console.error('❌ Lỗi kết nối database:', err);
+    }
   } else {
-    console.log("✅ Đã kết nối database thành công!");
+    console.log('✅ Kết nối MySQL thành công!');
     connection.release();
   }
 });
