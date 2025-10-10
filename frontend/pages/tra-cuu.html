@@ -512,6 +512,15 @@ Tổng đài Hỗ trợ: 1900.1234
 
 <div id="contentStep4" class="step-content">
 <h4 id="visitHistoryTitle">Lịch sử các lần khám của Bệnh nhân:</h4>
+
+<div id="patientDetailBox" style="background: #f0f7ff; padding: 15px; margin-bottom: 25px; border-left: 5px solid var(--primary-color); border-radius: 8px;">
+    <strong><i class="fas fa-user-circle" style="color: var(--primary-color); margin-right: 5px;"></i> Thông tin Bệnh nhân:</strong> <span id="bnHoTen"></span><br>
+    <small style="margin-left: 20px;">
+        SĐT: <strong id="bnPhone"></strong> | 
+        Ngày sinh: <strong id="bnNgaySinh"></strong> | 
+        Giới tính: <strong id="bnGioiTinh"></strong>
+    </small>
+</div>
 <div id="visitList" class="visit-list">
 </div>
 <button id="btnBackToPatients" class="btn-primary btn-back" type="button">
@@ -545,15 +554,14 @@ Tổng đài Hỗ trợ: 1900.1234
 //JS LOGIC CHO GIAO DIỆN ĐA BƯỚC VÀ GỌI API THỰC TẾ
 //=======================================================
 
-//Thiết lập URL gốc của Backend API (Thay đổi nếu cổng của bạn khác)
+// Thiết lập URL gốc của Backend API (Thay đổi nếu cổng của bạn khác)
 const API_BASE_URL = 'http://localhost:3000/api/patient'; 
 
 //--- Biến Trạng Thái---
 let currentStep = 1;
 let currentPhoneNumber = '';
-let selectedPatientId = null;
 let currentPatients = []; 
-let selectedPatientName = '';
+let selectedPatientData = {}; // Lưu toàn bộ data của bệnh nhân được chọn
 
 //--- DOM Elements---
 const stepContents = [
@@ -577,6 +585,16 @@ const patientListDiv = document.getElementById('patientList');
 const visitListDiv = document.getElementById('visitList');
 const visitDetailsDiv = document.getElementById('visitDetails');
 
+// --- Hàm tiện ích định dạng ngày tháng ---
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    // Cắt bỏ phần T và Z nếu là định dạng ISO (ví dụ: 2025-10-04T22:00:00.000Z)
+    if (dateString.includes('T')) {
+        return dateString.substring(0, 10).split('-').reverse().join('/'); // Chuyển sang DD/MM/YYYY
+    }
+    return dateString; // Trả về nguyên nếu đã là định dạng Date thuần
+}
+
 //--- Hàm hiển thị/ẩn thông báo lỗi---
 function displayError(element, message) {
 element.textContent = message;
@@ -584,6 +602,7 @@ element.style.display = 'block';
 }
 
 function hideError(element) {
+element.textContent = '';
 element.style.display = 'none';
 }
 
@@ -647,14 +666,12 @@ body: JSON.stringify({ phoneNumber: currentPhoneNumber })
 const data = await response.json();
 
 if (response.ok) {
-//Gửi OTP thành công (Backend trả về 200/202)
 document.getElementById('sentPhone').textContent = currentPhoneNumber;
 otpInput.value = ''; 
 alertMessage.textContent = data.message || 'Mã OTP đã được gửi thành công.';
 hideError(alertMessage);
 goToStep(2);
 } else {
-//Thất bại (Ví dụ: SĐT không tồn tại trong DB, hoặc lỗi gửi SMS)
 displayError(alertMessage, data.message || 'Lỗi: Không tìm thấy hồ sơ hoặc không thể gửi OTP.');
 }
 
@@ -687,15 +704,14 @@ if (response.ok && data.patients && data.patients.length > 0) {
 currentPatients = data.patients; 
 
 if (currentPatients.length === 1) {
-//1 hồ sơ: Chuyển thẳng tới danh sách lần khám (Bước 4)
-selectPatient(currentPatients[0].id_benhnhan, currentPatients[0].ho_ten); 
+// 1 hồ sơ: Chuyển thẳng tới danh sách lần khám (Bước 4)
+selectPatient(currentPatients[0]); // Truyền toàn bộ đối tượng
 } else {
-//Nhiều hồ sơ: Chuyển tới bước chọn bệnh nhân (Bước 3)
+// Nhiều hồ sơ: Chuyển tới bước chọn bệnh nhân (Bước 3)
 renderPatientList(currentPatients);
 goToStep(3);
 }
 } else {
-//Xác thực thất bại
 displayError(otpErrorMessage, data.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.');
 }
 
@@ -712,21 +728,32 @@ document.getElementById('btnBackToPhone').addEventListener('click', () => goToSt
 //--- Bước 3: Render Danh sách Bệnh nhân và Chọn BN---
 function renderPatientList(patients) {
 patientListDiv.innerHTML = patients.map(p => `
-<div class="patient-item" data-id="${p.id_benhnhan}" onclick="selectPatient(${p.id_benhnhan}, '${p.ho_ten}')">
+<div class="patient-item" data-id="${p.id_benhnhan}" onclick="selectPatientFromList(${p.id_benhnhan})">
 <div class="item-info">
 <strong>${p.ho_ten}</strong>
-<p>Ngày sinh: ${p.ngay_sinh || 'N/A'} | Giới tính: ${p.gioi_tinh || 'N/A'}</p>
+<p>Ngày sinh: ${formatDate(p.ngay_sinh)} | Giới tính: ${p.gioi_tinh || 'N/A'}</p>
 </div>
 <div class="item-action"><i class="fas fa-arrow-right"></i> Xem lịch sử</div>
 </div>
 `).join('');
 }
 
-function selectPatient(patientId, patientName) {
-selectedPatientId = patientId;
-selectedPatientName = patientName;
-//Tải danh sách lần khám cho bệnh nhân được chọn
-loadVisits(patientId, patientName);
+function selectPatientFromList(patientId) {
+    // Tìm đối tượng bệnh nhân đầy đủ trong mảng currentPatients
+    const patientObject = currentPatients.find(p => p.id_benhnhan === patientId);
+    if (patientObject) {
+        selectPatient(patientObject);
+    }
+}
+
+// Hàm selectPatient mới: Nhận đối tượng đầy đủ
+function selectPatient(patientObject) {
+    selectedPatientData = patientObject; // Lưu toàn bộ data
+    const patientId = patientObject.id_benhnhan;
+    const patientName = patientObject.ho_ten;
+
+    // Tải danh sách lần khám cho bệnh nhân được chọn
+    loadVisits(patientId, patientName);
 }
 
 
@@ -734,6 +761,17 @@ loadVisits(patientId, patientName);
 async function loadVisits(patientId, patientName) {
 document.getElementById('visitHistoryTitle').textContent = `LỊCH SỬ KHÁM của: ${patientName || 'Bệnh nhân'}`;
 visitListDiv.innerHTML = '<p style="text-align:center;">Đang tải lịch sử khám...</p>';
+
+// ==========================================================
+// LOGIC HIỂN THỊ THÔNG TIN BỆNH NHÂN ĐẦY ĐỦ 
+// ==========================================================
+if (selectedPatientData && selectedPatientData.id_benhnhan) {
+    document.getElementById('bnHoTen').textContent = selectedPatientData.ho_ten;
+    document.getElementById('bnPhone').textContent = currentPhoneNumber; // Lấy SĐT từ biến global
+    document.getElementById('bnNgaySinh').textContent = formatDate(selectedPatientData.ngay_sinh);
+    document.getElementById('bnGioiTinh').textContent = selectedPatientData.gioi_tinh || 'N/A';
+}
+// ==========================================================
 
 try {
 const response = await fetch(`${API_BASE_URL}/visits/${patientId}`);
@@ -744,10 +782,10 @@ if (visits.length === 0) {
 visitListDiv.innerHTML = `<p class="error-message">Hồ sơ này chưa có lịch sử khám nào được ghi nhận.</p>`;
 } else {
 visitListDiv.innerHTML = visits.map(v => `
-<div class="visit-item" data-id="${v.id_lichkham}" onclick="loadVisitDetails(${v.id_lichkham}, '${v.ngay_kham}')">
+<div class="visit-item" data-id="${v.id_lichkham}" onclick="loadVisitDetails(${v.id_lichkham}, '${formatDate(v.ngay_kham)}')">
 <div class="item-info">
-<strong>Ngày: ${v.ngay_kham} - Khoa: ${v.ten_khoa}</strong>
-<p>BS. ${v.ten_bacsi} | Tóm tắt: ${v.ket_qua ? v.ket_qua.substring(0, 40) + '...' : 'Đang cập nhật'}</p>
+<strong>Ngày: ${formatDate(v.ngay_kham)} - Khoa: ${v.ten_khoa || 'N/A'}</strong>
+<p>BS. ${v.ten_bacsi || 'N/A'} | Tóm tắt: ${v.ket_qua ? v.ket_qua.substring(0, 40) + '...' : 'Đang cập nhật'}</p>
 </div>
 <div class="item-action"><i class="fas fa-file-alt"></i> Chi tiết</div>
 </div>
@@ -808,7 +846,8 @@ goToStep(5);
 
 //Quay lại Bước 4 (Lịch sử khám)
 document.getElementById('btnBackToVisits').addEventListener('click', () => {
-loadVisits(selectedPatientId, selectedPatientName);
+    // Không cần truyền ID và tên, chỉ cần gọi lại loadVisits với data đã lưu
+    loadVisits(selectedPatientData.id_benhnhan, selectedPatientData.ho_ten);
 });
 
 //--- Xử lý sự kiện tải PDF (Mô phỏng)---
