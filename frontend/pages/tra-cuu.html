@@ -411,6 +411,134 @@ margin-top: 0;
 .lookup-header h2 {font-size: 30px;}
 .lookup-form-container {padding: 30px 20px;}
 }
+.info-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.info-card {
+    background: var(--bg-light);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-top: 3px solid var(--primary-light);
+    flex: 1 1 300px; /* Linh hoạt, tối thiểu 300px rộng */
+}
+.info-card h5 {
+    font-size: 16px;
+    color: var(--primary-dark);
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+.info-card p, .info-card small {
+    color: var(--text-color);
+    line-height: 1.5;
+}
+.info-card strong {
+    font-weight: 600;
+    color: #000;
+}
+
+/* Chi tiết Hồ sơ (Bước 5) - Bố cục 2 cột */
+.visit-detail-layout {
+    display: flex;
+    gap: 20px;
+}
+.main-details {
+    flex: 2; /* 2/3 không gian */
+}
+.side-details {
+    flex: 1; /* 1/3 không gian */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.side-card {
+    padding: 20px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid #ddd;
+}
+.side-card h5 {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* Bảng Đơn thuốc (Mới) */
+.medication-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.medication-table th, .medication-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.medication-table th {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.medication-table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+/* ===== CSS BỔ SUNG CHO GIAO DIỆN MÊ HỒN ===== */
+
+.stunning-card {
+    padding: 0; /* Xóa padding cũ để padding nằm trong header và content */
+    border: 1px solid #ddd;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.stunning-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-stunning {
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-family: 'Oswald', sans-serif;
+}
+.card-header-stunning h5 {
+    color: white; /* Đảm bảo tiêu đề màu trắng */
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+}
+.card-header-stunning i {
+    font-size: 24px;
+}
+
+.card-content-stunning {
+    padding: 20px;
+    background: #ffffff;
+}
+
+.diagnosis-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    border-left: 4px solid #CC0000;
+    padding-left: 10px;
+}
+.symptoms-text {
+    font-size: 15px;
+    font-style: italic;
+    color: #4a4a4a;
+}
 </style>
 </head>
 
@@ -513,13 +641,19 @@ Tổng đài Hỗ trợ: 1900.1234
 <div id="contentStep4" class="step-content">
 <h4 id="visitHistoryTitle">Lịch sử các lần khám của Bệnh nhân:</h4>
 
-<div id="patientDetailBox" style="background: #f0f7ff; padding: 15px; margin-bottom: 25px; border-left: 5px solid var(--primary-color); border-radius: 8px;">
-    <strong><i class="fas fa-user-circle" style="color: var(--primary-color); margin-right: 5px;"></i> Thông tin Bệnh nhân:</strong> <span id="bnHoTen"></span><br>
-    <small style="margin-left: 20px;">
-        SĐT: <strong id="bnPhone"></strong> | 
-        Ngày sinh: <strong id="bnNgaySinh"></strong> | 
-        Giới tính: <strong id="bnGioiTinh"></strong>
-    </small>
+<div class="info-card-container">
+    <div class="info-card" style="flex: 1 1 45%;">
+        <h5><i class="fas fa-user-circle" style="color: var(--primary-color); margin-right: 5px;"></i> Thông tin Bệnh nhân</h5>
+        <p>Họ tên: <strong><span id="bnHoTen"></span></strong></p>
+        <p>Ngày sinh: <strong><span id="bnNgaySinh"></span></strong></p>
+        <p>Giới tính: <strong><span id="bnGioiTinh"></span></strong></p>
+    </div>
+    <div class="info-card" style="flex: 1 1 45%;">
+        <h5><i class="fas fa-id-card" style="color: var(--primary-color); margin-right: 5px;"></i> Thông tin Liên hệ & Hồ sơ</h5>
+        <p>SĐT: <strong><span id="bnPhone"></span></strong></p>
+        <p>Mã BHYT: <strong><span id="bnBHYT"></span></strong></p>
+        <p>ID Hồ sơ: <strong><span id="bnID"></span></strong></p>
+    </div>
 </div>
 <div id="visitList" class="visit-list">
 </div>
@@ -529,10 +663,12 @@ Tổng đài Hỗ trợ: 1900.1234
 </div>
 
 <div id="contentStep5" class="step-content">
-<h4 id="detailTitle">CHI TIẾT HỒ SƠ KHÁM BỆNH</h4>
-<div id="visitDetails" class="visit-detail-container">
+<h4 id="detailTitle">CHI TIẾT HỒ SƠ BỆNH ÁN</h4>
+<div class="visit-detail-layout" id="visitDetails">
+    <div id="visitDetails" class="visit-detail-container">
 </div>
-<button id="btnDownload" class="btn-primary" style="margin-top: 20px;" type="button">
+
+<button id="btnDownload" class="btn-primary" style="margin-top: 30px;" type="button">
 <i class="fas fa-file-pdf"></i> Tải Hồ sơ Khám bệnh (PDF)
 </button>
 <button id="btnBackToVisits" class="btn-primary btn-back" type="button">
@@ -770,6 +906,8 @@ if (selectedPatientData && selectedPatientData.id_benhnhan) {
     document.getElementById('bnPhone').textContent = currentPhoneNumber; // Lấy SĐT từ biến global
     document.getElementById('bnNgaySinh').textContent = formatDate(selectedPatientData.ngay_sinh);
     document.getElementById('bnGioiTinh').textContent = selectedPatientData.gioi_tinh || 'N/A';
+     document.getElementById('bnBHYT').textContent = selectedPatientData.so_bhyt || 'N/A';
+document.getElementById('bnID').textContent = selectedPatientData.id_benhnhan;
 }
 // ==========================================================
 
