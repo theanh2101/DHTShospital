@@ -91,11 +91,11 @@
 
         // ✅ Nếu đăng nhập thành công thì chuyển trang theo role
         if (data.role === "BACSI") {
-          window.location.href = "doctor.html";
+          window.location.href = "/frontend/pages/nhanvien/quanly/doctor.html";
         } else if (data.role === "LETAN") {
-          window.location.href = "reception.html";
+          window.location.href = "/frontend/pages/nhanvien/quanly/reception.html";
         } else if (data.role === "ADMIN") {
-          window.location.href = "manage.html";
+          window.location.href = "/frontend/pages/nhanvien/quanly/manage.account.html";
         } else {
           errorMsg.textContent = "Không xác định được vai trò!";
         }
