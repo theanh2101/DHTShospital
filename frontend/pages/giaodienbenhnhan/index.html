@@ -708,6 +708,21 @@ ul {list-style: none;}
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
 }
+/* Tùy chỉnh icon Zalo (dùng icon WhatsApp) */
+.floating-phone-btn .fa-whatsapp, 
+.action-card .fa-whatsapp,
+.consult-action .fa-whatsapp {
+    /* Màu xanh Zalo chuẩn */
+    color: #0087FF !important; 
+}
+
+/* Đổi màu nền nút nổi để phù hợp với Zalo */
+.floating-phone-btn {
+    background: #E6F3FF; /* Nền xanh nhạt Zalo */
+}
+.floating-phone-btn:hover {
+    background: #cceeff;
+}
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {
@@ -1007,11 +1022,11 @@ ul {list-style: none;}
     </section>
 
     <section class="shortcuts-v2">
-        <a href="tel:19999999999" class="action-box-link">
+        <a href="https://zalo.me/0382773307" class="action-box-link" target="_blank">
             <div class="action-card">
-                <i class="fas fa-phone-volume"></i>
-                <h3>Gọi tổng đài</h3>
-                <p>Đặt lịch nhanh qua tổng đài: 1999.999.9999</p>
+                <i class="fab fa-whatsapp"></i>
+                <h3>Chat Zalo</h3>
+                <p>Tư vấn nhanh chóng qua Zalo 24/7</p>
             </div>
         </a>
         <a href="dat-lich.html" class="action-box-link">
@@ -1088,11 +1103,11 @@ ul {list-style: none;}
                 <p>Thương hiệu DHST - An toàn mọi đối tượng - An tâm với bệnh nền</p>
             </div>
             <div class="consult-action">
-                <a href="tel:08686868686" class="call-button">
-                    <i class="fas fa-phone-alt"></i>
+                <a href="https://zalo.me/0382773307" class="call-button" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
                     <div>
-                        <span>ĐĂNG KÝ TƯ VẤN</span><br>
-                        <strong>0868.686.8686</strong>
+                        <span>CHAT VỚI CHUYÊN VIÊN</span><br>
+                        <strong>Chat Zalo Ngay</strong>
                     </div>
                 </a>
             </div>
@@ -1217,12 +1232,12 @@ ul {list-style: none;}
 
 <!-- Chatbox -->
   <div class="floating-button-group">
-    <a href="tel:19001234" class="floating-phone-btn">
+    <a href="https://zalo.me/0382773307" class="floating-phone-btn" target="_blank">
         <i class="fas fa-phone-alt"></i>
     </a>
     
     <div class="chat-toggle-button" id="chatToggleButton">
-        <i class="fas fa-comment-dots"></i>
+        <i class="fab fa-whatsapp"></i>
     </div>
 </div>
 

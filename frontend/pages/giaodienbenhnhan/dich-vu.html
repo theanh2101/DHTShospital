@@ -315,6 +315,15 @@ ul {list-style: none;}
   letter-spacing:0.5px;
   box-shadow:0 -5px 15px rgba(0,0,0,0.2);
 }
+/* CSS MỚI ĐỂ ĐỊNH DẠNG ICON ZALO */
+.gateway-icon .fab.fa-whatsapp {
+color: #0087FF; /* Màu xanh Zalo chuẩn */
+}
+
+/* Định dạng lại màu nền và icon khi hover cho Zalo */
+.gateway-card:hover .gateway-icon .fab.fa-whatsapp {
+color: #074a8d; /* Màu xanh đậm khi hover */
+}
 
 /* === RESPONSIVE === */
 @media (max-width:768px) {
@@ -385,23 +394,41 @@ ul {list-style: none;}
               </a>
           </div>
 
-          <div class="gateway-card">
-              <a href="hoi-dap.html">
-                  <div class="gateway-icon"><i class="fas fa-comments"></i></div>
-                  <h3>TƯ VẤN SỨC KHỎE 24/7</h3>
-                  <p>Kết nối trực tiếp với chuyên gia DHST để giải đáp thắc mắc về triệu chứng, thuốc men hoặc quy trình khám.</p>
-                  <span class="gateway-action">TƯ VẤN ONLINE →</span>
-              </a>
-          </div>
+          
 
           <div class="gateway-card">
-              <a href="tel:19001234">
-                  <div class="gateway-icon"><i class="fas fa-headset"></i></div>
-                  <h3>GỌI TỔNG ĐÀI HỖ TRỢ</h3>
-                  <p>Liên hệ qua tổng đài để được hướng dẫn đặt lịch khẩn cấp, tra cứu thông tin hoặc giải quyết sự cố ngay.</p>
-                  <span class="gateway-action">GỌI NGAY →</span>
-              </a>
-          </div>
+ <a href="https://zalo.me/0382773307" target="_blank">
+<div class="gateway-icon"><i class="fab fa-whatsapp"></i></div>
+ <h3>CHAT ZALO HỖ TRỢ 24/7</h3>
+ <p>Nhắn tin trực tiếp với nhân viên tư vấn để giải đáp thắc mắc về quy trình hoặc thông tin dịch vụ.</p>
+<span class="gateway-action">CHAT NGAY →</span>
+ </a>
+ </div>
+      
+ <div class="gateway-card">
+ <a href="tin-tuc.html">
+ <div class="gateway-icon"><i class="fas fa-newspaper"></i></div>
+<h3>ĐỌC TIN TỨC Y HỌC</h3>
+<p>Cập nhật các tin tức hoạt động, kiến thức sức khỏe mới nhất từ đội ngũ chuyên gia DHST.</p>
+<span class="gateway-action">XEM NGAY →</span>
+ </a>
+</div>    
+ <div class="gateway-card">
+ <a href="bac-si.html">
+ <div class="gateway-icon"><i class="fas fa-user-md"></i></div>
+ <h3>ĐỘI NGŨ CHUYÊN GIA</h3>
+ <p>Xem thông tin chi tiết về kinh nghiệm và chuyên môn của đội ngũ bác sĩ, chuyên gia hàng đầu.</p>
+ <span class="gateway-action">XEM NGAY →</span>
+</a>
+ </div>
+ <div class="gateway-card">
+<a href="thiet-bi.html">
+ <div class="gateway-icon"><i class="fas fa-microscope"></i></div>
+ <h3>THIẾT BỊ & CÔNG NGHỆ</h3>
+ <p>Tìm hiểu về các thiết bị y tế hiện đại và công nghệ tiên tiến mà bệnh viện đang sử dụng.</p>
+<span class="gateway-action">XEM NGAY →</span>
+</a>
+</div>
       </div>
 
       <div class="final-action-banner">
