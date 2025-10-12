@@ -47,17 +47,37 @@ exports.getVisitsByPatientId = async (patientId) => {
 
 // 3. Lấy chi tiết hồ sơ khám bệnh theo ID Lịch khám
 exports.getVisitDetails = async (lichKhamId) => {
+    console.log(`[DB] Đang lấy chi tiết Hồ sơ Khám Bệnh cho ID_LK: ${lichKhamId}`);
+
     const [rows] = await db.execute(
         `SELECT 
             hkb.chan_doan, 
             hkb.trieu_chung, 
             hkb.thuoc_ke_don, 
             hkb.ghi_chu,
-            lk.ket_qua
+            
+            -- Thông tin Lịch khám (LK) và Đặt lịch (DL)
+            lk.ngay_kham,
+            
+            -- Thông tin Bác sĩ (BS) và Khoa (K)
+            bs.ho_ten AS ten_bacsi, /* Tên BS */
+            k.ten_khoa AS chuyen_khoa, /* Tên Khoa */
+
+            -- Thông tin Bệnh nhân (BN) - Có thể dùng để đối chiếu
+            bn.ho_ten AS ho_ten_bn,
+            bn.ngay_sinh AS ngay_sinh_bn,
+            bn.gioi_tinh AS gioi_tinh_bn
+            
         FROM hosokhambenh hkb
         JOIN lichkham lk ON hkb.id_lichkham = lk.id_lichkham
+        JOIN datlich dl ON lk.id_datlich = dl.id_datlich /* Liên kết tới Đặt Lịch */
+        LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan /* Liên kết tới Bệnh Nhân */
+        LEFT JOIN bacsi bs ON dl.id_bacsi = bs.id_bacsi /* Liên kết tới Bác Sĩ */
+        LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa /* Liên kết tới Khoa */
         WHERE hkb.id_lichkham = ?`,
         [lichKhamId]
     );
-    return rows[0];
+
+    console.log(`[DB] Đã lấy chi tiết hồ sơ thành công.`);
+    return rows[0]; // Trả về đối tượng chi tiết hồ sơ duy nhất
 };
