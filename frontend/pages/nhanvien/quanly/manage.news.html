@@ -23,6 +23,17 @@
     display:flex;align-items:center;gap:10px;color:#cbd5e1;
     text-decoration:none;padding:12px 14px;border-radius:10px;transition:all .25s;
   }
+
+.submenu-group { display:flex; flex-direction:column; }
+.submenu { display:none; flex-direction:column; margin-left:24px; margin-top:4px; }
+.submenu a {
+  font-size:14px; color:#cbd5e1; padding:10px 12px;
+  border-radius:8px; transition:all .25s;
+}
+.submenu a:hover { background:rgba(255,255,255,0.1); color:#fff; transform:translateX(4px); }
+.submenu.show { display:flex; }
+
+
   .nav a:hover,.nav a.active{background:var(--primary);color:#fff;transform:translateX(4px);}
   .nav a i{width:20px;text-align:center;}
 
@@ -93,10 +104,22 @@
   <aside class="sidebar">
     <div class="brand"><i class="fas fa-hospital"></i> DHST Hospital</div>
     <nav class="nav">
-      <a href="manage.account.html"><i class="fas fa-user-cog"></i> Quản lý tài khoản</a>
-      <a href="manage.nhanvien.html"><i class="fas fa-user-friends"></i> Quản lý nhân viên</a>
-      <a class="active" href="#"><i class="fas fa-newspaper"></i> Quản lý bài viết</a>
-    </nav>
+  <a href="manage.account.html"><i class="fas fa-user-cog"></i> Quản lý tài khoản</a>
+  <div class="submenu-group">
+  <a href="#" id="toggleNhanVien"><i class="fas fa-user-friends"></i> Quản lý nhân viên 
+    <i class="fas fa-chevron-down" style="margin-left:auto;font-size:12px;"></i>
+  </a>
+  <div id="submenuNhanVien" class="submenu">
+    <a href="manage.bacsi.html"><i class="fas fa-user-md"></i> Quản lý bác sĩ</a>
+    <a href="manage.letan.html"><i class="fas fa-concierge-bell"></i> Quản lý lễ tân</a>
+  </div>
+</div>
+
+<!-- ✅ Mục riêng: Quản lý lịch làm việc -->
+    <a href="manage.lichlamviec.html"><i class="fas fa-calendar-alt"></i> Quản lý lịch làm việc</a>
+
+    <a class="active" href="manage.news.html"><i class="fas fa-newspaper"></i> Quản lý bài viết</a>
+</nav>
   </aside>
 
   <main class="main">
@@ -464,6 +487,15 @@ confirmOverlay.addEventListener("click", (e)=>{ if(e.target === confirmOverlay) 
 
 /* initial load */
 loadNews();
+
+// Toggle submenu Quản lý nhân viên
+const toggleNhanVien = document.getElementById("toggleNhanVien");
+const submenuNhanVien = document.getElementById("submenuNhanVien");
+toggleNhanVien.onclick = (e) => {
+  e.preventDefault();
+  submenuNhanVien.classList.toggle("show");
+};
+
 
 </script>
 </body>

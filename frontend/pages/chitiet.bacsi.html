@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết bác sĩ - DHST Hospital</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root{
+    --primary:#2563eb; --bg:#f9fafb; --card:#fff;
+    --text:#1e293b; --muted:#6b7280; --radius:14px; --shadow:0 10px 30px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;font-family:"Inter",sans-serif;margin:0;padding:0;}
+  body{display:flex;min-height:100vh;background:var(--bg);color:var(--text);}
+  .main{flex:1;padding:32px;overflow:auto;}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+  header h1{font-size:26px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;max-width:700px;}
+  .info-item{margin-bottom:16px;}
+  .label{font-weight:600;color:var(--muted);}
+  .value{font-size:17px;margin-top:4px;}
+  .back-btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer;transition:.25s;margin-bottom:20px;}
+  .back-btn:hover{opacity:.9;transform:translateY(-2px);}
+  img{border-radius:12px;box-shadow:var(--shadow);max-width:180px;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <header>
+    <h1><i class="fas fa-id-card"></i> Chi tiết bác sĩ</h1>
+  </header>
+
+  <button class="back-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Quay lại</button>
+
+  <section class="card" id="doctorDetail">
+    <p>Đang tải thông tin bác sĩ...</p>
+  </section>
+</main>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+   const id_bacsi = urlParams.get("id_bacsi") || urlParams.get("id");
+   const container = document.getElementById("doctorDetail");
+
+   if (!id_bacsi) {
+     container.innerHTML = "<p style='color:red;'>Không có ID bác sĩ.</p>";
+  } else {
+   // ⚠️ Đảm bảo URL này đúng với cổng và endpoint API của bạn
+     fetch(`http://localhost:3000/api/listdoctor/${id_bacsi}`)
+       .then(res => {
+       if (!res.ok) throw new Error("Không tìm thấy bác sĩ");
+         return res.json();
+     })
+       .then(doctor => {
+         // Đường dẫn ảnh phải là /uploads/doctor/tenfile.png
+         const defaultImage = 'https://i.pravatar.cc/180'; 
+        const imageUrl = doctor.hinh_anh && doctor.hinh_anh.startsWith('/uploads') 
+            ? `http://localhost:3000${doctor.hinh_anh}` // Sử dụng đường dẫn tuyệt đối để chắc chắn
+            : defaultImage;
+            
+        // Nếu bạn chắc chắn ảnh là đường dẫn tương đối, có thể dùng:
+        // const imageUrl = doctor.hinh_anh || defaultImage;
+
+
+        container.innerHTML = `
+        <h2 style="margin-bottom:20px;"><i class="fas fa-user-md"></i> ${doctor.ho_ten}</h2>
+                <img src="${imageUrl}" alt="Ảnh bác sĩ ${doctor.ho_ten}">
+
+          <div class="info-item"><div class="label">Mã bác sĩ:</div><div class="value">${doctor.id_bacsi}</div></div>
+           <div class="info-item"><div class="label">Khoa:</div><div class="value">${doctor.ten_khoa || "Đang cập nhật"}</div></div>
+          <div class="info-item"><div class="label">Học vị:</div><div class="value">${doctor.hoc_vi}</div></div>
+          <div class="info-item"><div class="label">Chức vụ:</div><div class="value">${doctor.chuc_vu}</div></div>
+          <div class="info-item"><div class="label">Chuyên môn:</div><div class="value">${doctor.chuyen_mon || "Chưa cập nhật"}</div></div>
+          <div class="info-item"><div class="label">Năm kinh nghiệm:</div><div class="value">${doctor.nam_kinh_nghiem || "N/A"} năm</div></div>
+          
+               <h3 style="margin-top:20px; color:var(--primary);">Quá trình đào tạo</h3>
+           <div class="value">${doctor.qua_trinh_dao_tao || "Chưa có thông tin"}</div>
+
+           <h3 style="margin-top:20px; color:var(--primary);">Thế mạnh & Kinh nghiệm</h3>
+          <div class="value">${doctor.the_manh_kinh_nghiem || "Chưa có thông tin"}</div>
+         `;
+       })
+      .catch(err => {
+       console.error(err);
+       container.innerHTML = `<p style="color:red;">Không thể tải chi tiết bác sĩ. Vui lòng kiểm tra ID.</p>`;
+    });
+   }
+</script>
+</body>
+</html>

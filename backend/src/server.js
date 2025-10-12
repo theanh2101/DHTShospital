@@ -36,6 +36,7 @@ const newsRoutes = require("./routes/news.routes");
 const appointmentRoutes = require("./routes/datlich.routes.js");
 const chatRoutes = require('./routes/chat.routes.js');
 const patientRoutes = require("./routes/patient.routes"); // Đảm bảo đúng đường dẫn: ./routes/patientRoutes
+const listDoctorRoutes = require("./routes/listdoctor.routes"); // ✅ đúng tên file
 // 👉 PHỤC VỤ FILE TĨNH (HTML, CSS, JS, ảnh...)
 app.use(express.static(path.join(__dirname, "../../frontend/page")));
 
@@ -54,7 +55,7 @@ app.use("/api/news", newsRoutes);
 app.use("/api/datlich", appointmentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use("/api/patient", patientRoutes);
-
+app.use("/api/listdoctor", listDoctorRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: `Không tìm thấy route: ${req.originalUrl}` });
