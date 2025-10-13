@@ -681,48 +681,69 @@ ul {list-style: none;}
     gap: 12px; /* Khoảng cách lớn hơn */
 }
 .floating-btn {
-    width: 55px; /* Lớn hơn */
-    height: 55px; /* Lớn hơn */
-    background: var(--primary-color);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px; /* Icon lớn hơn */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: background 0.3s, transform 0.3s;
+ width: 55px; /* Lớn hơn */
+ height: 55px; /* Lớn hơn */
+ background: var(--primary-color);
+color: white;
+ border-radius: 50%;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ font-size: 24px; /* Icon lớn hơn */
+ box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+ cursor: pointer;
+transition: background 0.3s, transform 0.3s;
 }
 .floating-btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+background: var(--primary-dark);
+ transform: translateY(-3px);
+ box-shadow: 0 8px 20px rgba(0,0,0,0.4);
 }
 .floating-btn.chat {
-    background: var(--accent-color); /* Nút chat màu vàng */
-    color: var(--primary-dark); /* Chữ xanh đậm */
+ background: var(--accent-color); /* Nút chat màu vàng */
+ color: var(--primary-dark); /* Chữ xanh đậm */
 }
 .floating-btn.chat:hover {
-    background: #FFC107;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
-}
-/* Tùy chỉnh icon Zalo (dùng icon WhatsApp) */
-.floating-phone-btn .fa-whatsapp, 
-.action-card .fa-whatsapp,
-.consult-action .fa-whatsapp {
-    /* Màu xanh Zalo chuẩn */
-    color: #0087FF !important; 
+ background: #FFC107;
+ transform: translateY(-3px);
+ box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
 }
 
-/* Đổi màu nền nút nổi để phù hợp với Zalo */
-.floating-phone-btn {
-    background: #E6F3FF; /* Nền xanh nhạt Zalo */
+/* 1. Style cho Nút Zalo (Thay thế biểu tượng Phone bằng logo Zalo) */
+.floating-zalo-btn {
+ background: #0087FF; /* Màu xanh Zalo */
+ color: white;
 }
-.floating-phone-btn:hover {
-    background: #cceeff;
+.floating-zalo-btn:hover {
+background: #007acc; /* Xanh đậm hơn khi hover */
+ transform: scale(1.1);
 }
+/* Style cho hình ảnh Zalo logo bên trong nút nổi */
+.floating-zalo-btn .zalo-icon-floating-main {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    border-radius: 5px;
+}
+.zalo-icon {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+/* 2. Style cho Nút Chat Toggle (Sử dụng biểu tượng chat chung) */
+.chat-toggle-button {
+ background: var(--accent-color); /* Màu vàng nhấn cho nút chat toggle */
+ color: var(--primary-dark);
+}
+.chat-toggle-button:hover {
+     background: #FFC107;
+transform: scale(1.1);
+}
+.chat-toggle-button i {
+    font-size: 26px; /* Icon chat to hơn */
+}
+
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {
@@ -1165,8 +1186,8 @@ ul {list-style: none;}
             <div class="footer-contact-item">
                 <i class="fas fa-phone-alt"></i>
                 <div class="contact-detail">
-                    <strong>Tổng đài:</strong>
-                    <a href="tel:1900888666">1900.888.666</a>
+                    <strong>chat zalo :</strong>
+                     <a href="https://zalo.me/0382773307" class="action-box-link" target="_blank">0382773307</a>
                 </div>
             </div>
             <div class="footer-contact-item">
@@ -1190,15 +1211,13 @@ ul {list-style: none;}
         </div>
 
         <div class="footer-actions">
-            <a href="tel:1900888666" class="action-link-footer">
-                Gọi tổng đài <i class="fas fa-arrow-right"></i>
+            <a href="https://zalo.me/0382773307" class="action-link-footer" target="_blank">
+                Chat tư vấn qua zalo <i class="fas fa-arrow-right"></i>
             </a>
             <a href="dat-lich.html" class="action-link-footer">
                 Đặt lịch khám <i class="fas fa-arrow-right"></i>
             </a>
-            <a href="hoi-dap.html" class="action-link-footer">
-                Hỏi đáp cùng chuyên gia <i class="fas fa-arrow-right"></i>
-            </a>
+           
             <a href="tra-cuu.html" class="action-link-footer">
                 Tra cứu kết quả xét nghiệm <i class="fas fa-arrow-right"></i>
             </a>
@@ -1232,8 +1251,8 @@ ul {list-style: none;}
 
 <!-- Chatbox -->
   <div class="floating-button-group">
-    <a href="https://zalo.me/0382773307" class="floating-phone-btn" target="_blank">
-        <i class="fas fa-phone-alt"></i>
+    <a href="https://zalo.me/0382773307" class="floating-btn floating-zalo-btn" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" class="zalo-icon">
     </a>
     
     <div class="chat-toggle-button" id="chatToggleButton">
