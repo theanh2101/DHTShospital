@@ -2,7 +2,9 @@
 --
 -- Host: localhost    Database: hospital_db
 -- ------------------------------------------------------
--- Server version	9.4.0
+-- Server version	9.4.0CREATE DATABASE hospital_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
