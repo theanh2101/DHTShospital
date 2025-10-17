@@ -1,8 +1,7 @@
 const NewsModel = require("../models/news.model");
-const path = require("path");
 const fs = require("fs");
 
-// 🧩 Hàm tạo slug từ tiêu đề
+// 🧩 Tạo slug từ tiêu đề (VD: "Tin mới hôm nay" → "tin-moi-hom-nay")
 function generateSlug(title) {
   return title
     .toLowerCase()
@@ -13,13 +12,22 @@ function generateSlug(title) {
 }
 
 const NewsController = {
-  // 📋 Lấy danh sách tất cả bài viết
+  // 📋 Lấy tất cả bài viết
   async getAll(req, res) {
     try {
       const news = await NewsModel.getAll();
-      res.status(200).json(news);
+
+      // 🖼️ Chuyển ảnh Binary → Base64 có prefix data URI
+      const formatted = news.map(item => ({
+        ...item,
+        image: item.image
+          ? `data:image/jpeg;base64,${item.image.toString("base64")}`
+          : null,
+      }));
+
+      res.status(200).json(formatted);
     } catch (err) {
-      console.error("❌ Lỗi lấy danh sách bài viết:", err);
+      console.error("❌ Lỗi getAll:", err);
       res.status(500).json({ error: "Không thể tải danh sách bài viết" });
     }
   },
@@ -30,36 +38,58 @@ const NewsController = {
       const { id } = req.params;
       const news = await NewsModel.getById(id);
       if (!news) return res.status(404).json({ error: "Không tìm thấy bài viết" });
+
+      news.image = news.image
+        ? `data:image/jpeg;base64,${news.image.toString("base64")}`
+        : null;
+
       res.json(news);
     } catch (err) {
-      console.error("❌ Lỗi lấy bài viết:", err);
+      console.error("❌ Lỗi getById:", err);
       res.status(500).json({ error: "Không thể tải bài viết" });
     }
   },
 
-  // 🧭 Lọc bài viết theo danh mục
+  // 🗂️ Lấy bài viết theo danh mục
   async getByCategory(req, res) {
     try {
-      const category = decodeURIComponent(req.params.category);
-      const filtered =
-        category === "Tất cả"
-          ? await NewsModel.getAll()
-          : await NewsModel.getByCategory(category);
-      res.json(filtered);
+      const { category } = req.params;
+      const news = await NewsModel.getByCategory(category);
+
+      const formatted = news.map(item => ({
+        ...item,
+        image: item.image
+          ? `data:image/jpeg;base64,${item.image.toString("base64")}`
+          : null,
+      }));
+
+      res.json(formatted);
     } catch (err) {
-      console.error("❌ Lỗi lọc bài viết:", err);
-      res.status(500).json({ error: "Không thể lọc bài viết" });
+      console.error("❌ Lỗi getByCategory:", err);
+      res.status(500).json({ error: "Không thể tải bài viết theo danh mục" });
     }
   },
 
-  // ➕ Thêm bài viết mới
+  // ➕ Thêm bài viết mới (lưu ảnh vào DB)
   async create(req, res) {
     try {
       const { title, summary, content, author, category } = req.body;
       if (!title || !content)
         return res.status(400).json({ error: "Thiếu tiêu đề hoặc nội dung" });
 
-      const image = req.file ? `/uploads/news/${req.file.filename}` : null;
+      let imageBuffer = null;
+
+      // 🖼️ Có upload file qua form-data
+      if (req.file) {
+        imageBuffer = fs.readFileSync(req.file.path);
+        fs.unlinkSync(req.file.path); // ✅ Xóa file tạm
+      }
+
+      // 🖼️ Hoặc gửi ảnh Base64 qua body JSON
+      if (!imageBuffer && req.body.imageBase64) {
+        imageBuffer = Buffer.from(req.body.imageBase64, "base64");
+      }
+
       const slug = generateSlug(title);
       const status = "published";
 
@@ -68,7 +98,7 @@ const NewsController = {
         slug,
         summary,
         content,
-        image,
+        image: imageBuffer,
         author,
         category,
         status,
@@ -76,51 +106,47 @@ const NewsController = {
 
       res.json({ message: "✅ Đăng bài thành công!", id: newId });
     } catch (err) {
-      console.error("❌ Lỗi tạo bài viết:", err);
+      console.error("❌ Lỗi create:", err);
       res.status(500).json({ error: "Không thể tạo bài viết" });
     }
   },
 
-  // ✏️ Cập nhật bài viết (giữ nguyên nội dung cũ nếu không nhập mới)
+  // ✏️ Cập nhật bài viết
   async update(req, res) {
     try {
       const { id } = req.params;
       const existing = await NewsModel.getById(id);
-      if (!existing)
-        return res.status(404).json({ error: "Không tìm thấy bài viết" });
+      if (!existing) return res.status(404).json({ error: "Không tìm thấy bài viết" });
 
       const { title, summary, content, author, category, status } = req.body;
+      let imageBuffer = existing.image;
 
-      // 🖼️ Xử lý ảnh (giữ ảnh cũ nếu không có ảnh mới)
-      let imagePath = existing.image;
       if (req.file) {
-        // Xóa ảnh cũ nếu có
-        if (existing.image) {
-          const oldPath = path.join(__dirname, "../../public", existing.image);
-          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-        }
-        imagePath = `/uploads/news/${req.file.filename}`;
+        imageBuffer = fs.readFileSync(req.file.path);
+        fs.unlinkSync(req.file.path);
       }
 
-      // 🧩 Giữ lại các trường cũ nếu không gửi mới
+      if (req.body.imageBase64) {
+        imageBuffer = Buffer.from(req.body.imageBase64, "base64");
+      }
+
       const updatedData = {
         title: title || existing.title,
         slug: title ? generateSlug(title) : existing.slug,
         summary: summary || existing.summary,
         content: content || existing.content,
-        image: imagePath,
+        image: imageBuffer,
         author: author || existing.author,
         category: category || existing.category,
         status: status || existing.status,
       };
 
       const affected = await NewsModel.update(id, updatedData);
-      if (affected === 0)
-        return res.status(404).json({ error: "Không thể cập nhật bài viết" });
+      if (affected === 0) return res.status(400).json({ error: "Không thể cập nhật bài viết" });
 
       res.json({ message: "✅ Cập nhật bài viết thành công!" });
     } catch (err) {
-      console.error("❌ Lỗi cập nhật bài viết:", err);
+      console.error("❌ Lỗi update:", err);
       res.status(500).json({ error: "Không thể cập nhật bài viết" });
     }
   },
@@ -132,39 +158,30 @@ const NewsController = {
       const news = await NewsModel.getById(id);
       if (!news) return res.status(404).json({ error: "Không tìm thấy bài viết" });
 
-      // Xóa ảnh nếu có
-      if (news.image) {
-        const imagePath = path.join(__dirname, "../../public", news.image);
-        if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-      }
-
       await NewsModel.delete(id);
       res.json({ message: "🗑️ Đã xóa bài viết thành công!" });
     } catch (err) {
-      console.error("❌ Lỗi xóa bài viết:", err);
+      console.error("❌ Lỗi delete:", err);
       res.status(500).json({ error: "Không thể xóa bài viết" });
     }
   },
 
-  // 🔄 Đổi trạng thái bài viết (ẩn / hiện)
- // 🔄 Đổi trạng thái bài viết (ẩn / hiện)
-async updateStatus(req, res) {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
+  // 🔄 Cập nhật trạng thái bài viết
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
 
-    const news = await NewsModel.getById(id);
-    if (!news)
-      return res.status(404).json({ error: "Không tìm thấy bài viết" });
+      const news = await NewsModel.getById(id);
+      if (!news) return res.status(404).json({ error: "Không tìm thấy bài viết" });
 
-    await NewsModel.updateStatus(id, status);
-    res.json({ message: "✅ Cập nhật trạng thái thành công!", status });
-  } catch (err) {
-    console.error("❌ Lỗi đổi trạng thái:", err);
-    res.status(500).json({ error: "Không thể cập nhật trạng thái bài viết" });
-  }
-},
-
+      await NewsModel.updateStatus(id, status);
+      res.json({ message: "✅ Cập nhật trạng thái thành công!", status });
+    } catch (err) {
+      console.error("❌ Lỗi updateStatus:", err);
+      res.status(500).json({ error: "Không thể cập nhật trạng thái bài viết" });
+    }
+  },
 };
 
 module.exports = NewsController;

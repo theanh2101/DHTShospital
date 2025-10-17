@@ -3,53 +3,103 @@
 <head>
   <meta charset="UTF-8">
   <title>Đăng nhập hệ thống</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0077cc, #00aaff);
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh; margin: 0;
+      height: 100vh;
+      margin: 0;
     }
+
     .login-card {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      width: 350px;
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      width: 360px;
       text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-sizing: border-box;
     }
+
+    .login-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
     .login-card h2 {
-      margin-bottom: 20px;
-      color: #0077cc;
+      margin-bottom: 30px;
+      color: #4facfe;
+      font-size: 28px;
+      letter-spacing: 1px;
     }
+
+    .input-group {
+      position: relative;
+      margin: 12px 0;
+      width: 100%;
+    }
+
+    .input-group i {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      color: #aaa;
+      font-size: 16px;
+      pointer-events: none; /* Không chặn click */
+    }
+
     .login-card input {
       width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
+      padding: 14px 16px 14px 40px; /* Padding-left đủ cho icon */
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
+
+    .login-card input:focus {
+      border-color: #4facfe;
+      box-shadow: 0 0 8px rgba(79,172,254,0.3);
+    }
+
     .login-card button {
       width: 100%;
-      padding: 12px;
-      background: #0077cc;
+      padding: 14px;
+      background: #4facfe;
       border: none;
       color: white;
-      border-radius: 6px;
+      border-radius: 10px;
       font-size: 16px;
       cursor: pointer;
-      transition: 0.3s;
-    }
-    .login-card button:hover {
-      background: #005fa3;
-    }
-    .error {
-      color: red;
+      transition: background 0.3s, transform 0.2s;
       margin-top: 10px;
+    }
+
+    .login-card button:hover {
+      background: #00aaff;
+      transform: translateY(-2px);
+    }
+
+    .error {
+      color: #ff4d4f;
+      margin-top: 14px;
       font-size: 14px;
+      min-height: 18px;
+    }
+
+    @media (max-width: 400px) {
+      .login-card {
+        width: 90%;
+        padding: 30px 20px;
+      }
     }
   </style>
 </head>
@@ -57,8 +107,14 @@
   <div class="login-card">
     <h2>Đăng nhập</h2>
     <form id="login-form">
-      <input type="text" id="username" placeholder="Tên đăng nhập" required>
-      <input type="password" id="password" placeholder="Mật khẩu" required>
+      <div class="input-group">
+        <i class="fa fa-user"></i>
+        <input type="text" id="username" placeholder="Tên đăng nhập" required>
+      </div>
+      <div class="input-group">
+        <i class="fa fa-lock"></i>
+        <input type="password" id="password" placeholder="Mật khẩu" required>
+      </div>
       <button type="submit">Đăng nhập</button>
     </form>
     <div class="error" id="error-msg"></div>
@@ -89,11 +145,10 @@
           return;
         }
 
-        // ✅ Nếu đăng nhập thành công thì chuyển trang theo role
         if (data.role === "BACSI") {
-          window.location.href = "/frontend/pages/nhanvien/quanly/doctor.html";
+          window.location.href = "/frontend/pages/nhanvien/bacsi/doctor.html";
         } else if (data.role === "LETAN") {
-          window.location.href = "/frontend/pages/nhanvien/quanly/reception.html";
+          window.location.href = "/frontend/pages/nhanvien/letan/reception.html";
         } else if (data.role === "ADMIN") {
           window.location.href = "manage.account.html";
         } else {

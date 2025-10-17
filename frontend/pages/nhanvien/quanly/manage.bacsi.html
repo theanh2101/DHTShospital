@@ -126,54 +126,48 @@
     const tbody = document.getElementById("doctorTbody");
     tbody.innerHTML = `<tr><td colspan="5">Đang tải dữ liệu...</td></tr>`;
 
-    try {
-      const res = await fetch("http://localhost:3000/api/listdoctor");
+  try {
+  const res = await fetch("http://localhost:3000/api/listdoctor");
 
-      // Kiểm tra HTTP status
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+  if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
-      const doctors = await res.json();
-      console.log("Dữ liệu bác sĩ:", doctors); // kiểm tra trong console
+  const result = await res.json();
+  console.log("Dữ liệu bác sĩ:", result);
 
-      if (!doctors || doctors.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5">Chưa có bác sĩ nào!</td></tr>`;
-        return;
-      }
+  const doctors = result.data || result; // ✅ thêm dòng này
 
-      tbody.innerHTML = ""; // xóa thông báo tải dữ liệu
-
-      doctors.forEach(bs => {
-        // kiểm tra các thuộc tính để tránh undefined
-      const id = bs.id_bacsi || "N/A";
-      const name = bs.hoten || bs.ho_ten || "N/A";
-      const dept = bs.tenkhoa || bs.ten_khoa || "N/A"; // Nếu muốn tên khoa, cần join bảng khoa
-      const degree = bs.hocvi || bs.hoc_vi || "N/A";
-      const position = bs.chucvu || bs.chuc_vu||"N/A"; // DB không có, để trống hoặc bỏ cột
-
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${id}</td>
-          <td>${name}</td>
-          <td>${dept}</td>
-          <td>${degree}</td>
-          <td>${position}</td>
-        `;
-        tr.style.cursor = "pointer";
-        tr.onclick = () => {
-          window.location.href = `chitiet.bacsi.html?id=${id}`;
-        };
-        tbody.appendChild(tr);
-      });
-    } catch (err) {
-      console.error("Lỗi khi tải danh sách bác sĩ:", err);
-      tbody.innerHTML = `<tr><td colspan="5">Không thể tải dữ liệu. Xem console để biết chi tiết.</td></tr>`;
-      alert("Không thể tải danh sách bác sĩ! Kiểm tra console để biết chi tiết.");
-    }
+  if (!doctors.length) {
+    tbody.innerHTML = `<tr><td colspan="5">Chưa có bác sĩ nào!</td></tr>`;
+    return;
   }
 
+  tbody.innerHTML = "";
+  doctors.forEach(bs => {
+    const id = bs.id_bacsi || "N/A";
+    const name = bs.hoten || bs.ho_ten || "N/A";
+    const dept = bs.tenkhoa || bs.ten_khoa || "N/A";
+    const degree = bs.hocvi || bs.hoc_vi || "N/A";
+    const position = bs.chucvu || bs.chuc_vu || "N/A";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${id}</td>
+      <td>${name}</td>
+      <td>${dept}</td>
+      <td>${degree}</td>
+      <td>${position}</td>
+    `;
+    tr.style.cursor = "pointer";
+    tr.onclick = () => {
+      window.location.href = `chitiet.bacsi.html?id=${id}`;
+    };
+    tbody.appendChild(tr);
+  });
+} catch (err) {
+  console.error("Lỗi khi tải danh sách bác sĩ:", err);
+  tbody.innerHTML = `<tr><td colspan="5">Không thể tải dữ liệu. Xem console để biết chi tiết.</td></tr>`;
+}
+  }
   loadDoctors();
 </script>
 </body>

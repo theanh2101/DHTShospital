@@ -5,16 +5,16 @@ const path = require("path");
 const fs = require("fs");
 const NewsController = require("../controllers/news.controller");
 
-// ================== CẤU HÌNH LƯU FILE ẢNH ==================
+// ================== CẤU HÌNH LƯU ẢNH TẠM ==================
+// Ảnh chỉ được lưu tạm trong thư mục "temp_uploads" để đọc vào buffer rồi xóa
+const tempDir = path.join(__dirname, "../../temp_uploads");
+fs.mkdirSync(tempDir, { recursive: true }); // đảm bảo thư mục tồn tại
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // ✅ Đường dẫn tuyệt đối ra thư mục public/uploads/news
-    const uploadPath = path.join(__dirname, "../../public/uploads/news");
-    fs.mkdirSync(uploadPath, { recursive: true }); // Tự tạo nếu chưa có
-    cb(null, uploadPath);
+    cb(null, tempDir);
   },
   filename: function (req, file, cb) {
-    // ✅ Đặt tên file duy nhất theo timestamp
     const uniqueName = Date.now() + path.extname(file.originalname);
     cb(null, uniqueName);
   },
@@ -24,27 +24,25 @@ const upload = multer({ storage });
 
 // ================== CÁC ROUTE TIN TỨC ==================
 
-// 📌 Lấy toàn bộ tin tức
+// 📋 Lấy toàn bộ tin tức
 router.get("/", NewsController.getAll);
 
-// 📌 Lấy tin tức theo phân loại
+// 📁 Lấy tin tức theo danh mục
 router.get("/category/:category", NewsController.getByCategory);
 
-// 📌 Lấy chi tiết theo ID
+// 🔍 Lấy chi tiết theo ID
 router.get("/:id", NewsController.getById);
 
-// 📌 Tạo mới tin tức (có upload ảnh)
+// ➕ Thêm bài viết mới (ảnh lưu binary)
 router.post("/", upload.single("image"), NewsController.create);
 
-// 📌 Cập nhật tin tức
+// ✏️ Cập nhật bài viết
 router.put("/:id", upload.single("image"), NewsController.update);
 
-// 📌 Xóa tin tức
-router.delete("/:id", NewsController.delete);
-
-// 🔄 Đổi trạng thái bài viết
+// 🔄 Cập nhật trạng thái
 router.patch("/:id/status", NewsController.updateStatus);
 
+// 🗑️ Xóa bài viết
+router.delete("/:id", NewsController.delete);
 
 module.exports = router;
-

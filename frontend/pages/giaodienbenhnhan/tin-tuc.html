@@ -478,23 +478,53 @@ const API_URL = "http://localhost:3000/api/news";
 let currentPage = 1;
 const perPage = 6;
 
-// ===== HIỂN THỊ TIN NỔI BẬT =====
+// ===== HÀM CHUYỂN ẢNH TỪ DB SANG BASE64 HIỂN THỊ =====
+function getImageUrl(news) {
+  if (!news.image) return "https://via.placeholder.com/400x250?text=No+Image";
+
+  // Nếu ảnh là object hoặc có data BLOB → chuyển base64
+  if (news.image.data) {
+    const base64String = `data:image/jpeg;base64,${arrayBufferToBase64(news.image.data)}`;
+    return base64String;
+  }
+
+  // Nếu ảnh là base64 string sẵn trong DB
+  if (typeof news.image === "string" && news.image.startsWith("data:image")) {
+    return news.image;
+  }
+
+  // Nếu là đường dẫn tương đối (từ /uploads)
+  if (typeof news.image === "string" && news.image.startsWith("/uploads")) {
+    return `http://localhost:3000${news.image}`;
+  }
+
+  // Còn lại (link trực tiếp hoặc lạ)
+  return news.image;
+}
+
+// ===== CHUYỂN ArrayBuffer -> Base64 =====
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
+  return window.btoa(binary);
+}
+
+// ===== TIN NỔI BẬT =====
 async function loadFeaturedNews() {
   try {
     const res = await fetch(API_URL);
     const newsList = await res.json();
     if (!newsList || newsList.length === 0) return;
 
-    // Chỉ lấy những tin đã published
-    const publishedNews = newsList.filter(news => news.status === 'published');
-    if (publishedNews.length === 0) return;
+    const published = newsList.filter(n => n.status === 'published');
+    if (published.length === 0) return;
 
-    const featured = publishedNews[0];
-    const imageUrl = featured.image
-      ? (featured.image.startsWith("/uploads") ? `http://localhost:3000${featured.image}` : featured.image)
-      : "https://via.placeholder.com/600x400?text=No+Image";
+    const featured = published[0];
+    const imageUrl = getImageUrl(featured);
 
-    const featuredCard = `
+    document.querySelector(".featured-news-card").innerHTML = `
       <div class="featured-img">
         <img src="${imageUrl}" alt="${featured.title}">
       </div>
@@ -503,99 +533,81 @@ async function loadFeaturedNews() {
         <h3>${featured.title}</h3>
         <p>${featured.summary || (featured.content ? featured.content.substring(0, 250) + "..." : "")}</p>
         <a href="#" onclick="viewDetail(${featured.id}); return false;">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
-      </div>
-    `;
-    document.querySelector(".featured-news-card").innerHTML = featuredCard;
+      </div>`;
   } catch (err) {
-    console.error("❌ Lỗi khi tải tin nổi bật:", err);
+    console.error("❌ Lỗi tải tin nổi bật:", err);
   }
 }
 
-// ===== HIỂN THỊ DANH SÁCH TIN (CÓ PHÂN TRANG) =====
+// ===== DANH SÁCH TIN (PHÂN TRANG) =====
 async function loadNews(api = API_URL, page = 1) {
   try {
     const res = await fetch(api);
     const allNews = await res.json();
 
-    // Lọc chỉ những tin đã published
-    const publishedNews = allNews.filter(news => news.status === 'published');
-
+    const published = allNews.filter(n => n.status === 'published');
     const container = document.getElementById("news-grid-container");
     container.innerHTML = "";
 
-    if (!publishedNews || publishedNews.length === 0) {
+    if (published.length === 0) {
       container.innerHTML = "<p style='text-align:center;'>Chưa có tin tức nào.</p>";
       document.querySelector(".pagination").style.display = "none";
       return;
     }
 
     const currentCategory = document.querySelector(".category-btn.active")?.textContent.trim();
-    const list = currentCategory === "Tất cả" ? publishedNews.slice(1) : publishedNews.filter(n => n.category === currentCategory);
+    const list = currentCategory === "Tất cả" ? published.slice(1) : published.filter(n => n.category === currentCategory);
 
     const totalPages = Math.ceil(list.length / perPage);
     const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const pageData = list.slice(start, end);
+    const pageData = list.slice(start, start + perPage);
 
-    pageData.forEach(news => {
-      const imageUrl = news.image
-        ? (news.image.startsWith("/uploads") ? `http://localhost:3000${news.image}` : news.image)
-        : "https://via.placeholder.com/400x250?text=No+Image";
-
+    for (const news of pageData) {
+      const imageUrl = getImageUrl(news);
       const date = new Date(news.created_at || Date.now()).toLocaleDateString("vi-VN");
-
-      const card = `
+      container.innerHTML += `
         <div class="news-card">
           <img src="${imageUrl}" alt="${news.title}">
           <div class="news-card-content">
             <span class="news-date"><i class="far fa-calendar-alt"></i> ${date}</span>
             <h3>${news.title}</h3>
-            <p>${news.summary || (news.content ? news.content.substring(0, 120) + "..." : "")}</p>
+            <p>${news.summary || (news.content ? news.content.substring(0, 120) + "...": "")}</p>
             <a href="#" onclick="viewDetail(${news.id}); return false;">Đọc thêm <i class="fas fa-arrow-right"></i></a>
           </div>
-        </div>
-      `;
-      container.innerHTML += card;
-    });
+        </div>`;
+    }
 
     renderPagination(totalPages, page, api);
   } catch (err) {
-    console.error("❌ Lỗi khi tải tin:", err);
+    console.error("❌ Lỗi tải danh sách tin:", err);
   }
 }
-
 
 // ===== PHÂN TRANG =====
 function renderPagination(totalPages, currentPage, api) {
   const pagination = document.querySelector(".pagination");
-  pagination.innerHTML = "";
-
-  pagination.innerHTML += `<a href="#" class="page-link" data-page="prev"><i class="fas fa-angle-left"></i></a>`;
-
-  for (let i = 1; i <= totalPages; i++) {
-    pagination.innerHTML += `<a href="#" class="page-link ${i === currentPage ? "active" : ""}" data-page="${i}">${i}</a>`;
-  }
-
-  pagination.innerHTML += `<a href="#" class="page-link" data-page="next"><i class="fas fa-angle-right"></i></a>`;
+  pagination.innerHTML = `
+    <a href="#" class="page-link" data-page="prev"><i class="fas fa-angle-left"></i></a>
+    ${Array.from({length: totalPages}, (_, i) =>
+      `<a href="#" class="page-link ${i+1===currentPage?"active":""}" data-page="${i+1}">${i+1}</a>`
+    ).join("")}
+    <a href="#" class="page-link" data-page="next"><i class="fas fa-angle-right"></i></a>`;
 
   pagination.querySelectorAll(".page-link").forEach(btn => {
     btn.addEventListener("click", e => {
       e.preventDefault();
       const type = btn.dataset.page;
-
       if (type === "prev" && currentPage > 1) currentPage--;
       else if (type === "next" && currentPage < totalPages) currentPage++;
       else if (!isNaN(type)) currentPage = parseInt(type);
-
       loadNews(api, currentPage);
     });
   });
 }
 
-// ===== LỌC THEO DANH MỤC =====
+// ===== LỌC DANH MỤC =====
 async function loadByCategory(category) {
   const featuredSection = document.querySelector(".featured-news-card");
-
   if (category === "Tất cả") {
     featuredSection.style.display = "flex";
     await loadFeaturedNews();
@@ -608,33 +620,24 @@ async function loadByCategory(category) {
 }
 
 // ===== XEM CHI TIẾT =====
-async function viewDetail(id) {
-  try {
-    localStorage.setItem("selectedNewsId", id);
-    window.location.href = "news-detail.html";
-  } catch (err) {
-    console.error("❌ Không thể xem chi tiết:", err);
-  }
+function viewDetail(id) {
+  localStorage.setItem("selectedNewsId", id);
+  window.location.href = "news-detail.html";
 }
 
-// ===== KHI TRANG TẢI XONG =====
+// ===== KHỞI ĐỘNG =====
 document.addEventListener("DOMContentLoaded", async () => {
   await loadFeaturedNews();
   await loadNews(API_URL, 1);
 
-  const categoryButtons = document.querySelectorAll(".category-btn");
-  categoryButtons.forEach(btn => {
+  document.querySelectorAll(".category-btn").forEach(btn => {
     btn.addEventListener("click", function() {
-      categoryButtons.forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".category-btn").forEach(b => b.classList.remove("active"));
       this.classList.add("active");
-      const category = this.textContent.trim();
-      loadByCategory(category);
+      loadByCategory(this.textContent.trim());
     });
   });
 });
 </script>
-
-
-
 </body>
 </html>

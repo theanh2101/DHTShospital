@@ -2,9 +2,6 @@ const express = require("express");
 const router = express.Router();
 const listDoctorController = require("../controllers/listdoctor.controller");
 
-console.log("🧩 Controller import:", listDoctorController);
-
-
 // 1️⃣ Lấy danh sách bác sĩ
 router.get("/", listDoctorController.getAllDoctors);
 

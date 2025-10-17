@@ -6,7 +6,6 @@ const Doctor = {
 // Lấy danh sách tất cả bác sĩ, kể cả những người chưa có khoa
   async getAll() {
     try {
-      // Thay INNER JOIN thành LEFT JOIN
       const sql = `
         SELECT 
             bs.id_bacsi, 
@@ -15,7 +14,7 @@ const Doctor = {
             bs.chuc_vu, 
             k.ten_khoa  -- Nếu bác sĩ chưa có khoa, cột này sẽ là NULL
         FROM bacsi bs
-        LEFT JOIN khoa k ON bs.id_khoa = k.id_khoa  -- Đã sửa thành LEFT JOIN
+        LEFT JOIN khoa k ON bs.id_khoa = k.id_khoa 
         ORDER BY bs.id_bacsi
       `;
       const [rows] = await pool.query(sql);

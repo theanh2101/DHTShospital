@@ -330,7 +330,17 @@ function renderNews(list){
   newsTbody.innerHTML = "";
   list.forEach(n=>{
     const id = n.id || n._id || n.ID || "";
-    const imgUrl = n.image ? (n.image.startsWith("http") ? n.image : API_BASE + n.image) : "";
+    let imgUrl = "";
+if (n.image) {
+  if (n.image.startsWith("data:image")) {
+    imgUrl = n.image; // ảnh base64
+  } else if (n.image.startsWith("http")) {
+    imgUrl = n.image; // ảnh URL đầy đủ
+  } else {
+    imgUrl = API_BASE + "/" + n.image.replace(/^\/+/, ""); // ảnh dạng đường dẫn tĩnh từ server
+  }
+}
+
     const status = (n.status || "draft").toLowerCase();
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -419,15 +429,33 @@ async function openEdit(n) {
     document.getElementById("content").value = data.content || "";
 
     // Ảnh
-    imageInput.value = "";
-    imageInput.dataset.oldImage = data.image || "";
-    if (data.image) {
-      imgPreview.src = data.image.startsWith("http") ? data.image : API_BASE + data.image;
-      imgPreview.style.display = "inline-block";
-    } else {
-      imgPreview.src = "";
-      imgPreview.style.display = "none";
-    }
+// ✅ Xử lý hiển thị ảnh (dù lưu trong DB dạng Base64 hay đường dẫn)
+imageInput.value = "";
+imageInput.dataset.oldImage = data.image || "";
+
+if (data.image) {
+  let imgSrc = "";
+
+  if (data.image.startsWith("data:image")) {
+    // ảnh Base64 đã có prefix
+    imgSrc = data.image;
+  } else if (/^[A-Za-z0-9+/=]+$/.test(data.image.trim())) {
+    // ảnh Base64 nhưng chưa có prefix
+    imgSrc = `data:image/jpeg;base64,${data.image}`;
+  } else if (data.image.startsWith("http")) {
+    // ảnh URL đầy đủ
+    imgSrc = data.image;
+  } else {
+    // ảnh dạng đường dẫn từ server
+    imgSrc = `${API_BASE}/${data.image.replace(/^\/+/, "")}`;
+  }
+
+  imgPreview.src = imgSrc;
+  imgPreview.style.display = "inline-block";
+} else {
+  imgPreview.src = "";
+  imgPreview.style.display = "none";
+}
 
   } catch(err) {
     console.error(err);
