@@ -470,7 +470,7 @@ white-space: nowrap;
     margin-bottom: 20px;
 }
 .simple-detail-row {
-    display: flex;
+    display: inline-block;
     justify-content: space-between;
     align-items: flex-start;
     padding-bottom: 15px;
@@ -491,7 +491,7 @@ white-space: nowrap;
     font-size: 16px; 
     color: var(--primary-dark);
     margin-bottom: 5px;
-    display: block;
+    display: inline-block;
     font-weight: 700;
 }
 .simple-detail-col p {
@@ -503,24 +503,27 @@ white-space: nowrap;
 
 /*--- Bảng Đơn thuốc ---*/
 .medication-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    font-size: 14px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 15px;
 }
-.medication-table th, .medication-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+
+.medication-table th,
+.medication-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
 }
+
 .medication-table th {
-    background: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    text-transform: uppercase;
+  background: #e8f5f3;
+  color: #006a5b;
+  font-weight: 600;
 }
+
 .medication-table tr:nth-child(even) {
-    background: #f8f8f8;
+  background: #fafafa;
 }
 
 /*--- FOOTER & RESPONSIVE ---*/
@@ -575,10 +578,7 @@ Tổng đài Hỗ trợ: 1900.1234
 <li><a href="dat-lich.html" class="nav-item">Đặt lịch khám</a></li>
 <li><a href="tra-cuu.html" class="nav-item active">Tra cứu kết quả</a></li>
 </ul>
-<div class="search-bar">
-<input type="text" placeholder="Tìm kiếm...">
-<button><i class="fas fa-search"></i></button>
-</div>
+
 </nav>
 </header>
 
@@ -673,6 +673,33 @@ Tổng đài Hỗ trợ: 1900.1234
 
     <div id="visitDetails" class="visit-detail-layout">
         
+        <div class="side-details">
+            <div class="side-card stunning-card">
+                <div class="card-header-stunning" style="background: var(--primary-light);">
+                    <i class="fas fa-user"></i>
+                    <h5>THÔNG TIN BỆNH NHÂN</h5>
+                </div>
+                <div class="card-content-stunning">
+                    <p>Họ tên: <strong><span id="dtHoTen">...</span></strong></p>
+                    <p>Ngày sinh: <strong><span id="dtNgaySinh">...</span></strong></p>
+                    <p>Giới tính: <strong><span id="dtGioiTinh">...</span></strong></p>
+                    <p>SĐT: <strong><span id="dtPhone">...</span></strong></p>
+                </div>
+            </div>
+
+            <div class="side-card stunning-card">
+                <div class="card-header-stunning" style="background: #f4b400;">
+                    <i class="fas fa-user-md"></i>
+                    <h5>BÁC SĨ ĐIỀU TRỊ</h5>
+                </div>
+                <div class="card-content-stunning">
+                    <p>Tên bác sĩ: <strong><span id="dtTenBS">...</span></strong></p>
+                    <p>Chuyên khoa: <strong><span id="dtChuyenKhoa">...</span></strong></p>
+                    <p>Mã HS: <strong><span id="dtMaHoSo">...</span></strong></p>
+                </div>
+            </div>
+        </div>
+        
         <div class="main-details">
             <div class="main-details-simple">
                 <div class="simple-detail-row">
@@ -718,32 +745,6 @@ Tổng đài Hỗ trợ: 1900.1234
             </div>
         </div>
 
-        <div class="side-details">
-            <div class="side-card stunning-card">
-                <div class="card-header-stunning" style="background: var(--primary-light);">
-                    <i class="fas fa-user"></i>
-                    <h5>THÔNG TIN BỆNH NHÂN</h5>
-                </div>
-                <div class="card-content-stunning">
-                    <p>Họ tên: <strong><span id="dtHoTen">...</span></strong></p>
-                    <p>Ngày sinh: <strong><span id="dtNgaySinh">...</span></strong></p>
-                    <p>Giới tính: <strong><span id="dtGioiTinh">...</span></strong></p>
-                    <p>SĐT: <strong><span id="dtPhone">...</span></strong></p>
-                </div>
-            </div>
-
-            <div class="side-card stunning-card">
-                <div class="card-header-stunning" style="background: #f4b400;">
-                    <i class="fas fa-user-md"></i>
-                    <h5>BÁC SĨ ĐIỀU TRỊ</h5>
-                </div>
-                <div class="card-content-stunning">
-                    <p>Tên bác sĩ: <strong><span id="dtTenBS">...</span></strong></p>
-                    <p>Chuyên khoa: <strong><span id="dtChuyenKhoa">...</span></strong></p>
-                    <p>Mã HS: <strong><span id="dtMaHoSo">...</span></strong></p>
-                </div>
-            </div>
-        </div>
     </div>
 
     <button id="btnDownload" class="btn-primary" style="margin-top: 30px;" type="button">
