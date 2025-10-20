@@ -3,214 +3,212 @@ const patientModel = require('../models/patientModel');
 const otpService = require('../services/otpService');
 const PDFDocument = require('pdfkit');
 const path = require('path');
-const fs = require('fs'); 
+const fs = require('fs');
 
-// --- Hàm tiện ích định dạng ngày tháng (từ Date object sang string) ---
-const formatDbDate = (dateObject) => {
-    if (dateObject instanceof Date) {
-        return dateObject.toISOString().substring(0, 10).split('-').reverse().join('/');
+// --- Hàm định dạng ngày (yyyy-mm-dd → dd/mm/yyyy)
+const formatDbDate = (dateValue) => {
+    if (!dateValue) return 'N/A';
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) {
+        return typeof dateValue === 'string' && dateValue.length <= 10
+            ? dateValue.split('-').reverse().join('/')
+            : 'N/A';
     }
-    return 'N/A';
+    return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
 };
 
-
-// --- 1. Gửi SĐT và Yêu cầu OTP (Giữ nguyên)
+// --- 1️⃣ Gửi số điện thoại và yêu cầu OTP ---
 exports.requestOtp = async (req, res) => {
     const { phoneNumber } = req.body;
 
-    if (!phoneNumber) {
+    if (!phoneNumber)
         return res.status(400).json({ message: 'Vui lòng cung cấp số điện thoại.' });
-    }
 
     try {
         const patients = await patientModel.findPatientsByPhone(phoneNumber);
 
         if (patients.length === 0) {
-            return res.status(404).json({ 
-                message: 'Thông báo: Không tìm thấy bệnh nhân nào có số điện thoại này trong hệ thống. Vui lòng kiểm tra lại.' 
+            return res.status(404).json({
+                message: 'Không tìm thấy bệnh nhân nào có số điện thoại này.'
             });
         }
 
         const success = await otpService.sendOtp(phoneNumber);
+        if (!success) throw new Error('Lỗi gửi OTP');
 
-        if (success) {
-            return res.json({ 
-                message: 'Tìm thấy thông tin. Mã OTP đã được gửi đến SĐT của bạn để xác thực.' 
-            });
-        } else {
-            return res.status(500).json({ message: 'Lỗi khi gửi OTP. Vui lòng thử lại.' });
-        }
-    } catch (error) {
-        console.error('Error requesting OTP:', error);
-        res.status(500).json({ message: 'Lỗi hệ thống khi tìm kiếm hoặc gửi OTP.' });
+        res.json({
+            message: 'Đã gửi mã OTP đến số điện thoại của bạn.',
+            phoneNumber
+        });
+    } catch (err) {
+        console.error('Error requestOtp:', err);
+        res.status(500).json({ message: 'Lỗi hệ thống khi gửi mã OTP.' });
     }
 };
 
-// --- 2. Xác thực OTP và Lấy danh sách bệnh nhân (Giữ nguyên)
+// --- 2️⃣ Xác thực OTP và lấy danh sách bệnh nhân ---
 exports.verifyOtpAndGetPatients = async (req, res) => {
     const { phoneNumber, otp } = req.body;
 
-    if (!phoneNumber || !otp) {
-        return res.status(400).json({ message: 'Vui lòng cung cấp số điện thoại và mã OTP.' });
-    }
-
-    const isValid = await otpService.verifyOtp(phoneNumber, otp);
-
-    if (!isValid) {
-        return res.status(401).json({ message: 'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.' });
-    }
+    if (!phoneNumber || !otp)
+        return res.status(400).json({ message: 'Thiếu số điện thoại hoặc mã OTP.' });
 
     try {
+        const isValid = await otpService.verifyOtp(phoneNumber, otp);
+        if (!isValid)
+            return res.status(401).json({ message: 'Mã OTP không hợp lệ hoặc hết hạn.' });
+
         const patients = await patientModel.findPatientsByPhone(phoneNumber);
 
-        return res.json({
+        res.json({
             message: 'Xác thực thành công.',
             patients: patients.map(p => ({
                 id_benhnhan: p.id_benhnhan,
                 ho_ten: p.ho_ten,
-                ngay_sinh: p.ngay_sinh,
+                ngay_sinh: formatDbDate(p.ngay_sinh),
                 gioi_tinh: p.gioi_tinh
             }))
         });
-
-    } catch (error) {
-        console.error('Error verifying OTP and getting patients:', error);
-        res.status(500).json({ message: 'Lỗi hệ thống.' });
+    } catch (err) {
+        console.error('Error verifyOtp:', err);
+        res.status(500).json({ message: 'Lỗi hệ thống khi xác thực OTP.' });
     }
 };
 
-// --- 3. Lấy danh sách lần khám của Bệnh nhân (Giữ nguyên)
+// --- 3️⃣ Lấy danh sách các lần khám của bệnh nhân ---
 exports.getPatientVisits = async (req, res) => {
     const { patientId } = req.params;
 
     try {
         const visits = await patientModel.getVisitsByPatientId(patientId);
+        if (!visits || visits.length === 0)
+            return res.status(404).json({ message: 'Bệnh nhân chưa có lần khám nào.' });
 
-        if (visits.length === 0) {
-            return res.status(404).json({ message: 'Bệnh nhân này chưa có lịch khám nào được lưu.' });
-        }
-
-        return res.json({ 
+        res.json({
             visits: visits.map(v => ({
                 id_lichkham: v.id_lichkham,
-                ngay_kham: v.ngay_kham,
+                ngay_kham: formatDbDate(v.ngay_kham),
                 khoa: v.ten_khoa,
                 bacsi: v.ten_bacsi,
-                chan_doan_tom_tat: v.ket_qua 
+                chan_doan_tom_tat: v.chan_doan || 'Chưa cập nhật'
             }))
         });
-    } catch (error) {
-        console.error('Error fetching patient visits:', error);
-        res.status(500).json({ message: 'Lỗi hệ thống.' });
+    } catch (err) {
+        console.error('Error getPatientVisits:', err);
+        res.status(500).json({ message: 'Lỗi hệ thống khi lấy danh sách khám.' });
     }
 };
 
-// --- 4. Lấy chi tiết của một Lần khám cụ thể (Giữ nguyên)
+// --- 4️⃣ Lấy chi tiết 1 lần khám ---
 exports.getVisitDetails = async (req, res) => {
     const { lichKhamId } = req.params;
 
     try {
         const details = await patientModel.getVisitDetails(lichKhamId);
+        if (!details)
+            return res.status(404).json({ message: 'Không tìm thấy hồ sơ khám bệnh.' });
 
-        if (!details) {
-            return res.status(404).json({ message: 'Không tìm thấy chi tiết hồ sơ khám bệnh cho lần khám này.' });
-        }
-
-        return res.json({ details });
-    } catch (error) {
-        console.error('Error fetching visit details:', error);
-        res.status(500).json({ message: 'Lỗi hệ thống.' });
+        res.json({ details });
+    } catch (err) {
+        console.error('Error getVisitDetails:', err);
+        res.status(500).json({ message: 'Lỗi hệ thống khi lấy chi tiết hồ sơ.' });
     }
 };
 
-// --- 5. Tải file PDF (ĐÃ SỬA LỖI ĐƯỜNG DẪN FONT VÀ TÊN FILE)
+// --- 5️⃣ Xuất PDF hồ sơ khám bệnh ---
 exports.downloadVisitPdf = async (req, res) => {
     const { lichKhamId } = req.params;
 
     try {
-        // 1️⃣ Lấy dữ liệu từ DB
         const details = await patientModel.getVisitDetails(lichKhamId);
+        console.log("details from model:", details);
+
         if (!details) {
-            return res.status(404).json({ message: 'Không tìm thấy dữ liệu hồ sơ để tạo PDF.' });
+            return res.status(404).json({ message: "Không tìm thấy dữ liệu hồ sơ để tạo PDF." });
         }
 
-        // 2️⃣ Chuẩn bị dữ liệu
-        const patientName = details.ho_ten_bn || 'Benh_nhan';
-        const doctorName = details.ten_bacsi || 'Bac_si';
+        // --- Chuẩn bị dữ liệu ---
+        const patientName = details.ten_benhnhan || 'Khong_ro_ten';
+        const doctorName = details.ten_bacsi || 'Không rõ';
+        const chuyenKhoa = details.ten_khoa || 'Không rõ';
         const ngayKhamFormatted = formatDbDate(details.ngay_kham);
-        const ngaySinhFormatted = formatDbDate(details.ngay_sinh_bn);
 
-        // Xử lý tên file an toàn
+        // --- Tên file PDF ---
         const rawFilename = `HoSoKhamBenh_${patientName.replace(/\s/g, '_')}_REC-${lichKhamId}.pdf`;
-        const asciiFilename = rawFilename.replace(/[^\x00-\x7F]/g, '_'); // bỏ dấu, ký tự lạ
+        const encodedFilename = encodeURIComponent(rawFilename);
 
-        // 3️⃣ Cấu hình phản hồi HTTP
-        const doc = new PDFDocument();
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodedFilename}`);
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader(
-            'Content-Disposition',
-            `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodeURIComponent(rawFilename)}`
-        );
-
+        // --- Tạo tài liệu PDF ---
+        const doc = new PDFDocument({ margin: 50 });
         doc.pipe(res);
 
-        // 4️⃣ Cấu hình font an toàn
-        const FONT_FILENAME = 'vietnam-font.ttf';
-        const VN_FONT_PATH = path.resolve(__dirname, '..', FONT_FILENAME);
-
-        if (fs.existsSync(VN_FONT_PATH)) {
-            doc.registerFont('Times-VN', VN_FONT_PATH);
-            doc.font('Times-VN');
+        // --- Font tiếng Việt ---
+        const fontPath = path.resolve(__dirname, '..', 'vietnam-font.ttf');
+        if (fs.existsSync(fontPath)) {
+            doc.registerFont('VN', fontPath);
+            doc.font('VN');
         } else {
-            console.warn('⚠ Font file not found, using Helvetica fallback');
+            console.warn('⚠ Font file không tồn tại, dùng Helvetica.');
             doc.font('Helvetica');
         }
 
-        // 5️⃣ Nội dung PDF
-        doc.fontSize(20).text('BỆNH ÁN ĐIỆN TỬ DHST HOSPITAL', { align: 'center' }).moveDown();
+        // --- Header ---
+        doc.fontSize(20).fillColor('#000').text('BỆNH ÁN ĐIỆN TỬ DHST HOSPITAL', { align: 'center' }).moveDown(1);
 
-        doc.fontSize(14).fillColor('#0A66C2').text('THÔNG TIN BỆNH NHÂN:').moveDown(0.5);
-        doc.fillColor('#333').fontSize(12)
-            .text(`- Họ tên: ${patientName}`).moveDown(0.1)
-            .text(`- Ngày sinh: ${ngaySinhFormatted}`, { continued: true })
-            .text(`   Giới tính: ${details.gioi_tinh_bn || 'N/A'}`).moveDown(0.2);
+        // --- Thông tin bệnh nhân ---
+        doc.fontSize(14).fillColor('#1565C0').text('THÔNG TIN BỆNH NHÂN:', { underline: true }).moveDown(0.5);
+        doc.fillColor('#000').fontSize(12);
+        doc.text(`- Họ tên: ${details.ten_benhnhan || 'Không rõ tên bệnh nhân'}`);
+        doc.text(`(ID: ${details.id_hoso || 'N/A'})`);
+        doc.text(`- Ngày sinh: ${formatDbDate(details.ngay_sinh)}   Giới tính: ${details.gioi_tinh || 'N/A'}`);
+        doc.text(`- Địa chỉ: ${details.dia_chi || 'N/A'}`);
+        doc.moveDown(1);
 
-        doc.fontSize(14).fillColor('#f4b400').text('BÁC SĨ & LẦN KHÁM:').moveDown(0.5);
-        doc.fillColor('#333').fontSize(12)
-            .text(`- Mã hồ sơ: REC-${lichKhamId}`, { continued: true })
-            .text(`   Ngày khám: ${ngayKhamFormatted}`).moveDown(0.2)
-            .text(`- Bác sĩ: BS. ${doctorName}`, { continued: true })
-            .text(`   Chuyên khoa: ${details.chuyen_khoa || 'N/A'}`).moveDown();
+        // --- Thông tin khám bệnh ---
+        doc.fontSize(14).fillColor('#f4b400').text('THÔNG TIN KHÁM BỆNH:', { underline: true }).moveDown(0.5);
+        doc.fillColor('#000').fontSize(12);
+        doc.text(`- Ngày khám: ${ngayKhamFormatted}`);
+        doc.text(`- Bác sĩ: BS. ${doctorName}   Chuyên khoa: ${chuyenKhoa}`);
+        doc.moveDown(1);
 
-        doc.fontSize(14).fillColor('#CC0000').text('CHI TIẾT BỆNH ÁN:').moveDown(0.5);
-        doc.fillColor('#333').fontSize(12)
-            .text(`Chẩn đoán: ${details.chan_doan || 'N/A'}`).moveDown(0.2)
-            .text(`Triệu chứng: ${details.trieu_chung || 'N/A'}`).moveDown(0.2)
-            .text(`Ghi chú BS: ${details.ghi_chu || 'Không có.'}`).moveDown();
+        // --- Chi tiết bệnh án ---
+        doc.fontSize(14).fillColor('#CC0000').text('CHI TIẾT BỆNH ÁN:', { underline: true }).moveDown(0.5);
+        doc.fillColor('#000').fontSize(12);
+        doc.text(`Chẩn đoán: ${details.chuan_doan || 'N/A'}`);
+        doc.text(`Triệu chứng: ${details.trieu_chung || 'N/A'}`);
+        doc.text(`Ghi chú BS: ${details.ghi_chu || 'Không có ghi chú'}`);
+        doc.moveDown(1);
 
-        doc.fontSize(14).fillColor('#28a745').text('ĐƠN THUỐC KÊ ĐƠN:').moveDown(0.5);
+        // --- Đơn thuốc kê đơn ---
+        doc.fontSize(14).fillColor('#28a745').text('ĐƠN THUỐC KÊ ĐƠN:', { underline: true }).moveDown(0.5);
+        doc.fillColor('#000');
+
         if (details.thuoc_ke_don) {
             try {
                 const meds = JSON.parse(details.thuoc_ke_don);
                 meds.forEach((m, i) => {
-                    doc.fillColor('#333').fontSize(12)
-                        .text(`${i + 1}. ${m.ten_thuoc || 'N/A'}: ${m.lieu_luong || 'N/A'} - ${m.cach_dung || 'N/A'} (${m.thoi_gian || 'N/A'})`)
-                        .moveDown(0.1);
+                    doc.text(`${i + 1}. ${m.ten_thuoc || 'Không rõ'} - ${m.lieu_luong || ''} - ${m.cach_dung || ''}`);
                 });
             } catch {
-                doc.fillColor('#333').fontSize(12).text(details.thuoc_ke_don);
+                doc.text(details.thuoc_ke_don);
             }
         } else {
-            doc.fillColor('#333').fontSize(12).text('Không có thuốc được kê đơn.');
+            doc.text('Không có thuốc được kê đơn.');
         }
+
+        doc.moveDown(2);
+        doc.fontSize(12).fillColor('#777').text('--- Hết hồ sơ khám bệnh ---', { align: 'center' });
 
         doc.end();
-
-    } catch (error) {
-        console.error(`[PDF Error] Lỗi khi tạo PDF cho ID ${req.params.lichKhamId}:`, error);
-        if (!res.headersSent) {
-            return res.status(500).json({ message: 'Lỗi server khi tạo tệp PDF.' });
-        }
+    } catch (err) {
+        console.error('Error downloadVisitPdf:', err);
+        if (!res.headersSent)
+            res.status(500).json({ message: 'Lỗi khi tạo PDF hồ sơ bệnh nhân.' });
     }
 };
