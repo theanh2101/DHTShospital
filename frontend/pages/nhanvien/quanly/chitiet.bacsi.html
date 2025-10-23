@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi tiết bác sĩ - DHST Hospital</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2563eb; --bg: #f9fafb; --card: #fff;
+    --text: #1e293b; --muted: #6b7280; --radius: 14px; --shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;font-family:"Inter",sans-serif;margin:0;padding:0;}
+  body{display:flex;min-height:100vh;background:var(--bg);color:var(--text);}
+  .main{flex:1;padding:32px;overflow:auto;}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+  header h1{font-size:26px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;}
+  
+  .card{
+    background:var(--card);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:28px;max-width:700px;
+    animation:fadeIn .3s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  
+  .info-item{margin-bottom:16px;}
+  .label{font-weight:600;color:var(--muted);}
+  .value{font-size:17px;margin-top:4px;}
+  .back-btn,.edit-btn{
+    border:none;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer;transition:.25s;
+    color:#fff;margin-bottom:20px;display:inline-flex;align-items:center;gap:8px;
+  }
+  .back-btn{background:#6b7280;}
+  .edit-btn{background:var(--primary);}
+  .back-btn:hover,.edit-btn:hover{opacity:.9;transform:translateY(-2px);}
+  img{border-radius:12px;box-shadow:var(--shadow);max-width:180px;margin-top:10px;}
+
+  /* Modal chỉnh sửa */
+  .overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.45);
+    display:none;align-items:center;justify-content:center;z-index:80;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:#fff;border-radius:20px;padding:26px;max-width:500px;width:90%;
+    box-shadow:0 20px 45px rgba(0,0,0,0.25);animation:scaleIn .3s ease;
+  }
+  @keyframes scaleIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+  .modal h3{font-size:20px;font-weight:700;color:var(--primary);margin-bottom:14px;}
+  .modal label{font-weight:600;display:block;margin-top:10px;color:var(--muted);}
+  .modal input, .modal textarea{
+    width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;
+    font-size:15px;margin-top:6px;transition:border .2s, box-shadow .2s;
+  }
+  .modal input:focus, .modal textarea:focus{
+    border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,0.15);outline:none;
+  }
+  .actions{margin-top:20px;text-align:right;display:flex;gap:10px;justify-content:flex-end;}
+  .btn-save{background:#16a34a;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:600;cursor:pointer;}
+  .btn-cancel{background:#6b7280;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:600;cursor:pointer;}
+  .btn-save:hover,.btn-cancel:hover{opacity:.9;transform:translateY(-2px);}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <header>
+    <h1><i class="fas fa-id-card"></i> Chi tiết bác sĩ</h1>
+  </header>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="back-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Quay lại</button>
+    <button class="edit-btn" id="btnEdit"><i class="fas fa-pen"></i> Chỉnh sửa</button>
+  </div>
+
+  <section class="card" id="doctorDetail">
+    <p>Đang tải thông tin bác sĩ...</p>
+  </section>
+</main>
+
+<!-- Modal chỉnh sửa -->
+<div id="editModal" class="overlay">
+  <div class="modal">
+    <h3><i class="fas fa-user-edit"></i> Chỉnh sửa thông tin bác sĩ</h3>
+    <form id="editForm">
+      <label>Họ tên:</label>
+      <input type="text" id="hoTen">
+
+      <label>Học vị:</label>
+      <input type="text" id="hocVi">
+
+      <label>Chức vụ:</label>
+      <input type="text" id="chucVu">
+
+      <label>Chuyên môn:</label>
+      <input type="text" id="chuyenMon">
+
+      <label>Năm kinh nghiệm:</label>
+      <input type="number" id="namKinhNghiem" min="0">
+
+      <label>Thế mạnh & Kinh nghiệm:</label>
+      <textarea id="theManh" rows="3"></textarea>
+
+      <div class="actions">
+        <button type="button" class="btn-cancel" id="btnCancel">Hủy</button>
+        <button type="submit" class="btn-save">Lưu thay đổi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const id_bacsi = urlParams.get("id_bacsi") || urlParams.get("id");
+const container = document.getElementById("doctorDetail");
+const editModal = document.getElementById("editModal");
+const form = document.getElementById("editForm");
+const btnEdit = document.getElementById("btnEdit");
+const btnCancel = document.getElementById("btnCancel");
+
+let currentDoctor = null;
+const API_BASE = "http://localhost:3000/api";
+
+if (!id_bacsi) {
+  container.innerHTML = "<p style='color:red;'>Không có ID bác sĩ.</p>";
+} else {
+  loadDoctor();
+}
+
+async function loadDoctor() {
+  try {
+    const res = await fetch(`${API_BASE}/listdoctor/${id_bacsi}`);
+    if (!res.ok) throw new Error("Không tìm thấy bác sĩ");
+    const doctor = await res.json();
+    currentDoctor = doctor;
+
+    const defaultImage = 'https://i.pravatar.cc/180';
+    const imageUrl = doctor.hinh_anh && doctor.hinh_anh.startsWith('/uploads')
+      ? `http://localhost:3000${doctor.hinh_anh}` : defaultImage;
+
+    container.innerHTML = `
+      <h2 style="margin-bottom:20px;"><i class="fas fa-user-md"></i> ${doctor.ho_ten}</h2>
+      <img src="${imageUrl}" alt="Ảnh bác sĩ ${doctor.ho_ten}">
+      <div class="info-item"><div class="label">Mã bác sĩ:</div><div class="value">${doctor.id_bacsi}</div></div>
+      <div class="info-item"><div class="label">Khoa:</div><div class="value">${doctor.ten_khoa || "Đang cập nhật"}</div></div>
+      <div class="info-item"><div class="label">Học vị:</div><div class="value">${doctor.hoc_vi}</div></div>
+      <div class="info-item"><div class="label">Chức vụ:</div><div class="value">${doctor.chuc_vu}</div></div>
+      <div class="info-item"><div class="label">Chuyên môn:</div><div class="value">${doctor.chuyen_mon || "Chưa cập nhật"}</div></div>
+      <div class="info-item"><div class="label">Năm kinh nghiệm:</div><div class="value">${doctor.nam_kinh_nghiem || "N/A"} năm</div></div>
+      <h3 style="margin-top:20px; color:var(--primary);">Thế mạnh & Kinh nghiệm</h3>
+      <div class="value">${doctor.the_manh_kinh_nghiem || "Chưa có thông tin"}</div>
+    `;
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = `<p style="color:red;">Không thể tải chi tiết bác sĩ. Vui lòng kiểm tra ID.</p>`;
+  }
+}
+
+// mở modal chỉnh sửa
+btnEdit.onclick = () => {
+  if (!currentDoctor) return;
+  document.getElementById("hoTen").value = currentDoctor.ho_ten || "";
+  document.getElementById("hocVi").value = currentDoctor.hoc_vi || "";
+  document.getElementById("chucVu").value = currentDoctor.chuc_vu || "";
+  document.getElementById("chuyenMon").value = currentDoctor.chuyen_mon || "";
+  document.getElementById("namKinhNghiem").value = currentDoctor.nam_kinh_nghiem || "";
+  document.getElementById("theManh").value = currentDoctor.the_manh_kinh_nghiem || "";
+  editModal.classList.add("show");
+};
+
+btnCancel.onclick = () => editModal.classList.remove("show");
+
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  const updated = {
+    ho_ten: document.getElementById("hoTen").value,
+    hoc_vi: document.getElementById("hocVi").value,
+    chuc_vu: document.getElementById("chucVu").value,
+    chuyen_mon: document.getElementById("chuyenMon").value,
+    nam_kinh_nghiem: document.getElementById("namKinhNghiem").value,
+    the_manh_kinh_nghiem: document.getElementById("theManh").value,
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/listdoctor/${id_bacsi}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated),
+    });
+    if (!res.ok) throw new Error("Cập nhật thất bại");
+    alert("✅ Đã lưu thay đổi!");
+    editModal.classList.remove("show");
+    loadDoctor();
+  } catch (err) {
+    alert("❌ Lỗi khi cập nhật: " + err.message);
+  }
+};
+</script>
+</body>
+</html>
