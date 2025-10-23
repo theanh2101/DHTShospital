@@ -467,6 +467,18 @@
         row.style.display = (!date || row.dataset.date === date) ? "" : "none";
       });
     });
+// Gọi API danh sách bác sĩ từ backend
+fetch("http://localhost:3000/api/listdoctor")
+  .then(res => res.json())
+  .then(data => {
+    console.log("Dữ liệu từ backend:", data);
+    // Hiển thị bác sĩ đầu tiên để test
+    if (data.length > 0) {
+      document.getElementById("doctorName").textContent = data[0].ho_ten;
+      document.getElementById("doctorGreeting").textContent = `Chào BS. ${data[0].ho_ten}`;
+    }
+  })
+  .catch(err => console.error("Lỗi kết nối backend:", err));
 
     renderLich();
     renderThongKe();

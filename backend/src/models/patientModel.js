@@ -50,43 +50,56 @@ exports.getVisitsByPatientId = async (patientId) => {
 };
 // 3. Lấy chi tiết hồ sơ khám bệnh theo ID Hồ sơ (HO_SO_KHAM)
 exports.getVisitDetails = async (lichKhamId) => {
-    console.log(`[DB] Lấy chi tiết hồ sơ khám bệnh (id_hoso): ${lichKhamId}`);
+    console.log(`[DB] Đang lấy chi tiết Hồ sơ Khám Bệnh cho ID_HOSO: ${lichKhamId}`);
 
-    const [rows] = await db.execute(
-        `SELECT 
-            hsk.id_hoso,
-            bn.ho_ten AS ten_benhnhan,
-            bn.gioi_tinh,
-            bn.ngay_sinh,
-            bn.dia_chi,
-            bs.ho_ten AS ten_bacsi,
-            k.ten_khoa,
-            hsk.trieu_chung,
-            hsk.chuan_doan,
+    const [rows] = await db.query(`
+        SELECT
+            hsk.chuan_doan AS chan_doan, 
+            hsk.trieu_chung, 
             hsk.ghi_chu,
-            hsk.ngay_tao AS ngay_kham,
-            hsk.trang_thai,
             
-            -- Lấy thuốc đã kê trong đơn
+            hsk.ngay_tao AS ngay_kham, 
+            bs.ho_ten AS ten_bacsi, 
+            k.ten_khoa AS chuyen_khoa, 
+            
+            -- CÁC CỘT BỆNH NHÂN ĐƯỢC SELECT
+            bn.ho_ten AS ho_ten_bn,
+            bn.ngay_sinh AS ngay_sinh_bn,
+            bn.gioi_tinh AS gioi_tinh_bn,
+            bn.phone AS sdt_bn, 
+            bn.email AS email_bn, 
+            
+            -- Thuốc kê đơn (Logic GHÉP CHUỖI)
             (
-                SELECT GROUP_CONCAT(
-                    CONCAT(ct.ten_thuoc, ' - ', ct.lieu_luong, ' (', ct.so_ngay, ' ngày, ', ct.cach_dung, ')')
-                    SEPARATOR '; '
-                )
+                SELECT 
+                    GROUP_CONCAT(
+                        CONCAT(
+                            ct.ten_thuoc, 
+                            ' (', ct.lieu_luong, ' x ', ct.so_ngay, ' ngày)'
+                        ) 
+                        SEPARATOR '; '
+                    )
                 FROM toa_thuoc tt
-                JOIN chi_tiet_thuoc ct ON tt.id_toa = ct.id_toa
+                    JOIN chi_tiet_thuoc ct ON tt.id_toa = ct.id_toa
                 WHERE tt.id_hoso = hsk.id_hoso
             ) AS thuoc_ke_don
-
+            
         FROM ho_so_kham hsk
-        JOIN benhnhan bn ON hsk.id_benhnhan = bn.id_benhnhan
+        
+        JOIN dat_lich dl ON hsk.id_datlich = dl.id_datlich
+        LEFT JOIN benhnhan bn ON hsk.id_benhnhan = bn.id_benhnhan 
         LEFT JOIN bacsi bs ON hsk.id_bacsi = bs.id_bacsi
-        LEFT JOIN dat_lich dl ON hsk.id_datlich = dl.id_datlich
         LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
-        WHERE hsk.id_hoso = ?`,
-        [lichKhamId]
-    );
+        
+        WHERE hsk.id_hoso = ?
+        
+        -- 💡 FIX LỖI: Đưa tất cả các cột BN và BS/Khoa vào GROUP BY 
+        GROUP BY 
+            hsk.id_hoso, bn.ho_ten, bn.ngay_sinh, bn.gioi_tinh, bn.phone, bn.email, 
+            bs.ho_ten, k.ten_khoa, hsk.ngay_tao
+            
+    `, [lichKhamId]);
 
-    console.log(`[DB] Hồ sơ ID ${lichKhamId} → Đã lấy thành công.`);
-    return rows[0];
+    console.log(`[DB] Đã lấy chi tiết hồ sơ thành công.`);
+    return rows[0]; 
 };
