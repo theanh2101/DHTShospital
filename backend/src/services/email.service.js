@@ -49,4 +49,41 @@ const sendBookingConfirmationEmail = async (details) => {
     }
 };
 
-module.exports = { sendBookingConfirmationEmail };
+// 📩 Gửi email thông tin tài khoản mới
+const sendAccountCreationEmail = async ({ email, username, password, role, hoten }) => {
+    if (!email) {
+        console.log(">>> Không có email, bỏ qua gửi thông tin tài khoản.");
+        return;
+    }
+
+    const mailOptions = {
+        from: `"DHST Healthcare" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject: "Tài khoản đăng nhập hệ thống DHST Healthcare",
+        html: `
+            <h3>Xin chào ${hoten},</h3>
+            <p>Bạn đã được tạo tài khoản trong hệ thống <strong>DHST Healthcare</strong>.</p>
+            <p><strong>Thông tin đăng nhập:</strong></p>
+            <ul>
+                <li><strong>Tên đăng nhập:</strong> ${username}</li>
+                <li><strong>Mật khẩu:</strong> ${password}</li>
+                <li><strong>Vai trò:</strong> ${role === "BACSI" ? "Bác sĩ" : "Lễ tân"}</li>
+            </ul>
+            <p>Vui lòng đăng nhập và đổi mật khẩu sau khi sử dụng lần đầu.</p>
+            <br/>
+            <p>Trân trọng,<br/>Phòng CNTT - DHST Healthcare</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`📧 Đã gửi email tài khoản cho: ${email}`);
+    } catch (error) {
+        console.error("❌ Lỗi khi gửi email tài khoản:", error);
+    }
+};
+
+module.exports = { 
+    sendBookingConfirmationEmail,
+    sendAccountCreationEmail
+};

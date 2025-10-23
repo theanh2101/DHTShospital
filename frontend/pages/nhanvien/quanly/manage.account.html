@@ -159,7 +159,6 @@
             <option value="">-- Chọn vai trò --</option>
             <option value="BACSI">Bác sĩ</option>
             <option value="LETAN">Lễ tân</option>
-            <option value="ADMIN">Quản trị</option>
           </select>
         </div>
         <div id="khoaWrap" style="display:none">
@@ -173,7 +172,15 @@
 
     <!-- Danh sách -->
     <section class="card">
-      <h2><i class="fas fa-list"></i> Danh sách tài khoản</h2>
+<h2 style="display:flex;justify-content:space-between;align-items:center;">
+  <span><i class="fas fa-list"></i> Danh sách tài khoản</span>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <input id="searchInput" type="text" placeholder="🔍 Tìm theo mã hoặc tên..."
+      style="padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;width:240px;">
+    <button id="clearSearch" class="btn" style="background:#94a3b8;"><i class="fas fa-times"></i></button>
+  </div>
+</h2>
+
       <div class="table-wrap">
         <table>
           <thead>
@@ -419,10 +426,101 @@ const returnedUser = data.account?.username || username;
     }
   }
 
+    const searchInput = document.getElementById("searchInput");
+  const clearSearch = document.getElementById("clearSearch");
+  let allAccounts = []; // Lưu danh sách đầy đủ
+
+  async function loadAccounts() {
+    try {
+      const r = await fetch(API_ACCOUNTS);
+      const data = await r.json();
+      allAccounts = Array.isArray(data) ? data : [];
+      renderAccounts(allAccounts);
+    } catch {
+      accountsTbody.innerHTML = "<tr><td colspan='5' style='color:red'>Lỗi tải dữ liệu</td></tr>";
+    }
+  }
+
+  // Hàm hiển thị danh sách (sử dụng khi lọc)
+  function renderAccounts(list) {
+    accountsTbody.innerHTML = "";
+    if (!list.length) {
+      accountsTbody.innerHTML = "<tr><td colspan='5' style='color:#999'>Không tìm thấy tài khoản</td></tr>";
+      return;
+    }
+
+    list.forEach((acc) => {
+      const id = acc.id_taikhoan || acc.id;
+      const name = acc.ho_ten || acc.name;
+      const uname = acc.username || "-";
+      const role = acc.role || "-";
+      const status = acc.status || "INACTIVE";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${id}</td><td>${name}</td><td>${uname}</td><td>${role}</td>`;
+      const td = document.createElement("td");
+      const span = document.createElement("span");
+      span.className = "pill " + (status === "ACTIVE" ? "active" : "inactive");
+      span.textContent = status === "ACTIVE" ? "Hoạt động" : "Khóa";
+
+      span.onclick = () => {
+        openConfirm(
+          `Bạn có chắc muốn ${status === "ACTIVE" ? "khóa" : "mở khóa"} tài khoản này?`,
+          async (ok) => {
+            if (!ok) return;
+            try {
+              const res = await fetch(API_ACCOUNTS + "/" + id + "/status", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  status: status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+                }),
+              });
+              if (res.ok) showToast("Cập nhật thành công");
+              else showToast("Cập nhật thất bại", "error");
+              await loadAccounts();
+            } catch {
+              showToast("Lỗi kết nối", "error");
+            }
+          }
+        );
+      };
+
+      td.appendChild(span);
+      tr.appendChild(td);
+      accountsTbody.appendChild(tr);
+    });
+  }
+
+// 🔍 Tìm theo tên (chỉ khi nhấn Enter)
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const keyword = searchInput.value.trim().toLowerCase();
+    if (!keyword) {
+      renderAccounts(allAccounts);
+      showToast("Vui lòng nhập tên để tìm kiếm", "error");
+      return;
+    }
+    const filtered = allAccounts.filter(acc => {
+      const name = (acc.ho_ten || acc.name || "").toLowerCase();
+      return name.includes(keyword);
+    });
+    renderAccounts(filtered);
+    if (!filtered.length) showToast("Không tìm thấy tài khoản phù hợp", "error");
+  }
+});
+
+// ❌ Nút xóa tìm kiếm
+clearSearch.onclick = () => {
+  searchInput.value = "";
+  renderAccounts(allAccounts);
+};
+
   (async () => {
     await loadKhoa();
     await loadAccounts();
   })();
+
 
   // Hiệu ứng mở/đóng submenu "Quản lý nhân viên"
 // Toggle submenu Quản lý nhân viên
