@@ -164,11 +164,12 @@ exports.downloadVisitPdf = async (req, res) => {
         // --- Thông tin bệnh nhân ---
         doc.fontSize(14).fillColor('#1565C0').text('THÔNG TIN BỆNH NHÂN:', { underline: true }).moveDown(0.5);
         doc.fillColor('#000').fontSize(12);
-        doc.text(`- Họ tên: ${details.ten_benhnhan || 'Không rõ tên bệnh nhân'}`);
-        doc.text(`(ID: ${details.id_hoso || 'N/A'})`);
-        doc.text(`- Ngày sinh: ${formatDbDate(details.ngay_sinh)}   Giới tính: ${details.gioi_tinh || 'N/A'}`);
-        doc.text(`- Địa chỉ: ${details.dia_chi || 'N/A'}`);
-        doc.moveDown(1);
+doc.text(`- Họ tên: ${details.ho_ten_bn || 'Không rõ tên bệnh nhân'}`);
+doc.text(`(ID: ${details.id_hoso || 'N/A'})`);
+doc.text(`- Ngày sinh: ${formatDbDate(details.ngay_sinh_bn)}   Giới tính: ${details.gioi_tinh_bn || 'N/A'}`);
+doc.text(`- SĐT: ${details.sdt_bn || 'N/A'}`);
+doc.text(`- Email: ${details.email_bn || 'N/A'}`);
+doc.moveDown(1);
 
         // --- Thông tin khám bệnh ---
         doc.fontSize(14).fillColor('#f4b400').text('THÔNG TIN KHÁM BỆNH:', { underline: true }).moveDown(0.5);

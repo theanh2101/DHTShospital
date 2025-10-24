@@ -942,8 +942,10 @@ document.getElementById('btnBackToPhone').addEventListener('click', () => goToSt
 //--- Bước 3: Render Danh sách Bệnh nhân và Chọn BN---
 function renderPatientList(patients) {
 patientListDiv.innerHTML = patients.map(p => `
-<div class="patient-item" data-id="${p.id_benhnhan}" onclick="selectPatientFromList(${p.id_benhnhan})">
-<div class="item-info">
+    <div class="patient-item" data-id="${p.id_benhnhan}" 
+         onclick="selectPatientFromList('${p.id_benhnhan}')">
+                                            // ^         ^ <--- THÊM DẤU NHÁY ĐƠN
+    <div class="item-info">
 <strong>${p.ho_ten}</strong>
 <p>Ngày sinh: ${formatDate(p.ngay_sinh)} | Giới tính: ${p.gioi_tinh || 'N/A'}</p>
 </div>
@@ -953,7 +955,7 @@ patientListDiv.innerHTML = patients.map(p => `
 }
 
 function selectPatientFromList(patientId) {
-    // Tìm đối tượng bệnh nhân đầy đủ trong mảng currentPatients
+    // patientId ở đây là chuỗi, ví dụ: 'BN003'
     const patientObject = currentPatients.find(p => p.id_benhnhan === patientId);
     if (patientObject) {
         selectPatient(patientObject);
