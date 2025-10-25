@@ -26,6 +26,7 @@ const patientRoutes = require("./routes/patient.routes");
 const listDoctorRoutes = require("./routes/listdoctor.routes");
 const lichLamViecRoutes = require("./routes/lichlamviec.routes");
 const letanRoutes = require("./routes/letan.routes");
+const DoctorDHSTRoutes = require("./routes/DoctorDHST.routes");
 
 // ================== PHỤC VỤ FRONTEND ==================
 app.use(express.static(path.join(__dirname, "../../frontend/pages")));
@@ -46,6 +47,7 @@ app.use("/api/patient", patientRoutes);
 app.use("/api/listdoctor", listDoctorRoutes);
 app.use("/api/lichlamviec", lichLamViecRoutes);
 app.use("/api/letan", letanRoutes);
+app.use("/api/DoctorDHST", DoctorDHSTRoutes);
 
 // ================== XỬ LÝ LỖI ==================
 app.use((req, res) => {

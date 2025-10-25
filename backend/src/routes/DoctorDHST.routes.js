@@ -1,7 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const bacsiController = require("../controllers/bacsi.controller");
+const DoctorDHSTController = require('../controllers/DoctorDHST.controller');
 
-router.get("/", bacsiController.getAllBacSi);
+// API: GET /api/DoctorDHST?id_bacsi=BS001&ngay=2025-10-25
+router.get('/', DoctorDHSTController.getDoctorDHST);
 
 module.exports = router;
