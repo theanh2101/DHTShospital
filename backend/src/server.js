@@ -26,13 +26,15 @@ const chatRoutes = require("./routes/chat.routes");
 const patientRoutes = require("./routes/patient.routes");
 const listDoctorRoutes = require("./routes/listdoctor.routes");
 const lichLamViecRoutes = require("./routes/lichlamviec.routes");
+const letanRoutes = require("./routes/letan.routes");
 
-// ================== PHỤC VỤ FILE TĨNH FRONTEND ==================
-app.use(express.static(path.join(__dirname, "../../frontend/page")));
+// ================== PHỤC VỤ FRONTEND ==================
+app.use(express.static(path.join(__dirname, "../../frontend/pages")));
+
+// Khi vào trang chủ -> tự động mở login.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/page/index.html"));
+  res.sendFile(path.join(__dirname, "../../frontend/pages/nhanvien/login.html"));
 });
-
 // ================== GẮN ROUTE API ==================
 app.use("/api/users", userRoutes);
 app.use("/api/khoa", khoaRoutes);
@@ -44,8 +46,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/patient", patientRoutes);
 app.use("/api/listdoctor", listDoctorRoutes);
 app.use("/api/lichlamviec", lichLamViecRoutes);
-
-
+app.use("/api/letan", letanRoutes);
 
 // ================== XỬ LÝ LỖI ==================
 app.use((req, res) => {
