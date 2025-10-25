@@ -4,7 +4,6 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 
-
 const app = express();
 const db = require("../config/db"); // 🔥 đổi ./config -> ../config
 

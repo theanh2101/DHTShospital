@@ -107,7 +107,6 @@
   const form = document.getElementById("login-form");
   const errorMsg = document.getElementById("error-msg");
 
-  // ====== Đăng nhập ======
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorMsg.textContent = "";
@@ -129,49 +128,45 @@
         return;
       }
 
-      // ✅ Lưu token & thông tin người dùng
-      localStorage.setItem("token", data.token);
+      // ✅ Lưu trực tiếp thông tin người dùng, không token
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("role", data.user.role);
+      if (data.user.role?.toUpperCase() === "BACSI") {
+        localStorage.setItem("doctorId", data.user.id);
+      }
 
       // ✅ Chuyển hướng theo vai trò
       const role = data.user.role?.toUpperCase();
-
       switch (role) {
         case "BACSI":
-          localStorage.setItem("doctorId", data.user.id);
-          window.location.href = "/nhanvien/Bacsi/bacsi.html";
+          window.location.href = "http://localhost:3000/nhanvien/Bacsi/DoctorDHST.html";
           break;
         case "LETAN":
-          window.location.href = "/nhanvien/letan/letan.html";
+          window.location.href = "http://localhost:3000/nhanvien/letan/letan.html";
           break;
         case "ADMIN":
-          window.location.href = "/nhanvien/quanly/manage.account.html";
+          window.location.href = "http://localhost:3000/nhanvien/quanly/manage.account.html";
           break;
         default:
           errorMsg.textContent = "Không xác định được vai trò người dùng!";
       }
-
     } catch (err) {
       console.error("❌ Lỗi đăng nhập:", err);
       errorMsg.textContent = "Không thể kết nối tới máy chủ!";
     }
   });
-
   // ====== Tự động chuyển nếu đã đăng nhập ======
   window.addEventListener("load", () => {
     try {
-      const token = localStorage.getItem("token");
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-      if (token && user?.role && user?.id) {
+      if (user?.role && user?.id) {
         const role = user.role.toUpperCase();
         if (role === "BACSI") {
-          window.location.href = "/nhanvien/Bacsi/bacsi.html";
+          window.location.href = "http://localhost:3000/nhanvien/Bacsi/DoctorDHST.html";
         } else if (role === "LETAN") {
-          window.location.href = "/nhanvien/letan/letan.html";
+          window.location.href = "http://localhost:3000/nhanvien/letan/letan.html";
         } else if (role === "ADMIN") {
-          window.location.href = "/nhanvien/quanly/manage.account.html";
+          window.location.href = "http://localhost:3000/nhanvien/quanly/manage.account.html";
         }
       }
     } catch (error) {
@@ -180,6 +175,5 @@
     }
   });
 </script>
-
 </body>
 </html>

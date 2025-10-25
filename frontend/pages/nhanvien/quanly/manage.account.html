@@ -573,8 +573,8 @@
   const logoutBtn = document.getElementById("logoutBtn");
   logoutBtn.onclick = () => {
     if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
-      localStorage.removeItem("token");
-      sessionStorage.removeItem("token");
+      localStorage.clear();
+      sessionStorage.clear();
       window.location.href = "../login.html";
     }
   };
