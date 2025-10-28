@@ -195,7 +195,7 @@
         <div class="muted" id="doctorGreeting">Chào BS. Nguyễn Văn A</div>
       </header>
 
-      <!-- Lịch khám  -->
+      <!-- Lịch khám -->
       <section id="lich" class="section">
         <h3>📅 Lịch & Danh sách bệnh nhân</h3>
         <div class="filter">
@@ -280,6 +280,22 @@
           <button class="btn-primary" onclick="saveToa()">💾 Lưu toa</button>
         </div>
       </div>
+
+      <!-- 🩺 Form cập nhật bệnh án -->
+      <div class="section-title">📋 Cập nhật bệnh án</div>
+      <div id="benhanForm" style="margin-top:10px">
+        <label>Triệu chứng:</label>
+        <textarea id="baTrieuChung" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
+        <label>Chẩn đoán:</label>
+        <textarea id="baChanDoan" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
+        <label>Kết quả xét nghiệm:</label>
+        <textarea id="baXetNghiem" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
+        <label>Ghi chú:</label>
+        <textarea id="baGhiChu" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
+        <div style="margin-top:15px;text-align:right">
+          <button class="btn-primary" onclick="saveBenhAn()">💾 Lưu bệnh án</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -294,26 +310,18 @@
     const lichBenhNhan = [
       { stt: 1, maBN: "BN001", ten: "Nguyễn Văn Nam", ngay: "2025-10-14", gio: "08:30", ca: "Sáng", khoa: "Nội tổng hợp", status: "waiting" },
       { stt: 2, maBN: "BN002", ten: "Trần Thị Hồng", ngay: "2025-10-14", gio: "14:00", ca: "Chiều", khoa: "Nội tổng hợp", status: "arrived" },
-
     ];
 
     const patientDetails = {
       "BN001": {
         ho_ten: "Nguyễn Văn Nam", ngay_sinh: "1990-03-12", gioi_tinh: "Nam",
         phone: "0912345678", diachi: "Hà Nội", ngay_kham: "2025-10-14",
-        trieu_chung: "Đau đầu, sốt nhẹ", chan_doan: "Cảm cúm",
-        ke_toa: [
-          { id: "T001", thuoc: "Paracetamol 500mg", lieu_luong: "2 viên/ngày", so_ngay: 3, cach_dung: "Sau ăn" },
-          { id: "T002", thuoc: "Vitamin C", lieu_luong: "1 viên/ngày", so_ngay: 5, cach_dung: "Buổi sáng" }
-        ]
+        trieu_chung: "Đau đầu, sốt nhẹ", chan_doan: "Cảm cúm", ke_toa: []
       },
       "BN002": {
         ho_ten: "Trần Thị Hồng", ngay_sinh: "1988-06-20", gioi_tinh: "Nữ",
         phone: "0987654321", diachi: "Đà Nẵng", ngay_kham: "2025-10-14",
-        trieu_chung: "Đau dạ dày", chan_doan: "Viêm loét dạ dày",
-        ke_toa: [
-          { id: "T003", thuoc: "Omeprazol", lieu_luong: "1 viên sáng", so_ngay: 7, cach_dung: "Trước ăn" }
-        ]
+        trieu_chung: "Đau dạ dày", chan_doan: "Viêm loét dạ dày", ke_toa: []
       }
     };
 
@@ -377,65 +385,84 @@
         <p><b>Họ tên:</b> ${p.ho_ten}</p>
         <p><b>Ngày sinh:</b> ${p.ngay_sinh}</p>
         <p><b>Giới tính:</b> ${p.gioi_tinh}</p>
-        <p><b>SĐT:</b> ${p.phone}</p>
+        <p><b>Điện thoại:</b> ${p.phone}</p>
         <p><b>Địa chỉ:</b> ${p.diachi}</p>
-        <div class="section-title">Lịch khám</div>
         <p><b>Ngày khám:</b> ${p.ngay_kham}</p>
-        <p><b>Triệu chứng:</b> ${p.trieu_chung}</p>
-        <p><b>Chẩn đoán:</b> ${p.chan_doan}</p>
       `;
       document.getElementById("patientInfo").innerHTML = html;
-      renderToaTable(p.ke_toa || []);
+      document.getElementById("toaBody").innerHTML = "";
+      document.getElementById("baTrieuChung").value = p.trieu_chung || "";
+      document.getElementById("baChanDoan").value = p.chan_doan || "";
+      document.getElementById("baXetNghiem").value = p.xet_nghiem || "";
+      document.getElementById("baGhiChu").value = p.ghi_chu || "";
       document.getElementById("patientModal").style.display = "flex";
     }
 
-    function closeModal() { document.getElementById("patientModal").style.display = "none"; }
-
-    function renderToaTable(list) {
-      const body = document.getElementById("toaBody");
-      body.innerHTML = "";
-      list.forEach(t => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><input value="${t.thuoc}" placeholder="Tên thuốc" style="width:100%"></td>
-          <td><input value="${t.lieu_luong}" placeholder="Liều lượng" style="width:100%"></td>
-          <td><input value="${t.so_ngay}" type="number" style="width:80px"></td>
-          <td><input value="${t.cach_dung}" placeholder="Cách dùng" style="width:100%"></td>
-          <td><button class="btn-outline" onclick="removeThuocRow(this)">🗑</button></td>
-        `;
-        body.appendChild(tr);
-      });
+    function closeModal() {
+      document.getElementById("patientModal").style.display = "none";
+      currentPatientId = null;
     }
 
     function addThuocRow() {
-      const body = document.getElementById("toaBody");
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><input placeholder="Tên thuốc" style="width:100%"></td>
-        <td><input placeholder="Liều lượng" style="width:100%"></td>
-        <td><input type="number" style="width:80px"></td>
-        <td><input placeholder="Cách dùng" style="width:100%"></td>
-        <td><button class="btn-outline" onclick="removeThuocRow(this)">🗑</button></td>
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input placeholder="Tên thuốc"></td>
+        <td><input placeholder="Liều lượng"></td>
+        <td><input placeholder="Số ngày"></td>
+        <td><input placeholder="Cách dùng"></td>
+        <td><button class="btn-outline" onclick="this.parentElement.parentElement.remove()">🗑</button></td>
       `;
-      body.appendChild(tr);
+      document.getElementById("toaBody").appendChild(row);
     }
-
-    function removeThuocRow(btn) { btn.closest("tr").remove(); }
 
     function saveToa() {
-      if (!currentPatientId) return;
       const rows = document.querySelectorAll("#toaBody tr");
-      const list = Array.from(rows).map(r => ({
-        id: "T" + Math.random().toString(36).substring(2,6).toUpperCase(),
-        thuoc: r.cells[0].querySelector("input").value.trim(),
-        lieu_luong: r.cells[1].querySelector("input").value.trim(),
-        so_ngay: r.cells[2].querySelector("input").value,
-        cach_dung: r.cells[3].querySelector("input").value.trim()
-      })).filter(t => t.thuoc);
-      patientDetails[currentPatientId].ke_toa = list;
-      alert("💾 Đã lưu toa thuốc cho bệnh nhân!");
+      const toa = [];
+      rows.forEach(r => {
+        const tds = r.querySelectorAll("input");
+        toa.push({
+          ten: tds[0].value, lieu: tds[1].value,
+          ngay: tds[2].value, cach: tds[3].value
+        });
+      });
+      if (currentPatientId) {
+        patientDetails[currentPatientId].ke_toa = toa;
+        alert("Đã lưu toa thuốc!");
+      }
     }
 
+    // 🩺 Gửi cập nhật bệnh án về server
+    async function saveBenhAn() {
+      if (!currentPatientId) return alert("Vui lòng chọn bệnh nhân!");
+      const payload = {
+        maBN: currentPatientId,
+        trieuChung: document.getElementById("baTrieuChung").value,
+        chanDoan: document.getElementById("baChanDoan").value,
+        xetNghiem: document.getElementById("baXetNghiem").value,
+        ghiChu: document.getElementById("baGhiChu").value,
+      };
+      try {
+        const res = await fetch("/api/updateBenhAn", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          alert("✅ Cập nhật bệnh án thành công!");
+          patientDetails[currentPatientId].trieu_chung = payload.trieuChung;
+          patientDetails[currentPatientId].chan_doan = payload.chanDoan;
+          patientDetails[currentPatientId].xet_nghiem = payload.xetNghiem;
+          patientDetails[currentPatientId].ghi_chu = payload.ghiChu;
+        } else {
+          alert("❌ Lỗi khi cập nhật bệnh án!");
+        }
+      } catch (err) {
+        alert("⚠️ Lỗi kết nối đến server!");
+        console.error(err);
+      }
+    }
+
+    // Hồ sơ
     function editProfile() {
       document.getElementById("profileView").style.display = "none";
       document.getElementById("profileEdit").style.display = "block";
@@ -444,39 +471,27 @@
       document.getElementById("editPhone").value = document.getElementById("hosoPhone").textContent;
       document.getElementById("editAddress").value = document.getElementById("hosoAddress").textContent;
     }
-
     function cancelEdit() {
-      document.getElementById("profileEdit").style.display = "none";
       document.getElementById("profileView").style.display = "block";
+      document.getElementById("profileEdit").style.display = "none";
     }
-
     function saveProfile() {
       document.getElementById("hosoName").textContent = document.getElementById("editName").value;
       document.getElementById("hosoEmail").textContent = document.getElementById("editEmail").value;
       document.getElementById("hosoPhone").textContent = document.getElementById("editPhone").value;
       document.getElementById("hosoAddress").textContent = document.getElementById("editAddress").value;
       cancelEdit();
-      alert("Đã lưu hồ sơ bác sĩ!");
+      alert("✅ Hồ sơ bác sĩ đã được cập nhật!");
     }
 
+    // Lọc lịch
     document.getElementById("filterDate").addEventListener("input", e => {
       const date = e.target.value;
-      document.querySelectorAll("#lichTableBody tr").forEach(row => {
-        row.style.display = (!date || row.dataset.date === date) ? "" : "none";
+      document.querySelectorAll("#lichTableBody tr").forEach(tr => {
+        const match = !date || tr.dataset.date === date;
+        tr.style.display = match ? "" : "none";
       });
     });
-// Gọi API danh sách bác sĩ từ backend
-fetch("http://localhost:3000/api/listdoctor")
-  .then(res => res.json())
-  .then(data => {
-    console.log("Dữ liệu từ backend:", data);
-    // Hiển thị bác sĩ đầu tiên để test
-    if (data.length > 0) {
-      document.getElementById("doctorName").textContent = data[0].ho_ten;
-      document.getElementById("doctorGreeting").textContent = `Chào BS. ${data[0].ho_ten}`;
-    }
-  })
-  .catch(err => console.error("Lỗi kết nối backend:", err));
 
     renderLich();
     renderThongKe();
