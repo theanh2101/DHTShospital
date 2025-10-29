@@ -12,7 +12,6 @@
       --card: #ffffff;
       --muted: #666;
     }
-    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Segoe UI", Arial, sans-serif;
@@ -21,14 +20,10 @@
     }
     .layout { display: flex; min-height: 100vh; }
     aside {
-      width: 260px;
-      background: var(--card);
+      width: 260px; background: var(--card);
       border-right: 1px solid #d9e2ec;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+      padding: 20px; display: flex; flex-direction: column;
+      justify-content: space-between; box-shadow: 2px 0 8px rgba(0,0,0,0.05);
     }
     .logo { text-align: center; margin-bottom: 18px; }
     .logo img { width: 120px; }
@@ -42,35 +37,14 @@
     }
     .doctor-info .name { font-weight: 600; }
     nav ul { list-style: none; padding: 0; margin: 20px 0; }
-    nav li { margin-bottom: 8px; }
     nav a {
-      display: block; padding: 10px 12px;
-      border-radius: 6px; color: #333;
-      text-decoration: none; font-weight: 500; cursor: pointer;
-    }
-    nav a.active, nav a:hover { background: var(--blue); color: #fff; }
-    .sidebar-bottom {
-      font-size: 14px; color: var(--muted);
-      padding-top: 15px; border-top: 1px solid #ddd;
-    }
-    .btn-primary {
-      background: var(--blue); color: #fff;
-      border: none; padding: 8px 12px;
-      border-radius: 6px; cursor: pointer;
-    }
-    .btn-primary:hover { background: var(--blue-dark); }
-    .btn-outline {
-      background: #fff; color: var(--blue);
-      border: 1px solid var(--blue);
-      padding: 8px 12px; border-radius: 6px;
+      display: block; padding: 10px 12px; border-radius: 6px;
+      color: #333; text-decoration: none; font-weight: 500;
       cursor: pointer;
     }
-    .btn-outline:hover { background: var(--blue); color: #fff; }
+    nav a.active, nav a:hover { background: var(--blue); color: #fff; }
     main { flex: 1; padding: 25px; }
-    header {
-      display: flex; justify-content: space-between;
-      align-items: center; margin-bottom: 20px;
-    }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     header h1 { margin: 0; color: #004b91; }
 
     table {
@@ -83,79 +57,39 @@
       background: #e6f2ff; color: #004b91;
       padding: 10px; text-align: left;
     }
-    tbody td {
-      padding: 10px; border-bottom: 1px solid #eee;
-      text-align: left;
-    }
+    tbody td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
     tbody tr:hover { background: #f9fbff; }
-    .muted { color: #666; font-size: 14px; }
-    .faded { opacity: 0.5; }
     .status {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
+      display: inline-block; padding: 6px 10px; border-radius: 20px;
+      font-weight: 700; font-size: 13px; cursor: pointer;
     }
     .status.arrived { background: #d4edda; color: #155724; }
     .status.waiting { background: #fff3cd; color: #856404; }
     .status.notyet { background: #f8d7da; color: #721c24; }
-    .edit-form input {
-      display: block;
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    .muted { color: #666; font-size: 14px; }
+    .filter { margin: 10px 0 15px; display: flex; align-items: center; gap: 10px; }
+    .filter input {
+      padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px;
     }
+    .btn-primary {
+      background: var(--blue); color: #fff; border: none;
+      padding: 8px 12px; border-radius: 6px; cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--blue-dark); }
+    a.name-link { color: var(--blue); text-decoration: underline; cursor: pointer; }
     .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+      justify-content: center; align-items: center; z-index: 100;
     }
     .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 650px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      max-height: 90vh;
-      overflow-y: auto;
+      background: white; padding: 20px; border-radius: 10px;
+      width: 650px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      max-height: 90vh; overflow-y: auto;
     }
-    .close {
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
-    }
-    .section-title {
-      font-weight: bold;
-      margin-top: 15px;
-      color: #007bff;
-    }
-    .no-data {
-      color: #777;
-      font-style: italic;
-    }
-    .filter {
-      margin: 10px 0 15px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .filter input {
-      padding: 6px 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    a.name-link {
-      color: var(--blue);
-      text-decoration: underline;
-      cursor: pointer;
-    }
+    .close { float: right; font-size: 20px; cursor: pointer; }
+    .modal-content label { display:block; margin-top:10px; font-weight:500; }
+    .modal-content textarea { width:100%; padding:6px; border-radius:6px; border:1px solid #ccc; resize:vertical; }
   </style>
 </head>
 
@@ -164,337 +98,201 @@
     <aside>
       <div>
         <div class="logo">
-          <img src="https://cdn-icons-png.flaticon.com/512/2966/2966482.png" alt="logo">
+          <img src="logo.jpg" alt="logo">
         </div>
         <div class="doctor-info">
-          <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?q=80" alt="avatar">
+          <img id="doctorAvatar" src="https://cdn-icons-png.flaticon.com/512/9131/9131529.png" alt="avatar">
           <div>
-            <div class="name" id="doctorName">BS. Nguyễn Văn A</div>
-            <div class="muted">Nội tổng hợp</div>
+            <div class="name" id="doctorName">Đang tải...</div>
+            <div class="muted" id="doctorKhoa"></div>
           </div>
         </div>
         <nav>
           <ul>
-            <li><a class="active" onclick="showSection('lich', this)">Lịch & Bệnh nhân</a></li>
-            <li><a onclick="showSection('hoso', this)">Hồ sơ</a></li>
-            <li><a onclick="showSection('thongke', this)">Thống kê</a></li>
+            <li><a class="active" onclick="showSection('lich', this)">📅 Lịch & Bệnh nhân</a></li>
+            <li><a onclick="showSection('hoso', this)">🩺 Hồ sơ</a></li>
+            <li><a onclick="showSection('thongke', this)">📊 Thống kê</a></li>
           </ul>
         </nav>
       </div>
-      <div class="sidebar-bottom">
-        Ca hôm nay: <b>Sáng</b>
-        <div style="margin-top:10px">
-          <button class="btn-outline" type="button">Đăng xuất</button>
-        </div>
+      <div class="muted" style="font-size:14px">
+        Ca trực: <b id="doctorCa">Sáng</b><br>
+        <button class="btn-primary" style="margin-top:10px" onclick="logout()">Đăng xuất</button>
       </div>
     </aside>
 
     <main>
       <header>
         <h1>Bảng điều khiển bác sĩ</h1>
-        <div class="muted" id="doctorGreeting">Chào BS. Nguyễn Văn A</div>
+        <div class="muted" id="doctorGreeting"></div>
       </header>
 
-      <!-- Lịch khám -->
+      <!-- 📅 Lịch khám -->
       <section id="lich" class="section">
         <h3>📅 Lịch & Danh sách bệnh nhân</h3>
         <div class="filter">
           <label for="filterDate">Lọc theo ngày khám:</label>
-          <input type="date" id="filterDate">
+          <input type="date" id="filterDate" onchange="loadSchedule(this.value)">
         </div>
-
         <table>
           <thead>
             <tr>
-              <th>STT</th><th>Mã BN</th><th>Tên bệnh nhân</th>
-              <th>Ngày khám</th><th>Giờ hẹn</th><th>Ca</th><th>Chuyên khoa</th><th>Trạng thái</th>
+              <th>STT</th><th>Mã BN</th><th>Tên bệnh nhân</th><th>Ngày khám</th>
+              <th>Giờ hẹn</th><th>Ca</th><th>Trạng thái</th>
             </tr>
           </thead>
-          <tbody id="lichTableBody"></tbody>
+          <tbody id="lichTableBody"><tr><td colspan="7" class="muted">Đang tải...</td></tr></tbody>
         </table>
       </section>
 
-      <!-- Hồ sơ -->
+      <!-- 🩺 Hồ sơ bác sĩ -->
       <section id="hoso" class="section" style="display:none">
         <h3>🩺 Hồ sơ bác sĩ</h3>
-        <div id="profileView">
-          <ul>
-            <li><b>Họ tên:</b> <span id="hosoName">BS. Nguyễn Văn A</span></li>
-            <li><b>Học vị:</b> <span id="hosoHocVi">BS.CKII</span></li>
-            <li><b>Chức vụ:</b> <span id="hosoChucVu">Trưởng khoa</span></li>
-            <li><b>Chuyên môn:</b> <span id="hosoChuyenMon">Nội tổng hợp</span></li>
-            <li><b>Kinh nghiệm:</b> <span id="hosoExp">15 năm</span></li>
-            <li><b>Email:</b> <span id="hosoEmail">nguyenvana@benhvien.vn</span></li>
-            <li><b>Điện thoại:</b> <span id="hosoPhone">0912345678</span></li>
-            <li><b>Địa chỉ:</b> <span id="hosoAddress">Hà Nội</span></li>
-          </ul>
-          <button class="btn-primary" onclick="editProfile()">Sửa hồ sơ</button>
-        </div>
-
-        <div id="profileEdit" style="display:none">
-          <div class="edit-form">
-            <input id="editName" placeholder="Họ tên">
-            <input id="editEmail" placeholder="Email">
-            <input id="editPhone" placeholder="Số điện thoại">
-            <input id="editAddress" placeholder="Địa chỉ">
-            <button class="btn-primary" onclick="saveProfile()">Lưu</button>
-            <button class="btn-outline" onclick="cancelEdit()">Hủy</button>
-          </div>
-        </div>
+        <table>
+          <tbody>
+            <tr><td><b>Họ tên:</b></td><td id="hosoName"></td></tr>
+            <tr><td><b>Học vị:</b></td><td id="hosoHocVi"></td></tr>
+            <tr><td><b>Chức vụ:</b></td><td id="hosoChucVu"></td></tr>
+            <tr><td><b>Chuyên môn:</b></td><td id="hosoChuyenMon"></td></tr>
+            <tr><td><b>Kinh nghiệm:</b></td><td id="hosoExp"></td></tr>
+            <tr><td><b>Email:</b></td><td id="hosoEmail"></td></tr>
+            <tr><td><b>Điện thoại:</b></td><td id="hosoPhone"></td></tr>
+            <tr><td><b>Địa chỉ:</b></td><td id="hosoAddress"></td></tr>
+          </tbody>
+        </table>
       </section>
 
-      <!-- Thống kê -->
+      <!-- 📊 Thống kê -->
       <section id="thongke" class="section" style="display:none">
         <h3>📊 Thống kê hoạt động</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th><th>Tháng</th><th>Năm</th><th>Số bệnh nhân</th><th>Số đơn thuốc</th><th>Tỉ lệ tái khám (%)</th>
-            </tr>
-          </thead>
-          <tbody id="thongkeTableBody"></tbody>
-        </table>
+        <div class="muted">Tính năng này đang được cập nhật...</div>
       </section>
     </main>
   </div>
 
-  <!-- Modal Chi tiết bệnh nhân -->
+  <!-- Modal cập nhật bệnh án -->
   <div class="modal" id="patientModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <h2>Chi tiết bệnh nhân</h2>
-      <div id="patientInfo"></div>
-
-      <div class="section-title">📝 Nhập kê toa thuốc</div>
-      <div id="toaForm">
-        <table id="toaTable" style="margin-top:10px;width:100%;border-collapse:collapse;">
-          <thead>
-            <tr>
-              <th>Tên thuốc</th><th>Liều lượng</th><th>Số ngày</th><th>Cách dùng</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="toaBody"></tbody>
-        </table>
-        <button class="btn-outline" type="button" onclick="addThuocRow()">+ Thêm thuốc</button>
-        <div style="margin-top:15px;text-align:right">
-          <button class="btn-primary" onclick="saveToa()">💾 Lưu toa</button>
-        </div>
-      </div>
-
-      <!-- 🩺 Form cập nhật bệnh án -->
-      <div class="section-title">📋 Cập nhật bệnh án</div>
-      <div id="benhanForm" style="margin-top:10px">
-        <label>Triệu chứng:</label>
-        <textarea id="baTrieuChung" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
-        <label>Chẩn đoán:</label>
-        <textarea id="baChanDoan" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
-        <label>Kết quả xét nghiệm:</label>
-        <textarea id="baXetNghiem" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
-        <label>Ghi chú:</label>
-        <textarea id="baGhiChu" rows="2" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:6px;"></textarea>
-        <div style="margin-top:15px;text-align:right">
-          <button class="btn-primary" onclick="saveBenhAn()">💾 Lưu bệnh án</button>
-        </div>
-      </div>
+      <form id="patientForm">
+        <p><b>Tên bệnh nhân:</b> <span id="patientName"></span></p>
+        <p><b>Giới tính:</b> <span id="patientGender"></span></p>
+        <p><b>Ngày sinh:</b> <span id="patientDOB"></span></p>
+        <p><b>Địa chỉ:</b> <span id="patientAddress"></span></p>
+        <label for="chuandoan">Chuẩn đoán:</label>
+        <textarea id="chuandoan" rows="3"></textarea>
+        <label for="donthuoc">Đơn thuốc:</label>
+        <textarea id="donthuoc" rows="3"></textarea>
+        <button type="button" class="btn-primary" style="margin-top:10px" onclick="savePatient()">💾 Lưu thay đổi</button>
+      </form>
     </div>
   </div>
 
   <script>
+    const id_bacsi = "BS001";
+    let currentPatientId = null;
+
+    async function loadProfile() {
+      const res = await fetch(`/api/doctorProfile?id_bacsi=${id_bacsi}`);
+      const d = await res.json();
+      document.getElementById("doctorName").textContent = d.hoten;
+      document.getElementById("doctorKhoa").textContent = d.chuyenkhoa;
+      document.getElementById("doctorGreeting").textContent = `Xin chào ${d.hoten}`;
+      document.getElementById("hosoName").textContent = d.hoten;
+      document.getElementById("hosoHocVi").textContent = d.hocvi;
+      document.getElementById("hosoChucVu").textContent = d.chucvu;
+      document.getElementById("hosoChuyenMon").textContent = d.chuyenkhoa;
+      document.getElementById("hosoExp").textContent = `${d.kinhnghiem} năm`;
+      document.getElementById("hosoEmail").textContent = d.email;
+      document.getElementById("hosoPhone").textContent = d.sdt;
+      document.getElementById("hosoAddress").textContent = d.diachi;
+    }
+
+    async function loadSchedule(date = "") {
+      const url = date ? `/api/DoctorDHST?id_bacsi=${id_bacsi}&ngay=${date}` : `/api/DoctorDHST?id_bacsi=${id_bacsi}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      renderSchedule(data);
+    }
+
+    function renderSchedule(list) {
+      const tbody = document.getElementById("lichTableBody");
+      tbody.innerHTML = "";
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="muted">Không có bệnh nhân trong ngày này</td></tr>`;
+        return;
+      }
+      list.forEach((bn, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${bn.id_benhnhan}</td>
+          <td><a class="name-link" onclick="openPatient('${bn.id_benhnhan}')">${bn.ten_benhnhan}</a></td>
+          <td>${bn.ngaykham}</td>
+          <td>${bn.giohen}</td>
+          <td>${bn.ca}</td>
+          <td><span class="status ${bn.trangthai}" onclick="updateStatus(${bn.id_lichkham}, '${bn.trangthai}')">${bn.trangthai}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function updateStatus(id, oldStatus) {
+      const next = oldStatus === "waiting" ? "arrived" : oldStatus === "arrived" ? "notyet" : "waiting";
+      await fetch("/api/updateStatus", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_lichkham: id, trangthai: next }),
+      });
+      loadSchedule();
+    }
+
+    async function openPatient(idBN) {
+      currentPatientId = idBN;
+      const res = await fetch(`/api/patientDetail?id_benhnhan=${idBN}`);
+      const bn = await res.json();
+      document.getElementById("patientName").textContent = bn.hoten;
+      document.getElementById("patientGender").textContent = bn.gioitinh;
+      document.getElementById("patientDOB").textContent = bn.ngaysinh;
+      document.getElementById("patientAddress").textContent = bn.diachi;
+      document.getElementById("chuandoan").value = bn.chuandoan || "";
+      document.getElementById("donthuoc").value = bn.donthuoc || "";
+      document.getElementById("patientModal").style.display = "flex";
+    }
+
+    async function savePatient() {
+      const chuandoan = document.getElementById("chuandoan").value.trim();
+      const donthuoc = document.getElementById("donthuoc").value.trim();
+      if (!currentPatientId) return;
+      await fetch("/api/updatePatient", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_benhnhan: currentPatientId, chuandoan, donthuoc }),
+      });
+      alert("Cập nhật bệnh án thành công!");
+      closeModal();
+      loadSchedule();
+    }
+
+    function closeModal() { document.getElementById("patientModal").style.display = "none"; }
+
     function showSection(id, el) {
-      document.querySelectorAll("main .section").forEach(s => s.style.display = "none");
+      document.querySelectorAll(".section").forEach(s => s.style.display = "none");
       document.getElementById(id).style.display = "block";
       document.querySelectorAll("aside nav a").forEach(a => a.classList.remove("active"));
       el.classList.add("active");
     }
 
-    const lichBenhNhan = [
-      { stt: 1, maBN: "BN001", ten: "Nguyễn Văn Nam", ngay: "2025-10-14", gio: "08:30", ca: "Sáng", khoa: "Nội tổng hợp", status: "waiting" },
-      { stt: 2, maBN: "BN002", ten: "Trần Thị Hồng", ngay: "2025-10-14", gio: "14:00", ca: "Chiều", khoa: "Nội tổng hợp", status: "arrived" },
-    ];
-
-    const patientDetails = {
-      "BN001": {
-        ho_ten: "Nguyễn Văn Nam", ngay_sinh: "1990-03-12", gioi_tinh: "Nam",
-        phone: "0912345678", diachi: "Hà Nội", ngay_kham: "2025-10-14",
-        trieu_chung: "Đau đầu, sốt nhẹ", chan_doan: "Cảm cúm", ke_toa: []
-      },
-      "BN002": {
-        ho_ten: "Trần Thị Hồng", ngay_sinh: "1988-06-20", gioi_tinh: "Nữ",
-        phone: "0987654321", diachi: "Đà Nẵng", ngay_kham: "2025-10-14",
-        trieu_chung: "Đau dạ dày", chan_doan: "Viêm loét dạ dày", ke_toa: []
-      }
-    };
-
-    const thongKe = [
-      { id: "TK01", thang: 9, nam: 2025, soBN: 125, soToa: 118, tile: 22 },
-      { id: "TK02", thang: 10, nam: 2025, soBN: 87, soToa: 85, tile: 18 }
-    ];
-
-    function renderLich() {
-      const tbody = document.getElementById("lichTableBody");
-      tbody.innerHTML = "";
-      lichBenhNhan.forEach(bn => {
-        const tr = document.createElement("tr");
-        tr.className = bn.status === "notyet" ? "faded" : "";
-        tr.dataset.date = bn.ngay;
-        tr.innerHTML = `
-          <td>${bn.stt}</td>
-          <td>${bn.maBN}</td>
-          <td><a class="name-link" onclick="showDetail('${bn.maBN}')">${bn.ten}</a></td>
-          <td>${bn.ngay}</td>
-          <td>${bn.gio}</td>
-          <td>${bn.ca}</td>
-          <td>${bn.khoa}</td>
-          <td><span class="status ${bn.status}" onclick="toggleStatus('${bn.maBN}')">${bn.status}</span></td>
-        `;
-        tbody.appendChild(tr);
-      });
+    function logout() {
+      alert("Đăng xuất thành công!");
+      window.location.reload();
     }
 
-    function renderThongKe() {
-      const tbody = document.getElementById("thongkeTableBody");
-      tbody.innerHTML = "";
-      thongKe.forEach(t => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${t.id}</td>
-          <td>${t.thang}</td>
-          <td>${t.nam}</td>
-          <td>${t.soBN}</td>
-          <td>${t.soToa}</td>
-          <td>${t.tile}%</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function toggleStatus(maBN) {
-      const bn = lichBenhNhan.find(x => x.maBN === maBN);
-      if (!bn) return;
-      bn.status = bn.status === "waiting" ? "arrived" : bn.status === "arrived" ? "notyet" : "waiting";
-      renderLich();
-    }
-
-    let currentPatientId = null;
-
-    function showDetail(id) {
-      const p = patientDetails[id];
-      if (!p) return alert("Chưa có dữ liệu chi tiết cho bệnh nhân này!");
-      currentPatientId = id;
-      const html = `
-        <p><b>Họ tên:</b> ${p.ho_ten}</p>
-        <p><b>Ngày sinh:</b> ${p.ngay_sinh}</p>
-        <p><b>Giới tính:</b> ${p.gioi_tinh}</p>
-        <p><b>Điện thoại:</b> ${p.phone}</p>
-        <p><b>Địa chỉ:</b> ${p.diachi}</p>
-        <p><b>Ngày khám:</b> ${p.ngay_kham}</p>
-      `;
-      document.getElementById("patientInfo").innerHTML = html;
-      document.getElementById("toaBody").innerHTML = "";
-      document.getElementById("baTrieuChung").value = p.trieu_chung || "";
-      document.getElementById("baChanDoan").value = p.chan_doan || "";
-      document.getElementById("baXetNghiem").value = p.xet_nghiem || "";
-      document.getElementById("baGhiChu").value = p.ghi_chu || "";
-      document.getElementById("patientModal").style.display = "flex";
-    }
-
-    function closeModal() {
-      document.getElementById("patientModal").style.display = "none";
-      currentPatientId = null;
-    }
-
-    function addThuocRow() {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td><input placeholder="Tên thuốc"></td>
-        <td><input placeholder="Liều lượng"></td>
-        <td><input placeholder="Số ngày"></td>
-        <td><input placeholder="Cách dùng"></td>
-        <td><button class="btn-outline" onclick="this.parentElement.parentElement.remove()">🗑</button></td>
-      `;
-      document.getElementById("toaBody").appendChild(row);
-    }
-
-    function saveToa() {
-      const rows = document.querySelectorAll("#toaBody tr");
-      const toa = [];
-      rows.forEach(r => {
-        const tds = r.querySelectorAll("input");
-        toa.push({
-          ten: tds[0].value, lieu: tds[1].value,
-          ngay: tds[2].value, cach: tds[3].value
-        });
-      });
-      if (currentPatientId) {
-        patientDetails[currentPatientId].ke_toa = toa;
-        alert("Đã lưu toa thuốc!");
-      }
-    }
-
-    // 🩺 Gửi cập nhật bệnh án về server
-    async function saveBenhAn() {
-      if (!currentPatientId) return alert("Vui lòng chọn bệnh nhân!");
-      const payload = {
-        maBN: currentPatientId,
-        trieuChung: document.getElementById("baTrieuChung").value,
-        chanDoan: document.getElementById("baChanDoan").value,
-        xetNghiem: document.getElementById("baXetNghiem").value,
-        ghiChu: document.getElementById("baGhiChu").value,
-      };
-      try {
-        const res = await fetch("/api/updateBenhAn", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-          alert("✅ Cập nhật bệnh án thành công!");
-          patientDetails[currentPatientId].trieu_chung = payload.trieuChung;
-          patientDetails[currentPatientId].chan_doan = payload.chanDoan;
-          patientDetails[currentPatientId].xet_nghiem = payload.xetNghiem;
-          patientDetails[currentPatientId].ghi_chu = payload.ghiChu;
-        } else {
-          alert("❌ Lỗi khi cập nhật bệnh án!");
-        }
-      } catch (err) {
-        alert("⚠️ Lỗi kết nối đến server!");
-        console.error(err);
-      }
-    }
-
-    // Hồ sơ
-    function editProfile() {
-      document.getElementById("profileView").style.display = "none";
-      document.getElementById("profileEdit").style.display = "block";
-      document.getElementById("editName").value = document.getElementById("hosoName").textContent;
-      document.getElementById("editEmail").value = document.getElementById("hosoEmail").textContent;
-      document.getElementById("editPhone").value = document.getElementById("hosoPhone").textContent;
-      document.getElementById("editAddress").value = document.getElementById("hosoAddress").textContent;
-    }
-    function cancelEdit() {
-      document.getElementById("profileView").style.display = "block";
-      document.getElementById("profileEdit").style.display = "none";
-    }
-    function saveProfile() {
-      document.getElementById("hosoName").textContent = document.getElementById("editName").value;
-      document.getElementById("hosoEmail").textContent = document.getElementById("editEmail").value;
-      document.getElementById("hosoPhone").textContent = document.getElementById("editPhone").value;
-      document.getElementById("hosoAddress").textContent = document.getElementById("editAddress").value;
-      cancelEdit();
-      alert("✅ Hồ sơ bác sĩ đã được cập nhật!");
-    }
-
-    // Lọc lịch
-    document.getElementById("filterDate").addEventListener("input", e => {
-      const date = e.target.value;
-      document.querySelectorAll("#lichTableBody tr").forEach(tr => {
-        const match = !date || tr.dataset.date === date;
-        tr.style.display = match ? "" : "none";
-      });
+    document.addEventListener("DOMContentLoaded", () => {
+      loadProfile();
+      loadSchedule();
     });
-
-    renderLich();
-    renderThongKe();
   </script>
 </body>
 </html>
