@@ -1,58 +1,53 @@
-const DoctorDHSTModel = require('../models/DoctorDHST.model');
+const DoctorDHSTModel = require("../models/DoctorDHST.model");
 
 const getDoctorDHST = async (req, res) => {
   try {
     const { id_bacsi, ngay } = req.query;
 
-    // 🧩 1️⃣ Kiểm tra đầu vào
-    if (!id_bacsi) {
+    // 1️⃣ Kiểm tra đầu vào
+    if (!id_bacsi?.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Thiếu ID bác sĩ."
+        message: "Thiếu ID bác sĩ (id_bacsi).",
       });
     }
 
-    // 🗓️ 2️⃣ Lấy danh sách lịch khám theo bác sĩ (và ngày nếu có)
+    // 2️⃣ Lấy danh sách lịch khám theo bác sĩ (và ngày nếu có)
     const schedules = await DoctorDHSTModel.findByDoctor(id_bacsi, ngay);
 
-    // Nếu không có lịch khám
-    if (!schedules || schedules.length === 0) {
+    // 3️⃣ Nếu không có lịch khám
+    if (!schedules?.length) {
       return res.status(200).json({
         success: true,
         message: "Không có lịch khám nào cho bác sĩ này.",
-        data: []
+        data: [],
       });
     }
 
-    // 👨‍⚕️ 3️⃣ Lấy thông tin bệnh nhân song song
+    // 4️⃣ Lấy thông tin bệnh nhân song song (Promise.all để tối ưu hiệu năng)
     const fullSchedules = await Promise.all(
       schedules.map(async (lich) => {
-        try {
-          const patient = await DoctorDHSTModel.findPatientById(lich.id_benhnhan);
-          return {
-            ...lich,
-            benhnhan: patient || null
-          };
-        } catch (err) {
-          console.error(`Lỗi khi lấy bệnh nhân ${lich.id_benhnhan}:`, err);
-          return { ...lich, benhnhan: null };
-        }
+        const patient = await DoctorDHSTModel.findPatientById(lich.id_benhnhan);
+        return {
+          ...lich,
+          benhnhan: patient ?? null,
+        };
       })
     );
 
-    // ✅ 4️⃣ Trả kết quả
-    return res.status(200).json({
+    // ✅ 5️⃣ Trả kết quả chuẩn REST
+    res.status(200).json({
       success: true,
-      message: "Lấy lịch khám và thông tin bệnh nhân thành công!",
-      data: fullSchedules
+      total: fullSchedules.length,
+      message: "Lấy lịch khám và thông tin bệnh nhân thành công.",
+      data: fullSchedules,
     });
-
   } catch (error) {
     console.error("❌ Lỗi tại DoctorDHST.controller:", error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Lỗi máy chủ khi lấy lịch khám.",
-      error: error.message
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
