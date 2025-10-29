@@ -1,4 +1,4 @@
-const db = require('../../config/db');
+const db = require("../../config/db");
 
 const DoctorDHSTModel = {
   // 📅 Lấy danh sách lịch khám của bác sĩ (có thể lọc theo ngày)
@@ -8,30 +8,33 @@ const DoctorDHSTModel = {
         SELECT 
           dl.id_datlich,
           dl.id_benhnhan,
-          dl.ngay,
+          dl.id_bacsi,
+          dl.id_khoa,
+          DATE_FORMAT(dl.ngay, '%Y-%m-%d') AS ngay,
           dl.khung_gio,
           dl.trang_thai,
           k.ten_khoa
-        FROM dat_lich dl
-        JOIN khoa k ON dl.id_khoa = k.id_khoa
+        FROM dat_lich AS dl
+        JOIN khoa AS k ON dl.id_khoa = k.id_khoa
         WHERE dl.id_bacsi = ?
       `;
 
       const params = [id_bacsi];
 
+      // 🗓️ Lọc theo ngày (nếu có)
       if (ngay) {
-        sql += " AND DATE(dl.ngay) = ?"; // ✅ Đảm bảo so sánh ngày chuẩn xác
+        sql += " AND DATE(dl.ngay) = ?";
         params.push(ngay);
       }
 
       sql += " ORDER BY dl.ngay DESC, dl.khung_gio ASC";
 
       const [rows] = await db.query(sql, params);
-      return rows || [];
 
+      return rows || [];
     } catch (error) {
-      console.error("❌ Lỗi tại findByDoctor:", error);
-      throw error; // ❗ Nên ném lại lỗi gốc thay vì tạo mới để log chính xác
+      console.error("❌ Lỗi tại DoctorDHSTModel.findByDoctor:", error);
+      throw error;
     }
   },
 
@@ -50,11 +53,12 @@ const DoctorDHSTModel = {
         FROM benhnhan
         WHERE id_benhnhan = ?
       `;
-      const [rows] = await db.query(sql, [id_benhnhan]);
-      return rows[0] || null;
 
+      const [rows] = await db.query(sql, [id_benhnhan]);
+
+      return rows?.[0] || null;
     } catch (error) {
-      console.error("❌ Lỗi tại findPatientById:", error);
+      console.error("❌ Lỗi tại DoctorDHSTModel.findPatientById:", error);
       throw error;
     }
   },
