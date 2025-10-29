@@ -26,6 +26,12 @@ const listDoctorRoutes = require("./routes/listdoctor.routes");
 const lichLamViecRoutes = require("./routes/lichlamviec.routes");
 app.use("/api/lichlamviec", lichLamViecRoutes);
 
+const hoSoRoutes = require("./routes/hoso.routes");//Sáng
+const datLichLeTanRoutes = require("./routes/datlichletan.routes");//Sáng
+// nếu file routes nằm trong src/routes/datlichletan.routes.js
+app.use("/api/datlichletan", datLichLeTanRoutes);//Sáng
+
+
 // ================== PHỤC VỤ FILE TĨNH FRONTEND ==================
 app.use(express.static(path.join(__dirname, "../../frontend/page")));
 
@@ -43,6 +49,12 @@ app.use("/api/datlich", appointmentRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/patient", patientRoutes);
 app.use("/api/listdoctor", listDoctorRoutes);
+
+app.use("/api/hoso", hoSoRoutes);//Sáng
+
+
+
+
 
 // ================== XỬ LÝ LỖI ==================
 app.use((req, res) => {
