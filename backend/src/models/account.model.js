@@ -1,6 +1,6 @@
-// models/account.model.js
 const db = require("../../config/db");
 
+// 📋 Lấy danh sách tài khoản
 async function getAllAccounts() {
   const [rows] = await db.query(`
     SELECT 
@@ -18,7 +18,7 @@ async function getAllAccounts() {
   return rows;
 }
 
-// 🔥 Thay đổi trạng thái tài khoản
+// 🔥 Thay đổi trạng thái tài khoản (ACTIVE / INACTIVE)
 async function updateAccountStatus(id_taikhoan, status) {
   await db.query(
     "UPDATE TAIKHOAN SET status = ? WHERE id_taikhoan = ?",
@@ -26,4 +26,16 @@ async function updateAccountStatus(id_taikhoan, status) {
   );
 }
 
-module.exports = { getAllAccounts, updateAccountStatus };
+// 🔁 Reset mật khẩu (cập nhật password mới đã hash)
+async function updatePassword(id_taikhoan, hashedPassword) {
+  await db.query(
+    "UPDATE TAIKHOAN SET password = ? WHERE id_taikhoan = ?",
+    [hashedPassword, id_taikhoan]
+  );
+}
+
+module.exports = { 
+  getAllAccounts, 
+  updateAccountStatus, 
+  updatePassword // ✅ thêm export cho reset password
+};
