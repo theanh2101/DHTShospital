@@ -29,11 +29,19 @@ const letanRoutes = require("./routes/letan.routes");
 const DoctorDHSTRoutes = require("./routes/DoctorDHST.routes");
 
 // ================== PHỤC VỤ FRONTEND ==================
+//giao dien danh cho benh nhan
+app.use(express.static(path.join(__dirname, "../../frontend/pages/giaodienbenhnhan")));
+
+// Khi vào trang chủ -> tự động mở index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../frontend/pages/giaodienbenhnhan/index.html"));
+});
+
+//giao dien dành cho nhân viên
 app.use(express.static(path.join(__dirname, "../../frontend/pages")));
 
-// Khi vào trang chủ -> tự động mở login.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/pages/nhanvien/login.html"));
+app.get("/login", (req,res)=>{
+  res.sendFile(path.join(__dirname, "../../frontend/pages/nhanvien/login.html"))
 });
 // ================== GẮN ROUTE API ==================
 app.use("/api/users", userRoutes);
