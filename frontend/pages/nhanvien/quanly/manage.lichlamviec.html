@@ -218,8 +218,7 @@
   </div>
 
   <div id="toasts" class="toast-wrap"></div>
-
-<script>
+  <script>
 document.addEventListener("DOMContentLoaded", () => {
   const API_BASE = "http://localhost:3000/api";
   const khoaSelect = document.getElementById("khoaSelect");
@@ -238,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let allDoctors = [], currentSchedule = [], isEditing = false, currentCell = null;
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // reset giờ để so sánh chính xác theo ngày
+  today.setHours(0, 0, 0, 0);
 
   function showToast(msg, type = "success") {
     const t = document.createElement("div");
@@ -290,7 +289,6 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let d = 1; d <= days; d++) {
       const dateStr = `${namSelect.value}-${String(thangSelect.value).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const dateObj = new Date(dateStr);
-
       const sang = lich.filter(l => l.ngay.startsWith(dateStr) && l.ca === "Sang");
       const chieu = lich.filter(l => l.ngay.startsWith(dateStr) && l.ca === "Chieu");
 
@@ -393,27 +391,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     showToast("Đã lưu lịch làm việc!");
     isEditing = false;
+
+    // Bật lại chọn dropdown khi lưu xong
+    khoaSelect.disabled = thangSelect.disabled = namSelect.disabled = false;
+
     btnEdit.style.display = "inline-block";
     btnSave.style.display = btnCancel.style.display = "none";
-    await loadSchedule(); // tự động refresh
+    await loadSchedule();
   }
 
   // EVENTS
   khoaSelect.addEventListener("change", loadSchedule);
   thangSelect.addEventListener("change", loadSchedule);
   namSelect.addEventListener("change", loadSchedule);
+
   btnEdit.onclick = () => {
     isEditing = true;
     btnEdit.style.display = "none";
     btnSave.style.display = btnCancel.style.display = "inline-block";
+
+    // 🚫 Khóa các select trong lúc chỉnh sửa
+    khoaSelect.disabled = thangSelect.disabled = namSelect.disabled = true;
+
     attachCellEvents();
   };
+
   btnCancel.onclick = () => {
     isEditing = false;
+
+    // ✅ Mở lại chọn dropdown khi hủy chỉnh sửa
+    khoaSelect.disabled = thangSelect.disabled = namSelect.disabled = false;
+
     btnEdit.style.display = "inline-block";
     btnSave.style.display = btnCancel.style.display = "none";
     attachCellEvents();
   };
+
   btnSave.onclick = saveSchedule;
   btnCloseModal.onclick = closeModal;
   btnConfirmDoctor.onclick = confirmDoctorSelection;
@@ -430,6 +443,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initThangNam();
 });
 </script>
-
 </body>
 </html>

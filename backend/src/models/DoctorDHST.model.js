@@ -7,7 +7,6 @@ const DoctorDHSTModel = {
       let sql = `
         SELECT 
           dl.id_datlich,
-          dl.id_benhnhan,
           dl.id_bacsi,
           dl.id_khoa,
           DATE_FORMAT(dl.ngay, '%Y-%m-%d') AS ngay,
@@ -48,8 +47,7 @@ const DoctorDHSTModel = {
           ngay_sinh,
           gioi_tinh,
           dia_chi,
-          phone AS sdt,
-          trieu_chung
+          phone AS sdt
         FROM benhnhan
         WHERE id_benhnhan = ?
       `;

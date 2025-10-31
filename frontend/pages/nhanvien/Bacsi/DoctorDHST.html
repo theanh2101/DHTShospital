@@ -190,11 +190,18 @@
   </div>
 
   <script>
-    const id_bacsi = "BS001";
+    let doctorId = localStorage.getItem("doctorId");
+
+    // 🔐 Kiểm tra đăng nhập
+    if (!doctorId) {
+      alert("Vui lòng đăng nhập lại!");
+      window.location.href = "http://localhost:3000/login.html";
+    }
+
     let currentPatientId = null;
 
     async function loadProfile() {
-      const res = await fetch(`/api/doctorProfile?id_bacsi=${id_bacsi}`);
+      const res = await fetch(`/api/doctorProfile?id_bacsi=${doctorId}`);
       const d = await res.json();
       document.getElementById("doctorName").textContent = d.hoten;
       document.getElementById("doctorKhoa").textContent = d.chuyenkhoa;
@@ -210,7 +217,7 @@
     }
 
     async function loadSchedule(date = "") {
-      const url = date ? `/api/DoctorDHST?id_bacsi=${id_bacsi}&ngay=${date}` : `/api/DoctorDHST?id_bacsi=${id_bacsi}`;
+      const url = date ? `/api/DoctorDHST?id_bacsi=${doctorId}&ngay=${date}` : `/api/DoctorDHST?id_bacsi=${doctorId}`;
       const res = await fetch(url);
       const data = await res.json();
       renderSchedule(data);
@@ -285,8 +292,11 @@
     }
 
     function logout() {
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
+      localStorage.removeItem("doctorId");
       alert("Đăng xuất thành công!");
-      window.location.reload();
+      window.location.href = "../login.html";
     }
 
     document.addEventListener("DOMContentLoaded", () => {
