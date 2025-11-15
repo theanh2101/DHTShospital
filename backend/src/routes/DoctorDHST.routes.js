@@ -1,44 +1,28 @@
-const express = require("express");
+// routes/DoctorDHST.routes.js
+const express = require('express');
 const router = express.Router();
-const DoctorController = require("../controllers/DoctorDHST.controller");
+const controller = require('../controllers/DoctorDHST.controller');
 
-// ===============================================================
-// 🩺 API CHÍNH LIÊN QUAN ĐẾN BÁC SĨ & LỊCH KHÁM
-// ===============================================================
+// --- Doctor Profile & Schedule ---
+// GET /api/DoctorDHST/doctorProfile?id_bacsi=...
+router.get('/doctorProfile', controller.getDoctorProfile);
+// GET /api/DoctorDHST/schedule?id_bacsi=...&ngay=...
+router.get('/schedule', controller.getDoctorSchedule);
+// PUT /api/DoctorDHST/update
+router.put('/update', controller.updateDoctorProfile);
+// GET /api/DoctorDHST/thongke/today?id_bacsi=... (Thống kê hôm nay)
+router.get('/thongke/today', controller.getDailyStatistics);
 
-/**
- * @route   GET /api/doctors/profile
- * @desc    📄 Lấy hồ sơ chi tiết của bác sĩ theo ID
- * @query   id_bacsi=BS001
- * @access  Public
- */
-router.get("/doctors/profile", DoctorController.getDoctorProfile);
 
-/**
- * @route   GET /api/doctors/schedules
- * @desc    📅 Lấy danh sách lịch khám của bác sĩ (và lọc theo ngày nếu có)
- * @query   id_bacsi=BS001&ngay=YYYY-MM-DD
- * @access  Public
- */
-router.get("/doctors/schedules", DoctorController.getDoctorDHST);
+// --- Patient Medical Records & Prescription ---
+// Lấy TẤT CẢ thông tin chi tiết của một lịch khám (đặt lịch, bệnh nhân, hồ sơ cũ, toa cũ)
+// GET /api/DoctorDHST/full_detail?id_datlich=...
+router.get('/full_detail', controller.getFullRecordDetail);
 
-// ===============================================================
-// 🔍 ROUTE KIỂM TRA HOẠT ĐỘNG
-// ===============================================================
-/**
- * @route   GET /api/doctors/test
- * @desc    🧠 Kiểm tra API DoctorDHST hoạt động
- * @access  Public
- */
-router.get("/doctors/test", (req, res) => {
-  res.json({
-    success: true,
-    message: "✅ API DoctorDHST Routes hoạt động bình thường!",
-    endpoints: [
-      "/api/doctors/profile?id_bacsi=BS001",
-      "/api/doctors/schedules?id_bacsi=BS001&ngay=YYYY-MM-DD",
-    ],
-  });
-});
+// POST /api/DoctorDHST/save_toa
+router.post('/save_toa', controller.savePrescription);
+
+// POST /api/DoctorDHST/save_benhan
+router.post('/save_benhan', controller.saveMedicalRecord);
 
 module.exports = router;
