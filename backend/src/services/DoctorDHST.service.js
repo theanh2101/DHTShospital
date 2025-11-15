@@ -1,72 +1,104 @@
-const db = require("../config/db"); // pool MySQL2
+// services/DoctorDHST.service.js
+const DoctorDHSTModel = require('../models/DoctorDHST.model');
 
-// 1️⃣ Lấy lịch khám của bác sĩ, có thể lọc theo ngày
-async function getSchedule(id_bacsi, ngay = null) {
-  try {
-    let sql = `SELECT l.id_lichkham, bn.id_benhnhan, bn.hoten AS ten_benhnhan, 
-               l.ngaykham, l.giohen, l.ca, l.trangthai
-               FROM lichkham l
-               JOIN benhnhan bn ON l.id_benhnhan = bn.id_benhnhan
-               WHERE l.id_bacsi = ?`;
-    const params = [id_bacsi];
-    if (ngay) {
-      sql += " AND l.ngaykham = ?";
-      params.push(ngay);
+class DoctorDHSTService {
+    constructor(pool) {
+        this.doctorModel = new DoctorDHSTModel(pool);
+        this.pool = pool;
     }
-    const [rows] = await db.promise().query(sql, params);
-    return rows;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
 
-// 2️⃣ Lấy chi tiết bệnh nhân
-async function getPatientDetail(id_benhnhan) {
-  try {
-    const [rows] = await db.promise().query(
-      `SELECT hoten, gioitinh, ngaysinh, diachi, chuandoan, donthuoc
-       FROM benhnhan WHERE id_benhnhan = ?`,
-      [id_benhnhan]
-    );
-    return rows[0] || null;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+    // --- Profile & Schedule Services ---
+    async getProfile(id_bacsi) {
+        console.log("Fetching profile for doctor ID:", id_bacsi);
+        console.log("Check doctorModel:", this?.doctorModel);
+        return await this?.doctorModel?.findDoctorProfile(id_bacsi);
+    }
 
-// 3️⃣ Cập nhật trạng thái lịch khám
-async function updateStatus(id_lichkham, trangthai) {
-  try {
-    const [result] = await db.promise().query(
-      `UPDATE lichkham SET trangthai = ? WHERE id_lichkham = ?`,
-      [trangthai, id_lichkham]
-    );
-    return result.affectedRows;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+    async updateProfile(data) {
+        if (!data.id_bacsi) throw new Error("Missing doctor ID.");
+        const result = await this.doctorModel.updateDoctorProfile(data);
+        return result.affectedRows;
+    }
 
-// 4️⃣ Cập nhật bệnh án (chuẩn đoán + đơn thuốc)
-async function updatePatient(id_benhnhan, chuandoan, donthuoc) {
-  try {
-    const [result] = await db.promise().query(
-      `UPDATE benhnhan SET chuandoan = ?, donthuoc = ? WHERE id_benhnhan = ?`,
-      [chuandoan, donthuoc, id_benhnhan]
-    );
-    return result.affectedRows;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+    async getSchedule(id_bacsi, ngay) {
+        const schedule = await this.doctorModel.findDoctorSchedule(id_bacsi, ngay);
+        
+        // Định dạng lại dữ liệu và trạng thái cho Frontend
+        return schedule.map(row => ({
+            id_datlich: row.id_datlich,
+            id_benhnhan: row.id_benhnhan || 'N/A', // Dùng N/A nếu chưa tạo hồ sơ BN
+            ten_benhnhan: row.ten_benhnhan,
+            ngay: row.ngay.toISOString().split('T')[0],
+            khung_gio: row.khung_gio.substring(0, 5),
+            trang_thai: row.trang_thai === 'CHO_XAC_NHAN' ? 'Chờ xác nhận' :
+                        row.trang_thai === 'DA_TAO_HOSO' ? 'Đã tạo hồ sơ' :
+                        'Hoàn thành' // HOAN_THANH
+        }));
+    }
+    
+    async getStatistics(id_bacsi, today) {
+        return await this.doctorModel.findDailyStatistics(id_bacsi, today);
+    }
 
-module.exports = {
-  getSchedule,
-  getPatientDetail,
-  updateStatus,
-  updatePatient
-};
+
+    // --- Medical Record & Prescription Services ---
+    async getAllRecordDetails(id_datlich) {
+        const appointmentDetails = await this.doctorModel.findAppointmentDetails(id_datlich);
+        if (!appointmentDetails) return null;
+
+        // Lấy thông tin chi tiết
+        const medicalRecord = await this.doctorModel.findMedicalRecord(id_datlich);
+        const prescriptionDetails = await this.doctorModel.findPrescriptionDetails(id_datlich);
+
+        // Gom kết quả
+        return {
+            appointment: {
+                id_datlich: appointmentDetails.id_datlich,
+                ngay_kham: appointmentDetails.ngay_kham,
+                khung_gio: appointmentDetails.khung_gio
+            },
+            patient: {
+                id: appointmentDetails.id_benhnhan,
+                ho_ten: appointmentDetails.ho_ten || appointmentDetails.ten_dat_lich,
+                gioi_tinh: appointmentDetails.gioi_tinh,
+                ngay_sinh: appointmentDetails.ngay_sinh,
+                dia_chi: appointmentDetails.dia_chi,
+                sdt: appointmentDetails.sdt
+            },
+            medicalRecord: medicalRecord || {}, 
+            prescription: { toa_thuoc: prescriptionDetails } 
+        };
+    }
+
+    async saveRecord(data) {
+        // Trong trường hợp này, chúng ta giả định BN đã có trong hệ thống hoặc được tạo tự động
+        const id_benhnhan = data.id_benhnhan || 'BN001'; 
+
+        return await this.doctorModel.upsertMedicalRecord(data, id_benhnhan);
+    }
+    
+    async savePrescription(data) {
+        const connection = await this.pool.getConnection();
+        try {
+            await connection.beginTransaction();
+
+            const id_benhnhan = data.id_benhnhan || 'BN001'; 
+            
+            await this.doctorModel.savePrescription(
+                connection, 
+                data.id_datlich, 
+                id_benhnhan, 
+                data.id_bacsi, 
+                data.toa_thuoc
+            );
+            
+            await connection.commit();
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+    }
+}
+module.exports = DoctorDHSTService;
