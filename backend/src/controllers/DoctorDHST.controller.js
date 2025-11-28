@@ -1,60 +1,151 @@
-const DoctorDHSTModel = require('../models/DoctorDHST.model');
+// controllers/DoctorDHST.controller.js
+const DoctorDHSTService = require('../services/DoctorDHST.service');
+const db = require('../../config/db');
 
-const getDoctorDHST = async (req, res) => {
-  try {
-    const { id_bacsi, ngay } = req.query;
+// Tạo Service instance một lần với pool từ config
+const service = new DoctorDHSTService(db);
 
-    // 🧩 1️⃣ Kiểm tra đầu vào
-    if (!id_bacsi) {
-      return res.status(400).json({
-        success: false,
-        message: "Thiếu ID bác sĩ."
-      });
-    }
+// --- 0. GET ID_BACSI FROM ID_TAIKHOAN ---
+exports.getBacsiIdFromTaikhoan = async (req, res) => {
+    const { id_taikhoan } = req.query;
+    if (!id_taikhoan) return res.status(400).send({ error: "Missing id_taikhoan." });
 
-    // 🗓️ 2️⃣ Lấy danh sách lịch khám theo bác sĩ (và ngày nếu có)
-    const schedules = await DoctorDHSTModel.findByDoctor(id_bacsi, ngay);
+    try {
+        const [rows] = await db.query(
+            `SELECT id_bacsi FROM bacsi WHERE id_taikhoan = ? LIMIT 1`,
+            [id_taikhoan]
+        );
 
-    // Nếu không có lịch khám
-    if (!schedules || schedules.length === 0) {
-      return res.status(200).json({
-        success: true,
-        message: "Không có lịch khám nào cho bác sĩ này.",
-        data: []
-      });
-    }
-
-    // 👨‍⚕️ 3️⃣ Lấy thông tin bệnh nhân song song
-    const fullSchedules = await Promise.all(
-      schedules.map(async (lich) => {
-        try {
-          const patient = await DoctorDHSTModel.findPatientById(lich.id_benhnhan);
-          return {
-            ...lich,
-            benhnhan: patient || null
-          };
-        } catch (err) {
-          console.error(`Lỗi khi lấy bệnh nhân ${lich.id_benhnhan}:`, err);
-          return { ...lich, benhnhan: null };
+        if (!rows || rows.length === 0) {
+            return res.status(404).send({ error: "Doctor not found for this account." });
         }
-      })
-    );
 
-    // ✅ 4️⃣ Trả kết quả
-    return res.status(200).json({
-      success: true,
-      message: "Lấy lịch khám và thông tin bệnh nhân thành công!",
-      data: fullSchedules
-    });
-
-  } catch (error) {
-    console.error("❌ Lỗi tại DoctorDHST.controller:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Lỗi máy chủ khi lấy lịch khám.",
-      error: error.message
-    });
-  }
+        res.status(200).json({ data: { id_bacsi: rows[0].id_bacsi } });
+    } catch (error) {
+        console.error("Error in getBacsiIdFromTaikhoan:", error);
+        res.status(500).send({ error: "Internal server error." });
+    }
 };
 
-module.exports = { getDoctorDHST };
+// --- 1. PROFILE ---
+exports.getDoctorProfile = async (req, res) => {
+    const { id_bacsi } = req?.query;
+    if (!id_bacsi) return res.status(400).send({ error: "Missing doctor ID." });
+
+    try {
+        const profile = await service.getProfile(id_bacsi);
+
+        if (!profile) return res.status(404).send({ error: "Doctor not found." });
+
+        res.status(200).json({ data: profile });
+    } catch (error) {
+        console.error("Error in getDoctorProfile:", error);
+        res.status(500).send({ error: "Internal server error." });
+    }
+};
+
+exports.updateDoctorProfile = async (req, res) => {
+    const data = req.body;
+    if (!data.id_bacsi) return res.status(400).send({ error: "Missing doctor ID." });
+
+    try {
+        await service.updateProfile(data);
+
+        res.status(200).json({ data: { success: true }, message: "Profile updated successfully." });
+    } catch (error) {
+        console.error("Error in updateDoctorProfile:", error);
+        res.status(500).send({ error: error.message || "Failed to update profile." });
+    }
+};
+
+// --- 2. SCHEDULE ---
+exports.getDoctorSchedule = async (req, res) => {
+    const { id_bacsi, ngay } = req.query;
+    if (!id_bacsi) return res.status(400).send({ error: "Missing doctor ID." });
+
+    try {
+        const schedule = await service.getSchedule(id_bacsi, ngay);
+
+        res.status(200).json({ data: schedule });
+    } catch (error) {
+        console.error("Error in getDoctorSchedule:", error);
+        res.status(500).send({ error: "Internal server error." });
+    }
+};
+
+// --- 3. STATISTICS ---
+exports.getDailyStatistics = async (req, res) => {
+    const { id_bacsi } = req.query;
+    if (!id_bacsi) return res.status(400).send({ error: "Missing doctor ID." });
+
+    try {
+        const today = new Date().toISOString().split('T')[0]; // Lấy ngày YYYY-MM-DD
+        const stats = await service.getStatistics(id_bacsi, today);
+
+        res.status(200).json({ data: { 
+            so_benh_nhan: stats.so_benh_nhan || 0,
+            da_kham: stats.da_kham || 0 
+        } });
+    } catch (error) {
+        console.error("Error in getDailyStatistics:", error);
+        res.status(500).send({ error: "Internal server error." });
+    }
+};
+
+// --- 4. FULL RECORD DETAIL ---
+exports.getFullRecordDetail = async (req, res) => {
+    const { id_datlich } = req.query; 
+    if (!id_datlich) return res.status(400).send({ error: "Missing datlich ID." });
+
+    try {
+        const details = await service.getAllRecordDetails(id_datlich);
+
+        if (!details) return res.status(404).send({ error: "Appointment not found." });
+
+        res.status(200).json({ data: details });
+    } catch (error) {
+        console.error("Error fetching full record detail:", error);
+        res.status(500).send({ error: "Internal server error." });
+    }
+};
+
+// --- 5. GET DATLICH BY BENHNHAN AND BACSI ---
+exports.getDatlichByBenhnhan = async (req, res) => {
+    const { id_benhnhan, id_bacsi } = req.query;
+    if (!id_benhnhan || !id_bacsi) return res.status(400).send({ error: "Missing id_benhnhan or id_bacsi." });
+
+    try {
+        const datlich = await service.getDatlichByBenhnhanAndBacsi(id_benhnhan, id_bacsi);
+        res.status(200).json({ data: datlich });
+    } catch (error) {
+        console.error("Error in getDatlichByBenhnhan:", error);
+        res.status(500).send({ error: "Internal server error." });
+    }
+};
+
+// --- 6. SAVE RECORDS ---
+exports.saveMedicalRecord = async (req, res) => {
+    const data = req.body;
+    if (!data.id_datlich || !data.id_bacsi) return res.status(400).send({ error: "Missing required fields." });
+
+    try {
+        await service.saveRecord(data);
+        res.status(200).json({ data: { success: true }, message: "Medical record saved successfully." });
+    } catch (error) {
+        console.error("Error saving medical record:", error);
+        res.status(500).send({ error: "Failed to save medical record." });
+    }
+};
+
+exports.savePrescription = async (req, res) => {
+    const data = req.body;
+    if (!data.id_datlich || !data.id_bacsi || !data.toa_thuoc) return res.status(400).send({ error: "Missing required fields." });
+
+    try {
+        await service.savePrescription(data);
+        res.status(200).json({ data: { success: true }, message: "Prescription saved successfully." });
+    } catch (error) {
+        console.error("Error saving prescription:", error);
+        res.status(500).send({ error: "Failed to save prescription." });
+    }
+};
