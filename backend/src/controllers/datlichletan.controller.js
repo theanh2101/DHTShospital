@@ -1,94 +1,104 @@
-// src/controllers/datlichletan.controller.js
+// ==============================
+//  Controller: Đặt lịch lễ tân
+// ==============================
 const DatLichLeTanService = require("../services/datlichletan.service");
-const DatLichLeTanModel = require("../models/datlichletan.model"); // dùng trực tiếp cho vài truy vấn nhẹ
+const DatLichLeTanModel = require("../models/datlichletan.model");
 
-// 1️⃣ Lấy tất cả lịch khám
-exports.getAll = async (req, res) => {
-  try {
-    const data = await DatLichLeTanService.getAll();
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("❌ Lỗi khi lấy danh sách lịch:", err);
-    res.status(500).json({ message: "Lỗi server khi lấy danh sách lịch khám." });
-  }
-};
-
-// 2️⃣ Lấy danh sách theo trạng thái
-exports.getByStatus = async (req, res) => {
-  try {
-    const status = req.params.status;
-    const data = await DatLichLeTanService.getByStatus(status);
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("❌ Lỗi khi lọc danh sách lịch:", err);
-    res.status(500).json({ message: "Lỗi server khi lọc lịch khám." });
-  }
-};
-
-// 3️⃣ Lấy chi tiết lịch khám theo ID
-exports.getById = async (req, res) => {
-  try {
-    const id_datlich = req.params.id_datlich;
-    const data = await DatLichLeTanService.getById(id_datlich);
-    if (!data) return res.status(404).json({ message: "Không tìm thấy lịch khám." });
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("❌ Lỗi khi lấy chi tiết lịch:", err);
-    res.status(500).json({ message: "Lỗi server khi lấy chi tiết lịch khám." });
-  }
-};
-
-// ================= MỚI: Lấy thông tin lễ tân theo id_taikhoan =================
-exports.getLeTanByTaiKhoan = async (req, res) => {
-  try {
-    const id_taikhoan = req.params.id_taikhoan;
-    if (!id_taikhoan) return res.status(400).json({ message: "Thiếu id_taikhoan" });
-
-    const data = await DatLichLeTanModel.getLeTanByTaiKhoan(id_taikhoan);
-    if (!data) return res.status(404).json({ message: "Không tìm thấy lễ tân." });
-
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("❌ Lỗi khi lấy thông tin lễ tân:", err);
-    res.status(500).json({ message: "Lỗi server khi lấy thông tin lễ tân." });
-  }
-};
-
-// ================= MỚI: Lọc bác sĩ theo khoa, ngày, ca =================
-exports.getDoctorsBySchedule = async (req, res) => {
-  try {
-    const { id_khoa, ngay, ca } = req.query;
-    if (!id_khoa || !ngay || !ca) {
-      return res.status(400).json({ message: "Thiếu tham số: id_khoa, ngay, ca là bắt buộc." });
+const DatLichLeTanController = {
+  // 🧾 Lấy toàn bộ lịch hẹn
+  async getAll(req, res) {
+    try {
+      const data = await DatLichLeTanModel.getAll();
+      res.json({ success: true, data });
+    } catch (err) {
+      console.error("❌ Lỗi getAll:", err);
+      res.status(500).json({ success: false, message: err.message });
     }
+  },
 
-    const doctors = await DatLichLeTanModel.getDoctorsBySchedule(id_khoa, ngay, ca);
-    res.status(200).json(doctors);
-  } catch (err) {
-    console.error("❌ Lỗi khi lọc bác sĩ:", err);
-    res.status(500).json({ message: "Lỗi server khi lọc danh sách bác sĩ." });
-  }
-};
-
-// ================= ✅ MỚI: Tạo hồ sơ & đặt lịch khám =================
-exports.create = async (req, res) => {
-  try {
-    const data = req.body;
-
-    // Kiểm tra các trường bắt buộc
-    if (!data.ho_ten || !data.phone || !data.id_khoa || !data.id_bacsi || !data.ngay) {
-      return res.status(400).json({ message: "Thiếu thông tin bắt buộc: họ tên, điện thoại, khoa, bác sĩ, ngày." });
+  // 🧩 Lấy lịch theo trạng thái (VD: CHO_KHAM, DA_DAT, DA_CHECKIN)
+  async getByStatus(req, res) {
+    try {
+      const { status } = req.params;
+      const data = await DatLichLeTanModel.getByStatus(status);
+      res.json({ success: true, data });
+    } catch (err) {
+      console.error("❌ Lỗi getByStatus:", err);
+      res.status(500).json({ success: false, message: err.message });
     }
+  },
 
-    // Gọi service xử lý
-    const result = await DatLichLeTanService.create(data);
+  // 🔍 Lấy chi tiết lịch theo ID
+  async getById(req, res) {
+    try {
+      const { id_datlich } = req.params;
+      const data = await DatLichLeTanModel.findById(id_datlich);
+      if (!data)
+        return res.status(404).json({ success: false, message: "Không tìm thấy lịch" });
+      res.json({ success: true, data });
+    } catch (err) {
+      console.error("❌ Lỗi getById:", err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
 
-    return res.status(201).json({
-      message: "✅ Tạo hồ sơ & đặt lịch thành công!",
-      data: result
-    });
-  } catch (err) {
-    console.error("❌ Lỗi khi tạo hồ sơ & đặt lịch:", err);
-    res.status(500).json({ message: "Lỗi server khi tạo hồ sơ & đặt lịch!" });
-  }
+  // 🏥 Tạo lịch mới từ lễ tân
+  async create(req, res) {
+    try {
+      const result = await DatLichLeTanService.create(req.body);
+      res.json(result);
+    } catch (err) {
+      console.error("❌ Lỗi create:", err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  // ✅ Check-in bệnh nhân theo số điện thoại
+  async checkin(req, res) {
+    try {
+      const result = await DatLichLeTanService.checkinByPhone(req.body);
+      res.json(result);
+    } catch (err) {
+      console.error("❌ Lỗi checkin:", err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  // 👩‍⚕️ Xem trước bác sĩ (round robin)
+  async previewDoctor(req, res) {
+    try {
+      const { id_khoa } = req.query;
+      if (!id_khoa)
+        return res
+          .status(400)
+          .json({ success: false, message: "Thiếu id_khoa trong query" });
+
+      const result = await DatLichLeTanService.previewRoundRobinDoctor(id_khoa);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      console.error("❌ Lỗi previewDoctor:", err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  // 🗓️ Lấy danh sách bác sĩ có lịch theo ca & ngày
+  async getDoctorsBySchedule(req, res) {
+    try {
+      const { id_khoa, ngay, ca } = req.query;
+      if (!id_khoa || !ngay || !ca) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Thiếu tham số id_khoa, ngay hoặc ca" });
+      }
+
+      const data = await DatLichLeTanService.getDoctorsBySchedule(id_khoa, ngay, ca);
+      res.json({ success: true, data });
+    } catch (err) {
+      console.error("❌ Lỗi getDoctorsBySchedule:", err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  },
 };
+
+// ✅ Xuất controller ra ngoài cho routes sử dụng
+module.exports = DatLichLeTanController;

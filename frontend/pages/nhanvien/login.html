@@ -144,7 +144,7 @@
                     window.location.href = "http://localhost:3000/nhanvien/Bacsi/DoctorDHST.html";
                     break;
                 case "LETAN":
-                    window.location.href = "http://localhost:3000/nhanvien/letan/letan.html";
+                    window.location.href = "http://localhost:3000/nhanvien/letan/reception.html";
                     break;
                 case "ADMIN":
                     window.location.href = "http://localhost:3000/nhanvien/quanly/manage.account.html";
@@ -158,38 +158,8 @@
         }
     });
 
-    // ====== Tự động chuyển nếu đã đăng nhập ======
-    window.addEventListener("load", () => {
-        try {
-            // Lấy dữ liệu user
-            const userString = localStorage.getItem("user");
-            const user = userString ? JSON.parse(userString) : {};
+    
 
-            // Nếu user hợp lệ (có role và id) thì chuyển hướng
-            if (user?.role && user?.id) {
-                const role = user.role.toUpperCase();
-                if (role === "BACSI") {
-                    window.location.href = "http://localhost:3000/nhanvien/Bacsi/DoctorDHST.html";
-                } else if (role === "LETAN") {
-                    window.location.href = "http://localhost:3000/nhanvien/letan/letan.html";
-                } else if (role === "ADMIN") {
-                    window.location.href = "http://localhost:3000/nhanvien/quanly/manage.account.html";
-                }
-            } else {
-                // **HÀNH ĐỘNG KHẮC PHỤC:** Nếu user đã bị xóa nhưng các khóa khác còn sót, xóa chúng đi.
-                // Điều này ngăn chặn bất kỳ logic nào dựa trên role hoặc doctorId còn sót lại.
-                if (localStorage.getItem("role") || localStorage.getItem("doctorId")) {
-                    console.warn("Dọn dẹp Local Storage: role hoặc doctorId bị sót lại.");
-                    localStorage.removeItem("role");
-                    localStorage.removeItem("doctorId");
-                }
-            }
-        } catch (error) {
-            console.error("❌ Lỗi kiểm tra đăng nhập:", error);
-            // Xóa hết nếu có lỗi phân tích JSON nghiêm trọng
-            localStorage.clear();
-        }
-    });
 </script>
 </body>
 </html>

@@ -1,15 +1,24 @@
 // src/routes/hoso.routes.js
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const hoSoController = require("../controllers/hoso.controller");
+const hosoController = require('../controllers/hoso.controller');
 
-// ✅ Lễ tân tạo hồ sơ khám mới
-router.post("/", hoSoController.createHoSo);
+// Tạo hồ sơ từ dat_lich khi bệnh nhân tới
+router.post('/from-datlich', hosoController.createFromDatLich);
 
-// ✅ Lấy danh sách hồ sơ khám
-router.get("/", hoSoController.getAllHoSo);
+// Tạo hồ sơ walk-in
+router.post('/walkin', hosoController.createWalkin);
 
-// ✅ Lấy chi tiết hồ sơ khám
-router.get("/:id_hoso", hoSoController.getHoSoById);
+// Xác nhận bệnh nhân đã đến
+router.put('/:id_hoso/arrival', hosoController.confirmArrival);
+
+// Lấy chi tiết hồ sơ
+router.get('/:id_hoso', hosoController.getHoSoChiTiet);
+
+// Lấy danh sách bệnh nhân theo bác sĩ
+router.get('/doctor/:id_bacsi', hosoController.getDanhSachBenhNhanTheoBacSi);
+
+// ✅ ROUTE MỚI: Lấy hồ sơ theo bệnh nhân (cho lễ tân xem)
+router.get('/benhnhan/:id_benhnhan', hosoController.getByBenhNhan);
 
 module.exports = router;

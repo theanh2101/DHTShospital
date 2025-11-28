@@ -1,4 +1,4 @@
-// controllers/patientController.js
+// controllers/patient.controller.js
 const patientModel = require('../models/patientModel');
 const otpService = require('../services/otpService');
 const PDFDocument = require('pdfkit');
@@ -164,12 +164,12 @@ exports.downloadVisitPdf = async (req, res) => {
         // --- Thông tin bệnh nhân ---
         doc.fontSize(14).fillColor('#1565C0').text('THÔNG TIN BỆNH NHÂN:', { underline: true }).moveDown(0.5);
         doc.fillColor('#000').fontSize(12);
-doc.text(`- Họ tên: ${details.ho_ten_bn || 'Không rõ tên bệnh nhân'}`);
-doc.text(`(ID: ${details.id_hoso || 'N/A'})`);
-doc.text(`- Ngày sinh: ${formatDbDate(details.ngay_sinh_bn)}   Giới tính: ${details.gioi_tinh_bn || 'N/A'}`);
-doc.text(`- SĐT: ${details.sdt_bn || 'N/A'}`);
-doc.text(`- Email: ${details.email_bn || 'N/A'}`);
-doc.moveDown(1);
+        doc.text(`- Họ tên: ${details.ho_ten_bn || 'Không rõ tên bệnh nhân'}`);
+        doc.text(`(ID: ${details.id_hoso || 'N/A'})`);
+        doc.text(`- Ngày sinh: ${formatDbDate(details.ngay_sinh_bn)}   Giới tính: ${details.gioi_tinh_bn || 'N/A'}`);
+        doc.text(`- SĐT: ${details.sdt_bn || 'N/A'}`);
+        doc.text(`- Email: ${details.email_bn || 'N/A'}`);
+        doc.moveDown(1);
 
         // --- Thông tin khám bệnh ---
         doc.fontSize(14).fillColor('#f4b400').text('THÔNG TIN KHÁM BỆNH:', { underline: true }).moveDown(0.5);
@@ -205,11 +205,41 @@ doc.moveDown(1);
 
         doc.moveDown(2);
         doc.fontSize(12).fillColor('#777').text('--- Hết hồ sơ khám bệnh ---', { align: 'center' });
-
         doc.end();
     } catch (err) {
         console.error('Error downloadVisitPdf:', err);
         if (!res.headersSent)
             res.status(500).json({ message: 'Lỗi khi tạo PDF hồ sơ bệnh nhân.' });
+    }
+};
+
+/**
+ * ✅ API MỚI: Lấy thông tin bệnh nhân theo số điện thoại (dành cho lễ tân)
+ * GET /api/patient/phone/:sdt
+ */
+exports.getPatientByPhone = async (req, res) => {
+    try {
+        const { sdt } = req.params;
+        if (!sdt) return res.status(400).json({ message: "Thiếu số điện thoại." });
+
+        const patients = await patientModel.findPatientsByPhone(sdt);
+        if (!patients.length)
+            return res.status(404).json({ message: "Không tìm thấy bệnh nhân." });
+
+        res.json({
+            success: true,
+            data: patients.map(p => ({
+                id_benhnhan: p.id_benhnhan,
+                ho_ten: p.ho_ten,
+                ngay_sinh: formatDbDate(p.ngay_sinh),
+                gioi_tinh: p.gio_tinh,
+                email: p.email,
+                dia_chi: p.dia_chi,
+                sdt: p.phone
+            }))
+        });
+    } catch (err) {
+        console.error("❌ Lỗi getPatientByPhone:", err.message);
+        res.status(500).json({ message: "Lỗi hệ thống khi tìm bệnh nhân theo SĐT." });
     }
 };

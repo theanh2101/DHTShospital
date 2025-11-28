@@ -1,114 +1,81 @@
-// src/models/datlichletan.model.js
+// models/datlichletan.model.js
+// Model thao tác trực tiếp với bảng dat_lich_letan và các truy vấn hỗ trợ
+
 const db = require("../../config/db");
 
 const DatLichLeTanModel = {
-
-  // 🧠 Lấy tất cả lịch khám (Ưu tiên người đặt lịch trước)
   async getAll() {
-    const [rows] = await db.query(`
-      SELECT 
-        d.id_datlich,
-        d.ten_benhnhan,
-        d.sdt,
-        d.email,
-        d.ngay,
-        d.khung_gio,
-        d.ly_do,
-        d.trang_thai,
-        k.ten_khoa,
-        b.ho_ten AS ten_bacsi
-      FROM dat_lich d
-      LEFT JOIN khoa k ON d.id_khoa = k.id_khoa
-      LEFT JOIN bacsi b ON d.id_bacsi = b.id_bacsi
-      ORDER BY 
-        CASE 
-          WHEN d.ngay IS NOT NULL THEN 0   -- Ưu tiên người đã đặt lịch
-          ELSE 1                           -- Người đến trực tiếp (chưa đặt lịch)
-        END,
-        d.ngay ASC,                        -- Ngày khám sớm hơn lên trước
-        d.khung_gio ASC,                   -- Giờ khám sớm hơn lên trước
-        d.createdAt ASC                    -- Nếu cùng giờ thì ai đặt trước hiển thị trước
-    `);
+    const sql = `
+      SELECT dl.*,
+             bn.ho_ten AS ten_benhnhan, bn.phone AS sdt_benhnhan,
+             b.ho_ten AS ten_bacsi, k.ten_khoa, lt.ho_ten AS ten_letan
+      FROM dat_lich_letan dl
+      LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
+      LEFT JOIN bacsi b ON dl.id_bacsi = b.id_bacsi
+      LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
+      LEFT JOIN letan lt ON dl.id_letan = lt.id_letan
+      WHERE dl.nguon_dat = 'LeTan'
+      ORDER BY dl.created_at ASC
+      
+    `;
+    const [rows] = await db.query(sql);
     return rows;
   },
 
-  // 🔍 Lấy lịch khám theo trạng thái (giữ nguyên)
   async getByStatus(status) {
-    const [rows] = await db.query(`
-      SELECT 
-        d.id_datlich,
-        d.ten_benhnhan,
-        d.sdt,
-        d.email,
-        d.ngay,
-        d.khung_gio,
-        d.ly_do,
-        d.trang_thai,
-        k.ten_khoa,
-        b.ho_ten AS ten_bacsi
-      FROM dat_lich d
-      LEFT JOIN khoa k ON d.id_khoa = k.id_khoa
-      LEFT JOIN bacsi b ON d.id_bacsi = b.id_bacsi
-      WHERE d.trang_thai = ?
-      ORDER BY 
-        CASE 
-          WHEN d.ngay IS NOT NULL THEN 0
-          ELSE 1
-        END,
-        d.ngay ASC,
-        d.khung_gio ASC,
-        d.createdAt ASC
-    `, [status]);
+    const sql = `
+      SELECT dl.*, bn.ho_ten AS ten_benhnhan, bn.phone AS sdt_benhnhan, b.ho_ten AS ten_bacsi, k.ten_khoa
+      FROM dat_lich_letan dl
+      LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
+      LEFT JOIN bacsi b ON dl.id_bacsi = b.id_bacsi
+      LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
+      WHERE dl.trang_thai = ?
+      AND dl.nguon_dat = 'LeTan'
+      ORDER BY dl.created_at ASC
+    `;
+    const [rows] = await db.query(sql, [status]);
     return rows;
   },
 
-  // 🔍 Lấy chi tiết lịch theo id (giữ nguyên)
-  async findById(id_datlich) {
-    const [rows] = await db.query(`
-      SELECT 
-        d.*, k.ten_khoa, b.ho_ten AS ten_bacsi
-      FROM dat_lich d
-      LEFT JOIN khoa k ON d.id_khoa = k.id_khoa
-      LEFT JOIN bacsi b ON d.id_bacsi = b.id_bacsi
-      WHERE d.id_datlich = ?
-    `, [id_datlich]);
-    return rows[0];
-  },
-
-  // 🔄 Cập nhật trạng thái (giữ nguyên)
-  async updateTrangThai(id_datlich, trang_thai) {
-    const [result] = await db.query(
-      "UPDATE dat_lich SET trang_thai = ? WHERE id_datlich = ?",
-      [trang_thai, id_datlich]
-    );
-    return result;
-  },
-
-  // ✳️ MỚI: Lấy thông tin lễ tân theo id_taikhoan (JOIN taikhoan)
-  async getLeTanByTaiKhoan(id_taikhoan) {
-    const [rows] = await db.query(`
-      SELECT l.id_letan, l.ho_ten, l.phone, l.email, l.diachi, t.username, t.id_taikhoan
-      FROM letan l
-      LEFT JOIN taikhoan t ON l.id_taikhoan = t.id_taikhoan
-      WHERE l.id_taikhoan = ?
-      LIMIT 1
-    `, [id_taikhoan]);
+  async getById(id) {
+    const sql = `
+      SELECT dl.*, bn.*, b.ho_ten AS ten_bacsi, k.ten_khoa
+      FROM dat_lich_letan dl
+      LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
+      LEFT JOIN bacsi b ON dl.id_bacsi = b.id_bacsi
+      LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
+      WHERE dl.id_datlich = ?
+    `;
+    const [rows] = await db.query(sql, [id]);
     return rows[0] || null;
   },
 
-  // ✳️ Lọc bác sĩ theo khoa, ngày, ca (dựa trên lichlamviec + lichlamviec_bacsi)
+  // trả về danh sách bác sĩ theo lịch làm việc (delegate sang service/dao khác nếu cần)
   async getDoctorsBySchedule(id_khoa, ngay, ca) {
-    const [rows] = await db.query(`
-      SELECT DISTINCT b.id_bacsi, b.ho_ten, b.hoc_vi, b.chuc_vu, b.phone, b.email, b.id_khoa
-      FROM bacsi b
-      INNER JOIN lichlamviec_bacsi lb ON b.id_bacsi = lb.id_bacsi
-      INNER JOIN lichlamviec ll ON ll.id_lichlamviec = lb.id_lichlamviec
-      WHERE ll.id_khoa = ? AND ll.ngay = ? AND ll.ca = ?
-      ORDER BY b.ho_ten
-    `, [id_khoa, ngay, ca]);
+    const sql = `
+      SELECT b.id_bacsi, b.ho_ten
+      FROM lichlamviec l
+      JOIN lichlamviec_bacsi lb ON l.id_lichlamviec = lb.id_lichlamviec
+      JOIN bacsi b ON lb.id_bacsi = b.id_bacsi
+      WHERE l.id_khoa = ? AND l.ngay = ? AND l.ca = ?
+    `;
+    const [rows] = await db.query(sql, [id_khoa, ngay, ca]);
     return rows;
-  }
+  },
 
+  // helper: tạo bệnh nhân (dùng khi lễ tân tạo hồ sơ)
+  async createOrGetBenhNhan(payload, conn = null) {
+    const c = conn || db;
+    const id_benhnhan = payload.id_benhnhan || (`BN${Date.now().toString().slice(-6)}`);
+    await c.query(
+      `INSERT INTO benhnhan (id_benhnhan, ho_ten, phone, email, gioi_tinh, ngay_sinh, dia_chi, so_bhyt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id_benhnhan, payload.ho_ten || 'Khách', payload.sdt, payload.email || null, payload.gioi_tinh || null,
+       payload.ngay_sinh || null, payload.dia_chi || null, payload.so_bhyt || null]
+    );
+    const [rows] = await c.query(`SELECT * FROM benhnhan WHERE id_benhnhan = ?`, [id_benhnhan]);
+    return rows[0];
+  }
 };
 
 module.exports = DatLichLeTanModel;
