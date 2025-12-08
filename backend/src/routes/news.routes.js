@@ -11,16 +11,25 @@ const tempDir = path.join(__dirname, "../../temp_uploads");
 fs.mkdirSync(tempDir, { recursive: true }); // đảm bảo thư mục tồn tại
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, tempDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + path.extname(file.originalname);
-    cb(null, uniqueName);
-  },
+  destination: function (req, file, cb) {
+    cb(null, tempDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  },
 });
 
-const upload = multer({ storage });
+// 💡 FIX: Thêm giới hạn Multer để tránh lỗi "Field value too long"
+const upload = multer({ 
+    storage,
+    limits: {
+        // Tăng giới hạn kích thước cho MỘT trường văn bản (bao gồm cả Base64) lên 10MB
+        fieldSize: 10 * 1024 * 1024, 
+        // Giới hạn kích thước file upload riêng (ví dụ 5MB)
+        fileSize: 5 * 1024 * 1024,
+    }
+});
 
 // ================== CÁC ROUTE TIN TỨC ==================
 

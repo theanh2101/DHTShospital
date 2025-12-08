@@ -261,7 +261,7 @@
 
     <div class="content">
       <div class="avatar">
-        <img id="doctorImg" src="https://i.pravatar.cc/240?img=67" alt="Ảnh bác sĩ">
+        <img id="doctorImg" alt="Ảnh bác sĩ">
       </div>
 
       <div class="info">
@@ -303,7 +303,7 @@
       <form id="editForm">
         <label>Ảnh đại diện:</label>
         <input type="file" id="hinhAnhInput" accept="image/*">
-        <img id="previewImage" src="https://i.pravatar.cc/150" alt="Preview">
+        <img id="previewImage" alt="Preview">
 
         <label>Học vị:</label>
         <input id="hocVi">
@@ -437,9 +437,7 @@
         el("doctorImg").src = d.hinh_anh.startsWith("data:image")
           ? d.hinh_anh
           : `data:image/jpeg;base64,${d.hinh_anh}`;
-      } else {
-        el("doctorImg").src = "https://i.pravatar.cc/240?img=67";
-      }
+      } 
     } catch (err) {
       console.error(err);
       showToast("Không thể tải dữ liệu bác sĩ", "error");
