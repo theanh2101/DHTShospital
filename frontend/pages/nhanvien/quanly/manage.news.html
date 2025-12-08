@@ -37,6 +37,30 @@
   .nav a:hover,.nav a.active{background:var(--primary);color:#fff;transform:translateX(4px);}
   .nav a i{width:20px;text-align:center;}
 
+  /* 🔹 Nút đăng xuất */
+  .logout {
+    margin-top:20px;
+  }
+  .logout button {
+    width:100%;
+    background:#ef4444;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:10px 14px;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:all .25s;
+  }
+  .logout button:hover {
+    background:#dc2626;
+    transform:translateY(-2px);
+  }
+
   /* Main */
   .main{flex:1;padding:32px;overflow:auto;}
   header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
@@ -120,6 +144,11 @@
 
     <a class="active" href="manage.news.html"><i class="fas fa-newspaper"></i> Quản lý bài viết</a>
 </nav>
+
+    <!-- ✅ Nút đăng xuất -->
+    <div class="logout">
+      <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+    </div>
   </aside>
 
   <main class="main">
@@ -524,7 +553,15 @@ toggleNhanVien.onclick = (e) => {
   submenuNhanVien.classList.toggle("show");
 };
 
-
+  // ================= ĐĂNG XUẤT =================
+  const logoutBtn = document.getElementById("logoutBtn");
+  logoutBtn.onclick = () => {
+    if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "../login.html";
+    }
+  };
 </script>
 </body>
 </html>
