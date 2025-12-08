@@ -731,19 +731,6 @@ background: #007acc; /* Xanh đậm hơn khi hover */
   object-fit: contain;
 }
 
-/* 2. Style cho Nút Chat Toggle (Sử dụng biểu tượng chat chung) */
-.chat-toggle-button {
- background: var(--accent-color); /* Màu vàng nhấn cho nút chat toggle */
- color: var(--primary-dark);
-}
-.chat-toggle-button:hover {
-     background: #FFC107;
-transform: scale(1.1);
-}
-.chat-toggle-button i {
-    font-size: 26px; /* Icon chat to hơn */
-}
-
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {
@@ -982,6 +969,27 @@ transform: scale(1.1);
   text-align: right;
 }
 
+.chat-toggle-button {
+    width: 55px;
+    height: 55px;
+    background: #0d6efd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    transition: transform .2s;
+}
+
+.chat-toggle-button:hover {
+    transform: scale(1.08);
+}
+
+.ai-icon {
+    font-size: 30px;
+    line-height: 1;
+}
 
 </style>
 </head>
@@ -1152,13 +1160,13 @@ transform: scale(1.1);
                 <i class="fas fa-map-marker-alt"></i>
                 <div class="contact-detail">
                     <strong>Địa chỉ:</strong>
-                    Trường đại học Công nghệ thông tin và Truyền thông
+                    Trường đại học Công nghệ thông tin và Truyền thông.
                 </div>
             </div>
             <div class="footer-contact-item">
                 <i class="fas fa-phone-alt"></i>
                 <div class="contact-detail">
-                    <strong>chat zalo :</strong>
+                    <strong>Chat zalo :</strong>
                      <a href="https://zalo.me/0382773307" class="action-box-link" target="_blank">0382773307</a>
                 </div>
             </div>
@@ -1228,7 +1236,7 @@ transform: scale(1.1);
     </a>
     
     <div class="chat-toggle-button" id="chatToggleButton">
-        <i class="fab fa-whatsapp"></i>
+        <span class="ai-icon">🤖</span>
     </div>
 </div>
 
