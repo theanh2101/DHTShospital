@@ -1,0 +1,259 @@
+<aside class="sidebar">
+  <div class="brand">
+    <i class="fas fa-hospital"></i>
+    <span>DHST Hospital</span>
+  </div>
+
+  <nav class="nav">
+  <a href="manage.account.html" data-page="manage.account"><i class="fas fa-user-cog"></i> <span>Quản lý tài khoản</span></a>
+
+  <div class="submenu-group">
+    <a href="#" id="toggleNhanVien">
+      <i class="fas fa-user-friends"></i> <span>Quản lý nhân viên</span>
+      <i class="fas fa-chevron-down caret"></i>
+    </a>
+    <div id="submenuNhanVien" class="submenu">
+      <a href="manage.bacsi.html" data-page="manage.bacsi"><i class="fas fa-user-md"></i> <span>Quản lý bác sĩ</span></a>
+      <a href="manage.letan.html" data-page="manage.letan"><i class="fas fa-concierge-bell"></i> <span>Quản lý lễ tân</span></a>
+    </div>
+  </div>
+
+  <a href="manage.lichlamviec.html" data-page="manage.lichlamviec"><i class="fas fa-calendar-alt"></i> <span>Quản lý lịch làm việc</span></a>
+  <a href="manage.news.html" data-page="manage.news"><i class="fas fa-newspaper"></i> <span>Quản lý bài viết</span></a>
+  <a href="manage.thongke.html" data-page="manage.thongke"><i class="fas fa-chart-line"></i> <span>Thống kê tổng hợp</span></a>
+</nav>
+
+  <div class="logout">
+    <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span></button>
+  </div>
+</aside>
+
+<style>
+/* ===== 🎨 SIDEBAR ===== */
+.sidebar {
+  width: 250px;
+  background: linear-gradient(180deg, #1e293b 0%, #111827 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 18px;
+  box-shadow: 2px 0 15px rgba(0,0,0,0.15);
+  position: relative;
+}
+
+/* ===== BRAND ===== */
+.brand {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 36px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+}
+.brand i {
+  color: #38bdf8;
+  font-size: 24px;
+}
+
+/* ===== NAVIGATION ===== */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-grow: 1;
+}
+.nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+  font-weight: 500;
+}
+.nav a i {
+  width: 22px;
+  text-align: center;
+  font-size: 16px;
+  color: #60a5fa;
+  transition: all 0.25s ease;
+}
+.nav a:hover {
+  background: rgba(37, 99, 235, 0.15);
+  color: #fff;
+  transform: translateX(4px);
+}
+.nav a.active {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+.nav a.active i {
+  color: #fff;
+}
+
+/* ===== SUBMENU ===== */
+.submenu-group { display: flex; flex-direction: column; }
+.submenu {
+  display: none;
+  flex-direction: column;
+  margin-left: 28px;
+  margin-top: 6px;
+  border-left: 2px solid rgba(255,255,255,0.1);
+  padding-left: 8px;
+  animation: fadeIn 0.3s ease;
+}
+.submenu a {
+  font-size: 14px;
+  color: #cbd5e1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: all 0.25s;
+}
+.submenu a:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  transform: translateX(4px);
+}
+.submenu.show { display: flex; }
+.caret {
+  margin-left: auto;
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+.submenu-group.open .caret {
+  transform: rotate(180deg);
+}
+
+/* ===== LOGOUT ===== */
+.logout {
+  margin-top: 20px;
+}
+.logout button {
+  width: 100%;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s;
+}
+.logout button:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+/* ===== Cố định sidebar full chiều cao ===== */
+.sidebar {
+  width: 250px;
+  background: linear-gradient(180deg, #1e293b 0%, #111827 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 18px;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+  height: 100vh;                /* ✅ Luôn cao toàn màn hình */
+  position: fixed;              /* ✅ Giữ cố định bên trái */
+  top: 0;
+  left: 0;
+  overflow-y: auto;             /* ✅ Cuộn nếu menu dài */
+  z-index: 100;
+}
+
+/* Phần nội dung chính dịch sang bên phải */
+.main {
+  margin-left: 250px;           /* ✅ Đẩy nội dung tránh bị sidebar che */
+  padding: 32px;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Hiệu ứng ACTIVE mới ===== */
+.nav a.active {
+  background: #3b82f6;              /* Màu xanh sáng */
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+  transform: none;
+}
+
+.nav a.active i {
+  color: #fff;
+}
+
+.nav a:hover {
+  background: rgba(59, 130, 246, 0.25);
+  transform: translateX(4px);
+}
+
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // === Toggle submenu ===
+  const toggle = document.getElementById("toggleNhanVien");
+  if (toggle) {
+    toggle.addEventListener("click", e => {
+      e.preventDefault();
+      const group = toggle.closest(".submenu-group");
+      const submenu = group.querySelector(".submenu");
+      submenu.classList.toggle("show");
+      group.classList.toggle("open");
+    });
+  }
+
+  // === Logout ===
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "../../login.html";
+      }
+    });
+  }
+
+  // === Active link tự động ===
+  const currentPath = window.location.pathname; // ví dụ: /Frontend/pages/manage.account.html
+  const currentPage = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+  
+  document.querySelectorAll('.nav a, .submenu a').forEach(link => {
+    const href = link.getAttribute('href');
+    // So khớp mềm: chỉ cần pathname chứa tên file là được
+    if (href && currentPath.includes(href)) {
+      link.classList.add('active');
+
+      // Nếu là submenu -> mở cha
+      const submenu = link.closest('.submenu');
+      if (submenu) {
+        submenu.classList.add('show');
+        const parent = submenu.closest('.submenu-group');
+        if (parent) parent.classList.add('open');
+      }
+    }
+  });
+
+  // ✅ In ra để debug nếu vẫn chưa sáng
+  console.log("currentPath:", currentPath);
+});
+</script>
