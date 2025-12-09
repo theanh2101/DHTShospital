@@ -69,24 +69,13 @@ class DoctorDHSTModel {
         const params = [id_bacsi];
         
         if (ngay) {
-            dateCondition = 'AND dl.ngay = ?';
+            sql += ' AND dl.ngay = ?';
             params.push(ngay);
         }
 
-        const [rows] = await this.pool.query(
-            `SELECT
-                dl.id_datlich, 
-                dl.ngay as ngay, 
-                TIME_FORMAT(dl.gio_dat, '%H:%i') as khung_gio, 
-                bn.ho_ten as ten_benhnhan, 
-                dl.trang_thai, 
-                bn.id_benhnhan
-             FROM dat_lich dl
-             LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
-             WHERE dl.id_bacsi = ? ${dateCondition}
-             ORDER BY dl.ngay, dl.gio_dat`,
-            params
-        );
+        sql += ' ORDER BY dl.ngay ASC, dl.khung_gio ASC';
+
+        const [rows] = await this.pool.query(sql, params);
         return rows;
     }
 
@@ -94,28 +83,17 @@ class DoctorDHSTModel {
         const [rows] = await this.pool.query(
             `SELECT 
                 COUNT(id_datlich) AS so_benh_nhan,
-                SUM(CASE WHEN trang_thai = 'Da xac nhan' THEN 1 ELSE 0 END) AS da_kham
-             FROM datlich
+                SUM(CASE WHEN trang_thai = 'HOAN_THANH' THEN 1 ELSE 0 END) AS da_kham
+             FROM dat_lich
              WHERE id_bacsi = ? AND ngay = ?`,
             [id_bacsi, today]
         );
         return rows[0];
     }
 
-    // Lấy id_datlich từ id_benhnhan và id_bacsi (lấy lịch hẹn gần nhất)
-    async findDatlichByBenhnhanAndBacsi(id_benhnhan, id_bacsi) {
-        const [rows] = await this.pool.query(
-            `SELECT id_datlich, ngay, gio_dat, trang_thai
-             FROM datlich
-             WHERE id_benhnhan = ? AND id_bacsi = ?
-             ORDER BY ngay DESC, gio_dat DESC
-             LIMIT 1`,
-            [id_benhnhan, id_bacsi]
-        );
-        return rows[0] || null;
-    }
-
-    // --- Medical Record & Prescription Queries ---
+    // =========================================================
+    // 3. CHI TIẾT CUỘC HẸN & BỆNH ÁN (Full Detail cho Modal)
+    // =========================================================
     async findAppointmentDetails(id_datlich) {
         // Hàm này lấy thông tin gộp từ dat_lich và benhnhan
         // Giúp hiển thị đúng thông tin dù là khách mới hay cũ
@@ -123,16 +101,25 @@ class DoctorDHSTModel {
             `SELECT
                 dl.id_datlich, 
                 DATE_FORMAT(dl.ngay, '%Y-%m-%d') as ngay_kham, 
-                TIME_FORMAT(dl.gio_dat, '%H:%i') as khung_gio,
-                bn.id_benhnhan, 
-                bn.ho_ten, 
-                bn.ho_ten AS ten_dat_lich,
-                bn.gioi_tinh, 
-                DATE_FORMAT(bn.ngay_sinh, '%Y-%m-%d') as ngay_sinh, 
-                bn.dia_chi,
-                NULL as sdt
-             FROM datlich dl
-             LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
+                dl.khung_gio,
+                dl.trang_thai,
+                dl.ly_do,
+                
+                -- Thông tin gốc lúc đặt (để fallback)
+                dl.ten_benhnhan as ten_goc,
+                dl.sdt as sdt_goc,
+                
+                -- Thông tin chuẩn hóa từ bảng Bệnh nhân (nếu tìm thấy)
+                bn.id_benhnhan,
+                COALESCE(bn.ho_ten, dl.ten_benhnhan) as ten_benhnhan,
+                COALESCE(bn.phone, dl.sdt) as sdt,
+                COALESCE(bn.email, dl.email, '') as email,
+                COALESCE(bn.gioi_tinh, 'Nam') as gioi_tinh,
+                DATE_FORMAT(bn.ngay_sinh, '%Y-%m-%d') as ngay_sinh,
+                COALESCE(bn.dia_chi, '') as dia_chi,
+                bn.so_bhyt
+             FROM dat_lich dl
+             LEFT JOIN benhnhan bn ON (dl.id_benhnhan = bn.id_benhnhan OR dl.sdt = bn.phone)
              WHERE dl.id_datlich = ?`,
             [id_datlich]
         );
