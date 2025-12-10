@@ -1,172 +1,219 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quản lý lễ tân - DHST Hospital</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<style>
-:root {
-  --primary:#2563eb; --accent:#38bdf8; --bg:#f3f6fb; --card:#fff;
-  --text:#1e293b; --muted:#6b7280; --radius:16px; --shadow:0 10px 25px rgba(0,0,0,0.06);
-}
-*{box-sizing:border-box;font-family:"Inter",sans-serif;margin:0;padding:0;}
-body{display:flex;min-height:100vh;background:var(--bg);color:var(--text);}
-.main{flex:1;padding:36px;overflow:auto;}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý lễ tân - DHST Hospital</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary:#2563eb; --accent:#38bdf8; --bg:#f3f6fb; --card:#fff;
+            --text:#1e293b; --muted:#6b7280; --radius:16px; --shadow:0 10px 25px rgba(0,0,0,0.06);
+        }
+        *{box-sizing:border-box;font-family:"Inter",sans-serif;margin:0;padding:0;}
+        body{background:var(--bg);color:var(--text);}
+        
+        /* ✅  Cập nhật Main Content để tránh Sidebar Fixed */
+        .main {
+            margin-left: 250px; /* Khớp với width của sidebar */
+            padding: 36px;
+            min-height: 100vh;
+            transition: margin-left .3s;
+        }
 
-/* Header */
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
-header h1{font-size:28px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;}
-header .small{color:var(--muted);font-weight:500;}
+        /* Header */
+        header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+        header h1{font-size:28px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;}
+        header .small{color:var(--muted);font-weight:500;}
+        
+        /* Card */
+        .card{
+            background:var(--card);border-radius:var(--radius);
+            box-shadow:var(--shadow);padding:28px;margin-bottom:30px;
+            animation:fadeIn .4s ease; border:1px solid #e2e8f0;
+        }
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+        
+        .card-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+        .card-header h2{font-size:18px;display:flex;align-items:center;gap:10px;color:var(--text);}
+        .card-header h2 i{color:var(--primary);}
+        
+        .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+        input{
+            padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;width:240px;
+            background:#fff;
+        }
+        .btn{
+            background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;
+            border:none;border-radius:10px;padding:10px 16px;cursor:pointer;
+            font-weight:600;transition:.25s;
+        }
+        .btn:hover{opacity:.9;transform:translateY(-2px);}
+        
+        /* Table */
+        .table-wrap{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;}
+        thead th{
+            background:linear-gradient(90deg,var(--primary),#1e40af);
+            color:#fff;padding:12px 16px;text-align:left;font-weight:600;
+        }
+        tbody td{padding:12px 16px;border-bottom:1px solid #e5e7eb;}
+        tbody tr:nth-child(even){background:#f8fafc;}
+        tbody tr:hover td{background:#eef2ff;}
 
-/* Card */
-.card{
-  background:var(--card);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:28px;margin-bottom:30px;
-  animation:fadeIn .4s ease; border:1px solid #e2e8f0;
-}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
-.card-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
-.card-header h2{font-size:18px;display:flex;align-items:center;gap:10px;color:var(--text);}
-.card-header h2 i{color:var(--primary);}
-.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-input{
-  padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;width:240px;
-  background:#fff;
-}
-.btn{
-  background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;
-  border:none;border-radius:10px;padding:10px 16px;cursor:pointer;
-  font-weight:600;transition:.25s;
-}
-.btn:hover{opacity:.9;transform:translateY(-2px);}
-
-/* Table */
-.table-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;}
-thead th{
-  background:linear-gradient(90deg,var(--primary),#1e40af);
-  color:#fff;padding:12px 16px;text-align:left;font-weight:600;
-}
-tbody td{padding:12px 16px;border-bottom:1px solid #e5e7eb;}
-tbody tr:nth-child(even){background:#f8fafc;}
-tbody tr:hover td{background:#eef2ff;}
-</style>
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main { margin-left: 0; padding: 20px; }
+            #sidebar-placeholder { display: none; }
+        }
+    </style>
 </head>
 <body>
+    
+    <div id="sidebar-placeholder"></div>
+    
+    <main class="main">
+        <header>
+            <h1><i class="fas fa-concierge-bell"></i> Quản lý lễ tân</h1>
+            <div class="small">Xin chào, Admin  👋 </div>
+        </header>
+        
+        <section class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-list"></i> Danh sách lễ tân</h2>
+                <div class="actions">
+                    <input id="searchInput" type="text" placeholder="Nhập mã hoặc tên lễ tân...">
+                    <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Tìm kiếm</button>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:90px">Mã LT</th>
+                            <th>Họ và tên</th>
+                            <th>Số điện thoại</th>
+                            <th>Email</th>
+                            <th>Địa chỉ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="letanTbody">
+                        <tr><td colspan="5">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
-<!-- Sidebar được load động -->
-<div id="sidebar"></div>
-
-<!-- Nội dung chính -->
-<main class="main">
-  <header>
-    <h1><i class="fas fa-concierge-bell"></i> Quản lý lễ tân</h1>
-    <div class="small">Xin chào, Admin 👋</div>
-  </header>
-
-  <section class="card">
-    <div class="card-header">
-      <h2><i class="fas fa-list"></i> Danh sách lễ tân</h2>
-      <div class="actions">
-        <input id="searchInput" type="text" placeholder="Nhập mã hoặc tên lễ tân...">
-        <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Tìm kiếm</button>
-      </div>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:90px">Mã lễ tân</th>
-            <th>Họ và tên</th>
-            <th>Số điện thoại</th>
-            <th>Email</th>
-            <th>Địa chỉ</th>
-          </tr>
-        </thead>
-        <tbody id="letanTbody">
-          <tr><td colspan="5">Đang tải...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</main>
-
-<script>
-// ====== Load sidebar chung ======
-fetch("./sidebar.html")
-  .then(res => res.text())
-  .then(html => {
-    document.getElementById("sidebar").innerHTML = html;
-
-    // Gắn lại sự kiện submenu sau khi sidebar load
-    const toggle = document.getElementById("toggleNhanVien");
-    if (toggle) toggle.onclick = e => {
-      e.preventDefault();
-      document.getElementById("submenuNhanVien").classList.toggle("show");
-    };
-
-    // Xử lý đăng xuất
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.onclick = () => {
-        if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
-          localStorage.clear();
-          sessionStorage.clear();
-          window.location.href = "../login.html";
+    <script>
+        // ====== 1. SIDEBAR LOADER & EVENTS ======
+        async function loadSidebar() {
+            try {
+                const res = await fetch('sidebar.html');
+                if (res.ok) {
+                    const html = await res.text();
+                    document.getElementById('sidebar-placeholder').innerHTML = html;
+                    initSidebarEvents();
+                }
+            } catch (err) { console.error("Lỗi tải sidebar:", err); }
         }
-      };
-    }
-  });
 
-// ====== API & Hiển thị danh sách ======
-const API_LETAN = "http://localhost:3000/api/letan";
-const tbody = document.getElementById("letanTbody");
-const searchInput = document.getElementById("searchInput");
-const searchBtn = document.getElementById("searchBtn");
-let allLetan = [];
+        function initSidebarEvents() {
+            // Toggle Submenu
+            const toggle = document.getElementById("toggleNhanVien");
+            if (toggle) {
+                toggle.onclick = (e) => {
+                    e.preventDefault();
+                    const group = toggle.closest(".submenu-group");
+                    const submenu = group.querySelector(".submenu");
+                    submenu.classList.toggle("show");
+                    group.classList.toggle("open");
+                };
+            }
 
-async function loadLetan() {
-  try {
-    const res = await fetch(API_LETAN);
-    const json = await res.json();
-    allLetan = json.data || json || [];
-    renderLetan(allLetan);
-  } catch {
-    tbody.innerHTML = `<tr><td colspan="5">Không thể tải dữ liệu.</td></tr>`;
-  }
-}
+            // Đăng xuất
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.onclick = () => {
+                    if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = "../login.html";
+                    }
+                };
+            }
 
-function renderLetan(list) {
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="5">Không tìm thấy lễ tân nào.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = list.map(lt => `
-    <tr onclick="window.location.href='chitiet.letan.html?id=${lt.id_letan}'" style="cursor:pointer">
-      <td>${lt.id_letan || "N/A"}</td>
-      <td>${lt.ho_ten || "N/A"}</td>
-      <td>${lt.phone || "N/A"}</td>
-      <td>${lt.email || "N/A"}</td>
-      <td>${lt.diachi || "N/A"}</td>
-    </tr>
-  `).join("");
-}
+            // Active Link & Open Submenu
+            const currentPath = "manage.letan.html"; 
+            const links = document.querySelectorAll('.nav a, .submenu a');
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.includes(currentPath)) {
+                    link.classList.add('active');
+                    
+                    // Mở submenu cha nếu có
+                    const submenu = link.closest('.submenu');
+                    if (submenu) {
+                        submenu.classList.add('show');
+                        const group = submenu.closest('.submenu-group');
+                        if (group) group.classList.add('open');
+                    }
+                }
+            });
+        }
 
-function searchLetan() {
-  const kw = searchInput.value.trim().toLowerCase();
-  const filtered = allLetan.filter(l => 
-    (l.id_letan || "").toLowerCase().includes(kw) ||
-    (l.ho_ten || "").toLowerCase().includes(kw)
-  );
-  renderLetan(filtered);
-}
+        // ====== 2. BUSINESS LOGIC (Giữ nguyên) ======
+        const API_LETAN = "http://localhost:3000/api/letan";
+        const tbody = document.getElementById("letanTbody");
+        const searchInput = document.getElementById("searchInput");
+        const searchBtn = document.getElementById("searchBtn");
+        let allLetan = [];
 
-searchBtn.onclick = searchLetan;
-searchInput.onkeydown = e => e.key === "Enter" && searchLetan();
+        async function loadLetan() {
+            try {
+                const res = await fetch(API_LETAN);
+                const json = await res.json();
+                allLetan = json.data || json || [];
+                renderLetan(allLetan);
+            } catch {
+                tbody.innerHTML = `<tr><td colspan="5">Không thể tải dữ liệu.</td></tr>`;
+            }
+        }
 
-document.addEventListener("DOMContentLoaded", loadLetan);
-</script>
+        function renderLetan(list) {
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="5">Không tìm thấy lễ tân nào.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map(lt => `
+                <tr onclick="window.location.href='chitiet.letan.html?id=${lt.id_letan}'" style="cursor:pointer">
+                    <td>${lt.id_letan || "N/A"}</td>
+                    <td>${lt.ho_ten || "N/A"}</td>
+                    <td>${lt.phone || "N/A"}</td>
+                    <td>${lt.email || "N/A"}</td>
+                    <td>${lt.diachi || "N/A"}</td>
+                </tr>
+            `).join("");
+        }
+
+        function searchLetan() {
+            const kw = searchInput.value.trim().toLowerCase();
+            const filtered = allLetan.filter(l => 
+                (l.id_letan || "").toLowerCase().includes(kw) || 
+                (l.ho_ten || "").toLowerCase().includes(kw)
+            );
+            renderLetan(filtered);
+        }
+
+        searchBtn.onclick = searchLetan;
+        searchInput.onkeydown = e => e.key === "Enter" && searchLetan();
+
+        // Init
+        document.addEventListener("DOMContentLoaded", () => {
+            loadSidebar(); // Gọi hàm load sidebar
+            loadLetan();
+        });
+    </script>
 </body>
 </html>

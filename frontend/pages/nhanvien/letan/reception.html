@@ -270,7 +270,19 @@ const email = document.getElementById("email");
 const dia_chi = document.getElementById("dia_chi");
 const ly_do = document.getElementById("ly_do");
 
-let currentLetanId = localStorage.getItem("id_taikhoan_letan") || "1";
+let currentLetanId = null;
+const userString = localStorage.getItem("user");
+
+if (userString) {
+    try {
+        // Parse chuỗi JSON thành object
+        const userObject = JSON.parse(userString);
+        // Lấy giá trị của trường 'id'
+        currentLetanId = userObject.id;
+    } catch (e) {
+        console.error("Lỗi parse JSON từ Local Storage:", e);
+    }
+}
 
 async function loadKhoa() {
     const res = await fetch(`${API_URL}/khoa`);
