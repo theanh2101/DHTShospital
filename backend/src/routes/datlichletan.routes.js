@@ -1,13 +1,18 @@
+// backend/src/routes/datlichletan.routes.js
 const express = require("express");
 const router = express.Router();
-const controller = require("../controllers/datlichletan.controller");
+const datlichletanCtrl = require("../controllers/datlichletan.controller");
 
-router.get("/", controller.getAll);
-router.get("/trangthai/:status", controller.getByStatus);
-router.get("/:id_datlich", controller.getById);
-router.post("/create", controller.create);
-router.post("/checkin", controller.checkin);
-router.get("/preview/doctor", controller.previewDoctor);
-router.get("/doctors/schedule", controller.getDoctorsBySchedule);
+// GET /api/datlichletan
+router.get("/", datlichletanCtrl.getAll);
+
+// POST /api/datlichletan/create
+router.post("/create", datlichletanCtrl.create);
+
+// POST /api/datlichletan/checkin
+router.post("/checkin", datlichletanCtrl.checkin);
+
+// GET /api/datlichletan/doctors/schedule?id_khoa=...&ngay=...&ca=...
+router.get("/doctors/schedule", datlichletanCtrl.getDoctorsBySchedule);
 
 module.exports = router;

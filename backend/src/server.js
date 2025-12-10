@@ -29,8 +29,10 @@ const letanRoutes = require("./routes/letan.routes");
 const DoctorDHSTRoutes = require("./routes/DoctorDHST.routes");
 const hoSoRoutes = require("./routes/hoso.routes");//Sáng
 const datLichLeTanRoutes = require("./routes/datlichletan.routes");//Sáng
+const changePassRoutes = require("./routes/changePassword.routes");//Sáng
 // nếu file routes nằm trong src/routes/datlichletan.routes.js
 app.use("/api/datlichletan", datLichLeTanRoutes);//Sáng
+
 
 // ================== PHỤC VỤ FRONTEND ==================
 //giao dien danh cho benh nhan
@@ -61,7 +63,9 @@ app.use("/api/lichlamviec", lichLamViecRoutes);
 app.use("/api/letan", letanRoutes);
 app.use("/api/DoctorDHST", DoctorDHSTRoutes);
 app.use("/api/hoso", hoSoRoutes);//Sáng
-
+app.use(express.json());
+app.use("/letan", datLichLeTanRoutes);
+app.use("/auth", changePassRoutes);
 // ================== XỬ LÝ LỖI ==================
 app.use((req, res) => {
   res.status(404).json({ message: `Không tìm thấy route: ${req.originalUrl}` });

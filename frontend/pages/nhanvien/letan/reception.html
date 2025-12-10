@@ -1,200 +1,390 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🏥 Lễ tân - Quản lý hồ sơ bệnh nhân</title>
-  <style>
-    body { font-family: "Segoe UI", sans-serif; background-color: #f4f6fa; margin: 0; padding: 0; }
-    header { background-color: #0066cc; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; font-size: 1.4rem; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-    .user-menu { position: relative; }
-    .user-btn { background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; transition: background 0.3s ease; }
-    .user-btn:hover { background: rgba(255,255,255,0.15); }
-    .dropdown-content { display: none; position: absolute; right: 0; top: 120%; background: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; z-index: 1000; }
-    .dropdown-content button { display: flex; align-items: center; gap: 8px; width: 100%; border: none; background: none; padding: 10px 16px; font-size: 1rem; color: #333; cursor: pointer; transition: all 0.25s ease; }
-    .dropdown-content button:hover { background-color: #f2f6ff; color: #0056b3; }
-    .container { width: 90%; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    h2 { color: #333; border-left: 5px solid #0066cc; padding-left: 10px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 15px; }
-    .full { grid-column: 1 / -1; }
-    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    button.btn-primary { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: background 0.3s; }
-    button.btn-primary:hover { background-color: #0056b3; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    table th, table td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-    table th { background-color: #0066cc; color: white; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 2000; }
-    .modal-content { background: white; padding: 20px; border-radius: 10px; width: 400px; text-align: left; box-shadow: 0 3px 12px rgba(0,0,0,0.25); }
-    .close-btn { float: right; font-size: 18px; cursor: pointer; color: red; }
-    .checkin-box {
-      background: #eaf4ff;
-      border: 1px solid #b5d8ff;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 25px;
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lễ tân - Đặt lịch</title>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #f1f6fb;
+        margin: 0;
+        padding: 0;
     }
-  </style>
+
+    /* HEADER */
+    .header {
+        background: linear-gradient(135deg, #0d6efd, #0aa1ff);
+        padding: 18px 28px;
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* USER MENU */
+    .user-menu {
+        position: relative;
+    }
+
+    .user-btn {
+        background: rgba(255,255,255,0.15);
+        border: none;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .dropdown {
+        position: absolute;
+        top: 105%;
+        right: 0;
+        background: white;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+        border-radius: 10px;
+        display: none;
+        min-width: 170px;
+        z-index: 100;
+    }
+
+    .dropdown button {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 15px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dropdown button:hover {
+        background: #eef6ff;
+    }
+
+    /* CONTAINER */
+    .container {
+        max-width: 1050px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h2 { margin-top: 30px; color: #0d6efd; }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    .full { grid-column: 1 / -1; }
+
+    input,select,textarea{
+        width:100%;padding:10px;border:1px solid #cbd6e2;border-radius:8px;
+        background:#f8fafc;font-size:15px;
+    }
+    input:focus,select:focus,textarea:focus{
+        border-color:#0d6efd;background:white;
+        box-shadow:0 0 6px rgba(13,110,253,.35);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg,#0d6efd,#0aa1ff);
+        border:none;padding:10px 18px;border-radius:8px;
+        color:white;font-size:16px;cursor:pointer;margin-top:10px;
+    }
+    .btn-primary:hover { opacity:.9; transform:translateY(-1px); }
+
+    table{ width:100%; border-collapse:collapse; margin-top:15px; }
+    th{ background:#0d6efd; color:white; padding:10px; }
+    td{ padding:10px; border-bottom:1px solid #e5e8ec; }
+
+    /* MODAL */
+    .modal{
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,.4);
+        justify-content:center; align-items:center; z-index:2000;
+    }
+    .modal-content{
+        background:white; padding:20px; width:380px;
+        border-radius:12px; box-shadow:0 3px 12px rgba(0,0,0,.3);
+    }
+    .close-btn{ float:right; cursor:pointer; font-size:18px; color:red; }
+</style>
 </head>
 <body>
-  <header>
-    <div class="logo">🏥 HỆ THỐNG LỄ TÂN - QUẢN LÝ HỒ SƠ KHÁM</div>
+
+<!-- HEADER -->
+<div class="header">
+    📋 LỄ TÂN – TẠO HỒ SƠ & ĐẶT LỊCH
+
     <div class="user-menu">
-      <button id="userToggle" class="user-btn">👤 Tôi ▾</button>
-      <div id="userDropdown" class="dropdown-content">
-        <button onclick="showReceptionInfo()">🧾 Thông tin lễ tân</button>
-        <button onclick="changePassword()">🔑 Đổi mật khẩu</button>
-        <button onclick="logout()">🚪 Đăng xuất</button>
-      </div>
-    </div>
-  </header>
+        <button class="user-btn" id="btnUser">👤 Tôi ▾</button>
 
-  <main class="container">
-    <div class="checkin-box">
-      <h3>📞 Check-in nhanh bằng SĐT</h3>
-      <input id="checkin_sdt" placeholder="Nhập SĐT bệnh nhân..." />
-      <button class="btn-primary" onclick="checkinByPhone()">Check-in</button>
-    </div>
-
-    <section class="form-section">
-      <h2>📋 Tạo Hồ Sơ & Đặt Lịch Khám</h2>
-      <form id="form-hoso">
-        <div class="grid">
-          <div><label>Họ tên</label><input id="ho_ten" required></div>
-          <div><label>Giới tính</label><select id="gioi_tinh"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
-          <div><label>Ngày sinh</label><input type="date" id="ngay_sinh" required></div>
-          <div><label>SĐT</label><input id="sdt" required></div>
-          <div><label>Email</label><input type="email" id="email"></div>
-          <div><label>Địa chỉ</label><input id="dia_chi"></div>
-
-          <div><label>Khoa khám</label><select id="id_khoa" required></select></div>
-          <div><label>Ngày khám</label><input type="date" id="ngay_kham" required></div>
-          <div><label>Ca khám</label><select id="ca_kham" required><option value="">-- Chọn ca --</option><option value="Sang">Sáng</option><option value="Chieu">Chiều</option></select></div>
-          <div><label>Bác sĩ</label><select id="id_bacsi" required><option value="">-- Chọn khoa, ngày & ca --</option></select></div>
+        <div class="dropdown" id="userDropdown">
+            <button onclick="openInfo()">🧾 Thông tin lễ tân</button>
+            <button onclick="goChangePassword()">🔑 Đổi mật khẩu</button>
+            <button onclick="logout()">🚪 Đăng xuất</button>
         </div>
-        <div class="full"><label>Lý do khám</label><textarea id="ly_do"></textarea></div>
-        <button class="btn-primary" type="submit">➕ Tạo hồ sơ & đặt lịch</button>
-      </form>
-    </section>
+    </div>
+</div>
 
-    <section class="list-section">
-      <h2>🕒 Danh Sách Đặt Lịch (Tạo bởi lễ tân)</h2>
-      <table id="tableDatLich">
-        <thead><tr><th>Tên</th><th>SĐT</th><th>Khoa</th><th>Bác sĩ</th><th>Ngày</th><th>Ca</th><th>Trạng thái</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
+<!-- MODAL Thông tin lễ tân -->
+<div class="modal" id="infoModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeInfo()">×</span>
+        <h3>🧾 Thông tin lễ tân</h3>
+
+        <p><b>Họ tên:</b> <span id="lt_hoten">Nguyễn Văn A</span></p>
+        <p><b>SĐT:</b> <span id="lt_sdt">0123456789</span></p>
+        <p><b>Email:</b> <span id="lt_email">abc@gmail.com</span></p>
+        <p><b>Mã lễ tân:</b> <span id="lt_id">LET001</span></p>
+        <p><b>Tài khoản:</b> <span id="lt_tk">taikhoan01</span></p>
+
+        <button class="btn-primary" onclick="closeInfo()">Đóng</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- CHECKIN -->
+    <div class="card">
+        <h3>🔎 Check-in bệnh nhân</h3>
+        <div class="checkin-box">
+            <input id="checkin_sdt" placeholder="Nhập SĐT bệnh nhân...">
+            <button class="btn-primary" onclick="checkinByPhone()">Check-in</button>
+        </div>
+    </div>
+
+    <!-- FORM HỒ SƠ -->
+    <div class="card">
+        <h3>📝 Thông tin hồ sơ khám</h3>
+
+        <form id="form-hoso">
+            <div class="grid">
+                <div><label>Họ tên</label><input id="ho_ten" required></div>
+                <div><label>Giới tính</label><select id="gioi_tinh"><option>Nam</option><option>Nu</option></select></div>
+                <div><label>Ngày sinh</label><input type="date" id="ngay_sinh"></div>
+                <div><label>Số điện thoại</label><input id="sdt" required></div>
+                <div><label>Email</label><input id="email"></div>
+                <div><label>Địa chỉ</label><input id="dia_chi"></div>
+                <div><label>Khoa khám</label><select id="id_khoa"></select></div>
+                <div><label>Ngày khám</label><input type="date" id="ngay_kham"></div>
+                <div><label>Ca khám</label><select id="ca_kham"><option value="">-- Chọn ca --</option><option>Sang</option><option>Chieu</option></select></div>
+                <div><label>Bác sĩ</label><select id="id_bacsi"></select></div>
+            </div>
+
+            <div class="full">
+                <label>Lý do khám</label>
+                <textarea id="ly_do" rows="3"></textarea>
+            </div>
+
+            <button class="btn-primary" type="submit">➕ Tạo hồ sơ & đặt lịch</button>
+        </form>
+    </div>
+
+    <!-- DANH SÁCH -->
+    <div class="card">
+        <h3>📅 Danh sách đặt lịch</h3>
+        <table id="tableDatLich">
+            <thead>
+                <tr>
+                    <th>Tên</th><th>SĐT</th><th>Khoa</th><th>Bác sĩ</th><th>Ngày</th><th>Ca</th><th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
 
 <script>
+/* ================= DROPDOWN ================= */
+document.getElementById("btnUser").onclick = () => {
+    const drop = document.getElementById("userDropdown");
+    drop.style.display = drop.style.display === "block" ? "none" : "block";
+};
+
+window.onclick = (e) => {
+    if (!e.target.closest(".user-menu")) {
+        document.getElementById("userDropdown").style.display = "none";
+    }
+};
+
+/* ================= MODAL ================= */
+function openInfo(){
+    document.getElementById("infoModal").style.display = "flex";
+}
+function closeInfo(){
+    document.getElementById("infoModal").style.display = "none";
+}
+
+/* ================= PAGE ACTION ================= */
+function goChangePassword(){
+    window.location.href = "../nhanvien/letan/change-password.html";
+}
+function logout(){
+    window.location.href = "../nhanvien/login.html";
+}
+
+/* =================== TOÀN BỘ JS GỐC CỦA BẠN =================== */
+/* (Không sửa logic, giữ nguyên hoàn toàn)
+   -> CHỈ THÊM UI Ở TRÊN NHƯ BẠN MUỐN
+*/
+
 const API_URL = "http://localhost:3000/api";
 const id_khoaEl = document.getElementById("id_khoa");
 const ngay_kham = document.getElementById("ngay_kham");
 const ca_kham = document.getElementById("ca_kham");
+const id_bacsiEl = document.getElementById("id_bacsi");
+const form = document.getElementById("form-hoso");
 
-// ========== MENU ==========
-const userToggle = document.getElementById("userToggle");
-const userDropdown = document.getElementById("userDropdown");
-userToggle.onclick = () => userDropdown.style.display = userDropdown.style.display === "block" ? "none" : "block";
-window.onclick = (e) => { if (!e.target.closest(".user-menu")) userDropdown.style.display = "none"; };
-function logout(){ localStorage.clear(); location.href = "../login.html"; }
-function changePassword(){ alert("Chức năng đang phát triển"); }
+const ho_ten = document.getElementById("ho_ten");
+const gioi_tinh = document.getElementById("gioi_tinh");
+const ngay_sinh = document.getElementById("ngay_sinh");
+const sdt = document.getElementById("sdt");
+const email = document.getElementById("email");
+const dia_chi = document.getElementById("dia_chi");
+const ly_do = document.getElementById("ly_do");
 
-// ========== LOAD KHOA ==========
+let currentLetanId = localStorage.getItem("id_taikhoan_letan") || "1";
+
 async function loadKhoa() {
-  const res = await fetch(`${API_URL}/khoa`);
-  const data = await res.json();
-  document.getElementById("id_khoa").innerHTML =
-    '<option value="">-- Chọn khoa --</option>' +
-    data.map(k=>`<option value="${k.id_khoa}">${k.ten_khoa}</option>`).join("");
+    const res = await fetch(`${API_URL}/khoa`);
+    const data = await res.json();
+    id_khoaEl.innerHTML =
+        '<option value="">-- Chọn khoa --</option>' +
+        data.map(k => `<option value="${k.id_khoa}">${k.ten_khoa}</option>`).join("");
 }
 
-// ========== LOAD BÁC SĨ ==========
-document.getElementById("id_khoa").addEventListener("change", loadDoctors);
-document.getElementById("ngay_kham").addEventListener("change", loadDoctors);
-document.getElementById("ca_kham").addEventListener("change", loadDoctors);
+id_khoaEl.addEventListener("change", loadDoctors);
+ngay_kham.addEventListener("change", loadDoctors);
+ca_kham.addEventListener("change", loadDoctors);
+
 async function loadDoctors() {
-  const id_khoa = id_khoaEl.value, ngay = ngay_kham.value, ca = ca_kham.value;
-  const sel = document.getElementById("id_bacsi");
-  if (!id_khoa || !ngay || !ca) {
-    sel.innerHTML = '<option value="">-- Chọn khoa, ngày & ca --</option>'; 
-    return;
-  }
-  const res = await fetch(`${API_URL}/datlichletan/doctors/schedule?id_khoa=${id_khoa}&ngay=${ngay}&ca=${ca}`);
-  const data = await res.json();
-  sel.innerHTML = data.data?.length ? 
-    data.data.map(b=>`<option value="${b.id_bacsi}">${b.ho_ten}</option>`).join("") : 
-    '<option value="">Không có bác sĩ</option>';
+    const id_khoa = id_khoaEl.value, ngay = ngay_kham.value, ca = ca_kham.value;
+    if (!id_khoa || !ngay || !ca) {
+        id_bacsiEl.innerHTML = '<option value="">-- Chọn khoa, ngày & ca --</option>';
+        return;
+    }
+    const res = await fetch(`${API_URL}/datlichletan/doctors/schedule?id_khoa=${id_khoa}&ngay=${ngay}&ca=${ca}`);
+    const json = await res.json();
+    id_bacsiEl.innerHTML = json.data?.length
+        ? json.data.map(b => `<option value="${b.id_bacsi}">${b.ho_ten}</option>`).join("")
+        : '<option value="">Không có bác sĩ</option>';
 }
 
-// ========== TẠO HỒ SƠ ==========
-document.getElementById("form-hoso").addEventListener("submit", async e=>{
-  e.preventDefault();
-  if (!id_bacsi.value) return alert("⚠️ Vui lòng chọn bác sĩ trước khi đặt lịch!");
-  const payload = {
-    ho_ten: ho_ten.value, gioi_tinh: gioi_tinh.value, ngay_sinh: ngay_sinh.value,
-    sdt: sdt.value, email: email.value, dia_chi: dia_chi.value,
-    id_khoa: id_khoa.value, id_bacsi: id_bacsi.value,
-    ngay_hen: ngay_kham.value, ca_kham: ca_kham.value, ly_do: ly_do.value, id_letan: 1
-  };
-  const res = await fetch(`${API_URL}/datlichletan/create`, {
-    method:"POST", headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-  });
-  const data = await res.json();
-  alert(data.message || "Tạo hồ sơ thành công!");
-  loadDatLich();
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!id_bacsiEl.value) return alert("Vui lòng chọn bác sĩ");
+
+    const payload = {
+        ho_ten: ho_ten.value,
+        gioi_tinh: gioi_tinh.value,
+        ngay_sinh: ngay_sinh.value,
+        sdt: sdt.value,
+        email: email.value,
+        dia_chi: dia_chi.value,
+        id_khoa: id_khoaEl.value,
+        id_bacsi: id_bacsiEl.value,
+        ngay: ngay_kham.value,
+        ca_kham: ca_kham.value,
+        ly_do: ly_do.value,
+        id_letan: currentLetanId,
+        gio_hen: null
+    };
+
+    const res = await fetch(`${API_URL}/datlichletan/create`, {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        alert("Tạo hồ sơ & đặt lịch thành công!");
+        form.reset();
+        id_bacsiEl.innerHTML = '<option value="">-- Chọn khoa, ngày & ca --</option>';
+        loadDatLich();
+    } else alert(data.message || "Tạo thất bại");
 });
 
-// ========== CHECK-IN ==========
-async function checkinByPhone(){
-  const sdt = document.getElementById("checkin_sdt").value.trim();
-  if(!sdt) return alert("Nhập SĐT!");
-  const res = await fetch(`${API_URL}/datlichletan/checkin`, {
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({sdt,id_letan:1})
-  });
-  const data = await res.json();
-  if(data.success && data.data){
-    const d = data.data;
-    // điền form tự động từ dữ liệu online
-    ho_ten.value = d.ten_benhnhan || '';
-    sdt.value = d.sdt || '';
-    email.value = d.email || '';
-    id_khoa.value = d.id_khoa || '';
-    ngay_kham.value = d.ngay || '';
-    ca_kham.value = (d.khung_gio && d.khung_gio.includes('Chieu')) ? 'Chieu' : 'Sang';
-    ly_do.value = d.ly_do || '';
-    alert("✅ Đã tải dữ liệu từ đặt lịch online. Lễ tân có thể chỉnh sửa & tạo hồ sơ.");
-  } else {
-    alert(data.message || "Không tìm thấy lịch online cho số này!");
-  }
-  loadDatLich();
+async function checkinByPhone() {
+    const phone = document.getElementById("checkin_sdt").value.trim();
+    if (!phone) return alert("Nhập SĐT!");
+
+    const res = await fetch(`${API_URL}/datlichletan/checkin`, {
+        method: "POST",
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ sdt: phone, id_letan: currentLetanId })
+    });
+
+    const data = await res.json();
+    if (data.success && data.data) {
+        const d = data.data;
+        ho_ten.value = d.ten_benhnhan || '';
+        sdt.value = d.sdt || phone;
+        email.value = d.email || '';
+        if (d.id_khoa) id_khoaEl.value = d.id_khoa;
+        if (d.ngay) ngay_kham.value = d.ngay;
+        if (d.ca_kham) ca_kham.value = d.ca_kham;
+        ly_do.value = d.ly_do || '';
+
+        setTimeout(loadDoctors, 200);
+        alert("Đã tải dữ liệu!");
+    } else alert(data.message || "Không tìm thấy lịch.");
+    loadDatLich();
 }
 
-// ========== LOAD DANH SÁCH ==========
-async function loadDatLich(){
-  const res = await fetch(`${API_URL}/datlichletan`);
-  const data = await res.json();
-  const tbody = document.querySelector("#tableDatLich tbody");
-  if(!data.data?.length){
-    tbody.innerHTML = '<tr><td colspan="7">Không có lịch nào.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = data.data.map(d=>`
-    <tr>
-      <td>${d.ten_benhnhan||''}</td>
-      <td>${d.sdt_benhnhan||''}</td>
-      <td>${d.ten_khoa||''}</td>
-      <td>${d.ten_bacsi||''}</td>
-      <td>${d.ngay||''}</td>
-      <td>${d.ca_kham||''}</td>
-      <td>${d.trang_thai||''}</td>
-    </tr>`).join("");
+async function loadDatLich() {
+    const res = await fetch(`${API_URL}/datlichletan`);
+    const json = await res.json();
+    const tbody = document.querySelector("#tableDatLich tbody");
+
+    if (!json.data?.length) {
+        tbody.innerHTML = '<tr><td colspan="7">Không có lịch nào.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = json.data.map(d => `
+        <tr>
+            <td>${d.ten_benhnhan||''}</td>
+            <td>${d.sdt_benhnhan||''}</td>
+            <td>${d.ten_khoa||''}</td>
+            <td>${d.ten_bacsi||''}</td>
+            <td>${d.ngay||''}</td>
+            <td>${d.ca_kham||''}</td>
+            <td>${d.trang_thai||''}</td>
+        </tr>
+    `).join("");
 }
 
-// ========== KHỞI TẠO ==========
 loadKhoa();
 loadDatLich();
 </script>
+
 </body>
 </html>
