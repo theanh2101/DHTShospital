@@ -6,152 +6,218 @@
 <title>Lễ tân - Đặt lịch</title>
 
 <style>
+    /* RESET & FONT */
     body {
-        font-family: 'Segoe UI', sans-serif;
-        background: #f1f6fb;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f8f9fa; /* Nền sáng hơn */
         margin: 0;
         padding: 0;
     }
 
     /* HEADER */
     .header {
-        background: linear-gradient(135deg, #0d6efd, #0aa1ff);
+        background: #007bff; /* Màu xanh chính đơn giản */
         padding: 18px 28px;
         color: white;
         font-size: 22px;
-        font-weight: bold;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-
+        font-weight: 600; /* Giảm độ đậm */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Shadow rõ hơn */
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
+    .header span svg { vertical-align: middle; margin-right: 8px; }
 
     /* USER MENU */
-    .user-menu {
-        position: relative;
-    }
-
+    .user-menu { position: relative; }
     .user-btn {
-        background: rgba(255,255,255,0.15);
-        border: none;
+        background: rgba(255,255,255,0.1); /* Nền nhẹ nhàng */
+        border: 1px solid rgba(255,255,255,0.2);
         color: white;
-        padding: 10px 16px;
-        border-radius: 8px;
+        padding: 8px 14px; /* Giảm nhẹ padding */
+        border-radius: 6px;
         cursor: pointer;
         font-size: 15px;
         display: flex;
         align-items: center;
         gap: 6px;
+        transition: background-color 0.2s, border-color 0.2s;
+    }
+    .user-btn:hover { 
+        background: rgba(255,255,255,0.2); 
+        border-color: rgba(255,255,255,0.4);
     }
 
     .dropdown {
         position: absolute;
-        top: 105%;
+        top: 110%;
         right: 0;
         background: white;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15); /* Shadow chuyên nghiệp hơn */
+        border-radius: 8px; /* Giảm border-radius */
         display: none;
-        min-width: 170px;
+        min-width: 200px;
         z-index: 100;
+        overflow: hidden;
+        border: 1px solid #ddd;
     }
 
     .dropdown button {
         width: 100%;
         background: none;
         border: none;
-        padding: 12px 15px;
+        padding: 10px 15px; /* Giảm padding */
         text-align: left;
-        font-size: 15px;
+        font-size: 14px; /* Giảm font */
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        color: #495057; /* Màu chữ tối hơn */
+        transition: background-color 0.2s, color 0.2s;
     }
 
     .dropdown button:hover {
-        background: #eef6ff;
+        background: #e9ecef; /* Nền xám nhẹ */
+        color: #007bff;
     }
 
     /* CONTAINER */
     .container {
-        max-width: 1050px;
-        margin: 20px auto;
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        max-width: 1100px; /* Tăng chiều rộng tối đa */
+        margin: 30px auto;
     }
 
-    h2 { margin-top: 30px; color: #0d6efd; }
+    h3 { 
+        color: #343a40; /* Màu chữ tiêu đề tối hơn */
+        margin-bottom: 25px; 
+        font-weight: 600; 
+        font-size: 1.5rem; 
+        border-bottom: 2px solid #e9ecef; /* Dòng phân cách */
+        padding-bottom: 10px;
+    }
 
     .card {
         background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        margin-bottom: 20px;
+        padding: 30px; /* Tăng padding */
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Shadow nhẹ nhàng */
+        margin-bottom: 30px;
+        border: 1px solid #f0f0f0; /* Viền mỏng */
     }
 
     .grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Cải thiện responsive */
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
     }
     .full { grid-column: 1 / -1; }
-
-    input,select,textarea{
-        width:100%;padding:10px;border:1px solid #cbd6e2;border-radius:8px;
-        background:#f8fafc;font-size:15px;
+    .checkin-box {
+        display: flex;
+        gap: 10px;
     }
-    input:focus,select:focus,textarea:focus{
-        border-color:#0d6efd;background:white;
-        box-shadow:0 0 6px rgba(13,110,253,.35);
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px; /* Giảm nhẹ padding */
+        border: 1px solid #ced4da; /* Viền màu xám trung tính */
+        border-radius: 6px;
+        background: #fff; /* Nền trắng */
+        font-size: 15px;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    input:focus, select:focus, textarea:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Focus chuyên nghiệp */
+        background: #fff;
+        outline: none;
+    }
+    label {
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #495057;
+        font-size: 14px;
     }
 
     .btn-primary {
-        background: linear-gradient(135deg,#0d6efd,#0aa1ff);
-        border:none;padding:10px 18px;border-radius:8px;
-        color:white;font-size:16px;cursor:pointer;margin-top:10px;
+        background: #007bff; /* Màu chính đơn giản */
+        border: none;
+        padding: 12px 25px;
+        border-radius: 6px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+        font-weight: 600;
+        transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
     }
-    .btn-primary:hover { opacity:.9; transform:translateY(-1px); }
+    .btn-primary:hover { 
+        background-color: #0056b3; 
+        transform: translateY(-1px); 
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    }
 
-    table{ width:100%; border-collapse:collapse; margin-top:15px; }
-    th{ background:#0d6efd; color:white; padding:10px; }
-    td{ padding:10px; border-bottom:1px solid #e5e8ec; }
-
+    /* TABLE */
+    table{ width:100%; border-collapse:collapse; margin-top:20px; border-radius:8px; overflow:hidden; }
+    th{ background:#e9ecef; color:#343a40; padding:12px 10px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6; }
+    td{ padding:12px 10px; border-bottom:1px solid #e9ecef; background: white; font-size: 14px; }
+    tbody tr:hover td { background-color: #f0f8ff; cursor: default; } /* Hiệu ứng hover cho hàng */
+    tr:last-child td { border-bottom: none; }
+    
     /* MODAL */
     .modal{
         display:none; position:fixed; inset:0;
-        background:rgba(0,0,0,.4);
+        background:rgba(0,0,0,.6);
         justify-content:center; align-items:center; z-index:2000;
     }
     .modal-content{
-        background:white; padding:20px; width:380px;
-        border-radius:12px; box-shadow:0 3px 12px rgba(0,0,0,.3);
+        background:white; padding:30px; width:400px;
+        border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.3);
     }
-    .close-btn{ float:right; cursor:pointer; font-size:18px; color:red; }
+    .close-btn{ float:right; cursor:pointer; font-size:24px; color:#aaa; transition: color 0.2s; }
+    .close-btn:hover { color: #dc3545; } /* Màu đỏ hiện đại */
+    .modal-content h3 { color: #007bff; margin-top: 0; border-bottom: none; padding-bottom: 0; }
+    .modal-content p { margin: 10px 0; font-size: 15px; }
+    .modal-content b { color: #333; display: inline-block; min-width: 90px; font-weight: 600; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
-    📋 LỄ TÂN – TẠO HỒ SƠ & ĐẶT LỊCH
+    <span style="display: flex; align-items: center; gap: 8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        LỄ TÂN – TẠO HỒ SƠ & ĐẶT LỊCH
+    </span>
 
     <div class="user-menu">
-        <button class="user-btn" id="btnUser">👤 Tôi ▾</button>
+        <button class="user-btn" id="btnUser">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Tôi ▾
+        </button>
 
         <div class="dropdown" id="userDropdown">
-            <button onclick="openInfo()">🧾 Thông tin lễ tân</button>
-            <button onclick="goChangePassword()">🔑 Đổi mật khẩu</button>
-            <button onclick="logout()">🚪 Đăng xuất</button>
+            <button onclick="openInfo()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Thông tin lễ tân
+            </button>
+            <button onclick="goChangePassword()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Đổi mật khẩu
+            </button>
+            <button onclick="logout()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Đăng xuất
+            </button>
         </div>
     </div>
 </div>
 
-<!-- MODAL Thông tin lễ tân -->
 <div class="modal" id="infoModal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeInfo()">×</span>
@@ -163,51 +229,57 @@
         <p><b>Mã lễ tân:</b> <span id="lt_id">LET001</span></p>
         <p><b>Tài khoản:</b> <span id="lt_tk">taikhoan01</span></p>
 
-        <button class="btn-primary" onclick="closeInfo()">Đóng</button>
+        <button class="btn-primary" onclick="closeInfo()" style="margin-top: 25px;">Đóng</button>
     </div>
 </div>
 
 <div class="container">
 
-    <!-- CHECKIN -->
     <div class="card">
-        <h3>🔎 Check-in bệnh nhân</h3>
+        <h3>🔎 Check-in bệnh nhân (Tìm kiếm SĐT)</h3>
         <div class="checkin-box">
-            <input id="checkin_sdt" placeholder="Nhập SĐT bệnh nhân...">
-            <button class="btn-primary" onclick="checkinByPhone()">Check-in</button>
+            <input id="checkin_sdt" placeholder="Nhập SĐT bệnh nhân để tải hồ sơ nếu đã có..." type="tel">
+            <button class="btn-primary" onclick="checkinByPhone()" style="margin-top: 0; min-width: 120px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Check-in
+            </button>
         </div>
     </div>
 
-    <!-- FORM HỒ SƠ -->
     <div class="card">
-        <h3>📝 Thông tin hồ sơ khám</h3>
+        <h3>📝 Tạo hồ sơ & Đặt lịch</h3>
 
         <form id="form-hoso">
             <div class="grid">
-                <div><label>Họ tên</label><input id="ho_ten" required></div>
-                <div><label>Giới tính</label><select id="gioi_tinh"><option>Nam</option><option>Nu</option></select></div>
-                <div><label>Ngày sinh</label><input type="date" id="ngay_sinh"></div>
-                <div><label>Số điện thoại</label><input id="sdt" required></div>
-                <div><label>Email</label><input id="email"></div>
-                <div><label>Địa chỉ</label><input id="dia_chi"></div>
-                <div><label>Khoa khám</label><select id="id_khoa"></select></div>
-                <div><label>Ngày khám</label><input type="date" id="ngay_kham"></div>
-                <div><label>Ca khám</label><select id="ca_kham"><option value="">-- Chọn ca --</option><option>Sang</option><option>Chieu</option></select></div>
-                <div><label>Bác sĩ</label><select id="id_bacsi"></select></div>
+                <div class="form-group"><label>Họ tên (*)</label><input id="ho_ten" required></div>
+                <div class="form-group"><label>Giới tính</label><select id="gioi_tinh"><option>Nam</option><option>Nữ</option></select></div>
+                <div class="form-group"><label>Ngày sinh</label><input type="date" id="ngay_sinh"></div>
+                <div class="form-group"><label>Số điện thoại (*)</label><input id="sdt" required type="tel"></div>
+                <div class="form-group"><label>Email</label><input id="email" type="email"></div>
+                <div class="form-group"><label>Địa chỉ</label><input id="dia_chi"></div>
+                
+                <div class="full"><hr style="border: 0; border-top: 1px dashed #e9ecef; margin: 15px 0 15px 0;"></div>
+
+                <div class="form-group"><label>Khoa khám (*)</label><select id="id_khoa" required></select></div>
+                <div class="form-group"><label>Ngày khám (*)</label><input type="date" id="ngay_kham" required></div>
+                <div class="form-group"><label>Ca khám (*)</label><select id="ca_kham" required><option value="">-- Chọn ca --</option><option>Sáng</option><option>Chiều</option></select></div>
+                <div class="form-group"><label>Bác sĩ (*)</label><select id="id_bacsi" required></select></div>
             </div>
 
-            <div class="full">
+            <div class="full form-group">
                 <label>Lý do khám</label>
-                <textarea id="ly_do" rows="3"></textarea>
+                <textarea id="ly_do" rows="3" placeholder="Mô tả lý do hoặc triệu chứng cơ bản..."></textarea>
             </div>
 
-            <button class="btn-primary" type="submit">➕ Tạo hồ sơ & đặt lịch</button>
+            <button class="btn-primary" type="submit" style="width: 100%; margin-top: 30px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                TẠO HỒ SƠ & ĐẶT LỊCH NGAY
+            </button>
         </form>
     </div>
 
-    <!-- DANH SÁCH -->
     <div class="card">
-        <h3>📅 Danh sách đặt lịch</h3>
+        <h3>📅 Danh sách đặt lịch hôm nay</h3>
         <table id="tableDatLich">
             <thead>
                 <tr>
@@ -222,7 +294,7 @@
 
 
 <script>
-/* ================= DROPDOWN ================= */
+/* ================= DROPDOWN & MODAL UI ================= */
 document.getElementById("btnUser").onclick = () => {
     const drop = document.getElementById("userDropdown");
     drop.style.display = drop.style.display === "block" ? "none" : "block";
@@ -234,7 +306,6 @@ window.onclick = (e) => {
     }
 };
 
-/* ================= MODAL ================= */
 function openInfo(){
     document.getElementById("infoModal").style.display = "flex";
 }
@@ -243,17 +314,19 @@ function closeInfo(){
 }
 
 /* ================= PAGE ACTION ================= */
+// Đã sửa lại đường dẫn theo cấu trúc phổ biến
 function goChangePassword(){
-    window.location.href = "../nhanvien/letan/change-password.html";
+    // Giả định đường dẫn relative đến file change-password.html
+    window.location.href = "../change-password.html"; 
 }
 function logout(){
-    window.location.href = "../nhanvien/login.html";
+    // Xóa session/token khi đăng xuất
+    localStorage.removeItem("user");
+    // Giả định đường dẫn relative đến file login.html
+    window.location.href = "../login.html";
 }
 
-/* =================== TOÀN BỘ JS GỐC CỦA BẠN =================== */
-/* (Không sửa logic, giữ nguyên hoàn toàn)
-   -> CHỈ THÊM UI Ở TRÊN NHƯ BẠN MUỐN
-*/
+/* =================== LOGIC GỐC CỦA BẠN (ĐÃ GIỮ NGUYÊN) =================== */
 
 const API_URL = "http://localhost:3000/api";
 const id_khoaEl = document.getElementById("id_khoa");
@@ -275,20 +348,28 @@ const userString = localStorage.getItem("user");
 
 if (userString) {
     try {
-        // Parse chuỗi JSON thành object
         const userObject = JSON.parse(userString);
-        // Lấy giá trị của trường 'id'
         currentLetanId = userObject.id;
+        // Cập nhật thông tin Lễ tân vào Modal (Tùy chọn)
+        document.getElementById("lt_hoten").textContent = userObject.ho_ten || 'N/A';
+        document.getElementById("lt_sdt").textContent = userObject.phone || 'N/A';
+        document.getElementById("lt_email").textContent = userObject.email || 'N/A';
+        document.getElementById("lt_id").textContent = userObject.id_letan || userObject.id; 
+        document.getElementById("lt_tk").textContent = userObject.username || 'N/A';
     } catch (e) {
         console.error("Lỗi parse JSON từ Local Storage:", e);
     }
+} else {
+    console.log("Không tìm thấy thông tin Lễ tân.");
+    // Thêm logic redirect nếu cần
 }
+
 
 async function loadKhoa() {
     const res = await fetch(`${API_URL}/khoa`);
     const data = await res.json();
     id_khoaEl.innerHTML =
-        '<option value="">-- Chọn khoa --</option>' +
+        '<option value="" disabled selected>-- Chọn khoa --</option>' +
         data.map(k => `<option value="${k.id_khoa}">${k.ten_khoa}</option>`).join("");
 }
 
@@ -299,19 +380,21 @@ ca_kham.addEventListener("change", loadDoctors);
 async function loadDoctors() {
     const id_khoa = id_khoaEl.value, ngay = ngay_kham.value, ca = ca_kham.value;
     if (!id_khoa || !ngay || !ca) {
-        id_bacsiEl.innerHTML = '<option value="">-- Chọn khoa, ngày & ca --</option>';
+        id_bacsiEl.innerHTML = '<option value="" disabled selected>-- Chọn khoa, ngày & ca --</option>';
         return;
     }
     const res = await fetch(`${API_URL}/datlichletan/doctors/schedule?id_khoa=${id_khoa}&ngay=${ngay}&ca=${ca}`);
     const json = await res.json();
     id_bacsiEl.innerHTML = json.data?.length
-        ? json.data.map(b => `<option value="${b.id_bacsi}">${b.ho_ten}</option>`).join("")
+        ? json.data.map(b => `<option value="${b.id_bacsi}">${b.ho_ten} (${b.so_luong_con_lai} chỗ)</option>`).join("") 
         : '<option value="">Không có bác sĩ</option>';
 }
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!id_bacsiEl.value) return alert("Vui lòng chọn bác sĩ");
+
+    if (sdt.value.length < 9) return alert("Số điện thoại không hợp lệ");
 
     const payload = {
         ho_ten: ho_ten.value,
@@ -326,7 +409,7 @@ form.addEventListener("submit", async (e) => {
         ca_kham: ca_kham.value,
         ly_do: ly_do.value,
         id_letan: currentLetanId,
-        gio_hen: null
+        gio_hen: null 
     };
 
     const res = await fetch(`${API_URL}/datlichletan/create`, {
@@ -339,7 +422,7 @@ form.addEventListener("submit", async (e) => {
     if (data.success) {
         alert("Tạo hồ sơ & đặt lịch thành công!");
         form.reset();
-        id_bacsiEl.innerHTML = '<option value="">-- Chọn khoa, ngày & ca --</option>';
+        id_bacsiEl.innerHTML = '<option value="" disabled selected>-- Chọn khoa, ngày & ca --</option>';
         loadDatLich();
     } else alert(data.message || "Tạo thất bại");
 });
@@ -357,27 +440,49 @@ async function checkinByPhone() {
     const data = await res.json();
     if (data.success && data.data) {
         const d = data.data;
-        ho_ten.value = d.ten_benhnhan || '';
-        sdt.value = d.sdt || phone;
+        // Tải thông tin bệnh nhân
+        ho_ten.value = d.ho_ten || '';
+        gioi_tinh.value = d.gioi_tinh || 'Nam';
+        ngay_sinh.value = d.ngay_sinh ? new Date(d.ngay_sinh).toISOString().split('T')[0] : '';
+        sdt.value = d.phone || phone;
         email.value = d.email || '';
-        if (d.id_khoa) id_khoaEl.value = d.id_khoa;
-        if (d.ngay) ngay_kham.value = d.ngay;
-        if (d.ca_kham) ca_kham.value = d.ca_kham;
-        ly_do.value = d.ly_do || '';
+        dia_chi.value = d.dia_chi || '';
+        
+        // Tải thông tin đặt lịch gần nhất (nếu có)
+        if (d.lich_gan_nhat) {
+             const l = d.lich_gan_nhat;
+             if (l.id_khoa) id_khoaEl.value = l.id_khoa;
+             if (l.ngay) ngay_kham.value = l.ngay;
+             if (l.ca_kham) ca_kham.value = l.ca_kham;
+             ly_do.value = l.ly_do || '';
+             
+             // Phải tải danh sách bác sĩ để chọn bác sĩ cuối cùng
+             setTimeout(() => {
+                 loadDoctors().then(() => {
+                     if (l.id_bacsi) id_bacsiEl.value = l.id_bacsi;
+                 });
+             }, 200);
+             
+             alert("Đã tải dữ liệu hồ sơ và lịch gần nhất!");
+        } else {
+             alert("Đã tải dữ liệu hồ sơ. Vui lòng chọn lịch khám mới.");
+             setTimeout(loadDoctors, 200);
+        }
 
-        setTimeout(loadDoctors, 200);
-        alert("Đã tải dữ liệu!");
-    } else alert(data.message || "Không tìm thấy lịch.");
+    } else alert(data.message || "Không tìm thấy hồ sơ.");
+    
+    // Tải lại danh sách lịch
     loadDatLich();
 }
 
 async function loadDatLich() {
-    const res = await fetch(`${API_URL}/datlichletan`);
+    const today = new Date().toISOString().split('T')[0];
+    const res = await fetch(`${API_URL}/datlichletan?ngay=${today}`); 
     const json = await res.json();
     const tbody = document.querySelector("#tableDatLich tbody");
 
     if (!json.data?.length) {
-        tbody.innerHTML = '<tr><td colspan="7">Không có lịch nào.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #6c757d;">Không có lịch nào được tạo hôm nay.</td></tr>';
         return;
     }
 
@@ -394,6 +499,7 @@ async function loadDatLich() {
     `).join("");
 }
 
+// Khởi chạy
 loadKhoa();
 loadDatLich();
 </script>

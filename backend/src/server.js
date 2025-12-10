@@ -65,7 +65,7 @@ app.use("/api/DoctorDHST", DoctorDHSTRoutes);
 app.use("/api/hoso", hoSoRoutes);//Sáng
 app.use(express.json());
 app.use("/letan", datLichLeTanRoutes);
-app.use("/auth", changePassRoutes);
+app.use("/api/auth/change-password", changePassRoutes);
 // ================== XỬ LÝ LỖI ==================
 app.use((req, res) => {
   res.status(404).json({ message: `Không tìm thấy route: ${req.originalUrl}` });
