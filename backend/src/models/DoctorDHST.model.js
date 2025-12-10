@@ -49,20 +49,17 @@ class DoctorDHSTModel {
             SELECT 
                 dl.id_datlich, 
                 DATE_FORMAT(dl.ngay, '%Y-%m-%d') as ngay, 
-                dl.khung_gio, 
+                dl.gio_hen as khung_gio, 
                 dl.trang_thai, 
                 dl.ly_do,
                 
-                -- Logic quan trọng: Lấy ID bệnh nhân nếu có, hoặc trả về null/N/A
-                COALESCE(dl.id_benhnhan, bn.id_benhnhan) as id_benhnhan,
-                
-                -- Tên hiển thị: Ưu tiên lấy từ hồ sơ bệnh nhân, nếu không có (khách mới) thì lấy tên lúc đặt lịch
-                COALESCE(bn.ho_ten, dl.ten_benhnhan) as ten_benhnhan,
-                COALESCE(bn.phone, dl.sdt) as sdt
+                bn.id_benhnhan,
+                bn.ho_ten as ten_benhnhan,
+                bn.phone as sdt
 
-            FROM dat_lich dl
-            -- Join mềm: Thử tìm bệnh nhân theo ID hoặc theo SĐT
-            LEFT JOIN benhnhan bn ON (dl.id_benhnhan = bn.id_benhnhan OR dl.sdt = bn.phone)
+            FROM dat_lich_letan dl 
+            
+            LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
             WHERE dl.id_bacsi = ? 
         `;
         
@@ -73,18 +70,19 @@ class DoctorDHSTModel {
             params.push(ngay);
         }
 
-        sql += ' ORDER BY dl.ngay ASC, dl.khung_gio ASC';
+        sql += ' ORDER BY dl.ngay ASC, dl.gio_hen ASC';
 
         const [rows] = await this.pool.query(sql, params);
         return rows;
     }
 
     async findDailyStatistics(id_bacsi, today) {
+        // Cần sửa: nếu lịch khám của BS chỉ có trong dat_lich_letan
         const [rows] = await this.pool.query(
             `SELECT 
                 COUNT(id_datlich) AS so_benh_nhan,
                 SUM(CASE WHEN trang_thai = 'HOAN_THANH' THEN 1 ELSE 0 END) AS da_kham
-             FROM dat_lich
+             FROM dat_lich_letan -- 👈 Nên chuyển thành dat_lich_letan nếu đó là nguồn chính
              WHERE id_bacsi = ? AND ngay = ?`,
             [id_bacsi, today]
         );
@@ -95,31 +93,27 @@ class DoctorDHSTModel {
     // 3. CHI TIẾT CUỘC HẸN & BỆNH ÁN (Full Detail cho Modal)
     // =========================================================
     async findAppointmentDetails(id_datlich) {
-        // Hàm này lấy thông tin gộp từ dat_lich và benhnhan
-        // Giúp hiển thị đúng thông tin dù là khách mới hay cũ
+        // HÀM NÀY ĐÃ ĐƯỢC SỬA ĐỂ TRUY VẤN TỪ dat_lich_letan
         const [rows] = await this.pool.query(
             `SELECT
                 dl.id_datlich, 
                 DATE_FORMAT(dl.ngay, '%Y-%m-%d') as ngay_kham, 
-                dl.khung_gio,
+                dl.gio_hen as khung_gio, -- 👈 ĐÃ SỬA: Lấy gio_hen và đổi tên thành khung_gio
+                dl.ca_kham,              -- Thêm ca_kham
                 dl.trang_thai,
                 dl.ly_do,
                 
-                -- Thông tin gốc lúc đặt (để fallback)
-                dl.ten_benhnhan as ten_goc,
-                dl.sdt as sdt_goc,
-                
-                -- Thông tin chuẩn hóa từ bảng Bệnh nhân (nếu tìm thấy)
+                -- Thông tin chuẩn hóa từ bảng Bệnh nhân (benhnhan)
                 bn.id_benhnhan,
-                COALESCE(bn.ho_ten, dl.ten_benhnhan) as ten_benhnhan,
-                COALESCE(bn.phone, dl.sdt) as sdt,
-                COALESCE(bn.email, dl.email, '') as email,
+                bn.ho_ten as ten_benhnhan,
+                bn.phone as sdt,
+                COALESCE(bn.email, '') as email,
                 COALESCE(bn.gioi_tinh, 'Nam') as gioi_tinh,
                 DATE_FORMAT(bn.ngay_sinh, '%Y-%m-%d') as ngay_sinh,
                 COALESCE(bn.dia_chi, '') as dia_chi,
                 bn.so_bhyt
-             FROM dat_lich dl
-             LEFT JOIN benhnhan bn ON (dl.id_benhnhan = bn.id_benhnhan OR dl.sdt = bn.phone)
+             FROM dat_lich_letan dl  -- 👈 ĐIỀU CHỈNH: FROM dat_lich_letan
+             LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
              WHERE dl.id_datlich = ?`,
             [id_datlich]
         );
@@ -137,8 +131,7 @@ class DoctorDHSTModel {
     }
 
     async findPrescriptionDetails(id_datlich) {
-        // Tìm toa thuốc thông qua id_datlich -> id_hoso -> toa_thuoc
-        // Trả về danh sách chi tiết thuốc
+        // HÀM NÀY CẦN CHẮC CHẮN TỒN TẠI VÀ ĐƯỢC GỌI ĐÚNG
         const [rows] = await this.pool.query(
             `SELECT ctt.ten_thuoc, ctt.lieu_luong, ctt.so_ngay, ctt.cach_dung 
              FROM ho_so_kham hsk
@@ -154,8 +147,6 @@ class DoctorDHSTModel {
     // 4. HỖ TRỢ TRANSACTION (Lưu toa thuốc)
     // =========================================================
     async savePrescription(connection, data) {
-        // Hàm này giữ lại để tương thích nếu Service gọi trực tiếp model
-        // Tuy nhiên logic chính đã được chuyển sang Service để xử lý transaction gọn hơn
         return true; 
     }
 }
