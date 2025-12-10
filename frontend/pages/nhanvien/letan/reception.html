@@ -6,109 +6,99 @@
 <title>Lễ tân - Đặt lịch</title>
 
 <style>
-    /* RESET & FONT */
     body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #f8f9fa; /* Nền sáng hơn */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Cập nhật font */
+        background: #f1f6fb;
         margin: 0;
         padding: 0;
     }
 
     /* HEADER */
     .header {
-        background: #007bff; /* Màu xanh chính đơn giản */
+        background: linear-gradient(135deg, #0d6efd, #0aa1ff);
         padding: 18px 28px;
         color: white;
         font-size: 22px;
-        font-weight: 600; /* Giảm độ đậm */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Shadow rõ hơn */
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    .header span svg { vertical-align: middle; margin-right: 8px; }
 
     /* USER MENU */
-    .user-menu { position: relative; }
+    .user-menu {
+        position: relative;
+    }
+
     .user-btn {
-        background: rgba(255,255,255,0.1); /* Nền nhẹ nhàng */
-        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.15);
+        border: none;
         color: white;
-        padding: 8px 14px; /* Giảm nhẹ padding */
-        border-radius: 6px;
+        padding: 10px 16px;
+        border-radius: 8px;
         cursor: pointer;
         font-size: 15px;
         display: flex;
         align-items: center;
         gap: 6px;
-        transition: background-color 0.2s, border-color 0.2s;
+        transition: background-color 0.2s;
     }
-    .user-btn:hover { 
-        background: rgba(255,255,255,0.2); 
-        border-color: rgba(255,255,255,0.4);
-    }
+    .user-btn:hover { background: rgba(255,255,255,0.25); }
 
     .dropdown {
         position: absolute;
-        top: 110%;
+        top: 105%;
         right: 0;
         background: white;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.15); /* Shadow chuyên nghiệp hơn */
-        border-radius: 8px; /* Giảm border-radius */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        border-radius: 10px;
         display: none;
         min-width: 200px;
         z-index: 100;
         overflow: hidden;
-        border: 1px solid #ddd;
     }
 
     .dropdown button {
         width: 100%;
         background: none;
         border: none;
-        padding: 10px 15px; /* Giảm padding */
+        padding: 12px 15px;
         text-align: left;
-        font-size: 14px; /* Giảm font */
+        font-size: 15px;
         cursor: pointer;
         display: flex;
         align-items: center;
         gap: 10px;
-        color: #495057; /* Màu chữ tối hơn */
-        transition: background-color 0.2s, color 0.2s;
+        color: #333;
     }
 
     .dropdown button:hover {
-        background: #e9ecef; /* Nền xám nhẹ */
-        color: #007bff;
+        background: #eef6ff;
+        color: #0d6efd;
     }
 
     /* CONTAINER */
     .container {
-        max-width: 1100px; /* Tăng chiều rộng tối đa */
-        margin: 30px auto;
+        max-width: 1050px;
+        margin: 25px auto;
+        background: #f1f6fb; /* Giữ nền bên ngoài */
     }
 
-    h3 { 
-        color: #343a40; /* Màu chữ tiêu đề tối hơn */
-        margin-bottom: 25px; 
-        font-weight: 600; 
-        font-size: 1.5rem; 
-        border-bottom: 2px solid #e9ecef; /* Dòng phân cách */
-        padding-bottom: 10px;
-    }
+    h2 { margin-top: 30px; color: #0d6efd; }
+    h3 { color: #333; margin-bottom: 20px; font-weight: 600; font-size: 1.5rem; }
 
     .card {
         background: white;
-        padding: 30px; /* Tăng padding */
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Shadow nhẹ nhàng */
-        margin-bottom: 30px;
-        border: 1px solid #f0f0f0; /* Viền mỏng */
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
     }
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Cải thiện responsive */
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
         gap: 20px;
     }
     .form-group {
@@ -120,71 +110,68 @@
         display: flex;
         gap: 10px;
     }
+    .checkin-box input {
+        flex-grow: 1;
+    }
 
     input, select, textarea {
         width: 100%;
-        padding: 10px 12px; /* Giảm nhẹ padding */
-        border: 1px solid #ced4da; /* Viền màu xám trung tính */
-        border-radius: 6px;
-        background: #fff; /* Nền trắng */
+        padding: 12px; /* Tăng padding */
+        border: 1px solid #cbd6e2;
+        border-radius: 8px;
+        background: #f8fafc;
         font-size: 15px;
         box-sizing: border-box;
-        transition: border-color 0.3s, box-shadow 0.3s;
     }
     input:focus, select:focus, textarea:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Focus chuyên nghiệp */
-        background: #fff;
+        border-color: #0d6efd;
+        background: white;
+        box-shadow: 0 0 6px rgba(13,110,253,.35);
         outline: none;
     }
     label {
         margin-bottom: 5px;
         font-weight: 500;
-        color: #495057;
-        font-size: 14px;
+        color: #555;
     }
 
     .btn-primary {
-        background: #007bff; /* Màu chính đơn giản */
+        background: linear-gradient(135deg,#0d6efd,#0aa1ff);
         border: none;
-        padding: 12px 25px;
-        border-radius: 6px;
+        padding: 12px 20px; /* Tăng padding */
+        border-radius: 8px;
         color: white;
         font-size: 16px;
         cursor: pointer;
         margin-top: 20px;
         font-weight: 600;
-        transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+        transition: opacity 0.2s, transform 0.2s;
     }
-    .btn-primary:hover { 
-        background-color: #0056b3; 
-        transform: translateY(-1px); 
-        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-    }
+    .btn-primary:hover { opacity:.9; transform:translateY(-1px); box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3); }
 
     /* TABLE */
-    table{ width:100%; border-collapse:collapse; margin-top:20px; border-radius:8px; overflow:hidden; }
-    th{ background:#e9ecef; color:#343a40; padding:12px 10px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6; }
-    td{ padding:12px 10px; border-bottom:1px solid #e9ecef; background: white; font-size: 14px; }
-    tbody tr:hover td { background-color: #f0f8ff; cursor: default; } /* Hiệu ứng hover cho hàng */
+    table{ width:100%; border-collapse:separate; border-spacing:0; margin-top:20px; border-radius:10px; overflow:hidden; }
+    th{ background:#0d6efd; color:white; padding:12px 10px; text-align: left; font-weight: 600; }
+    td{ padding:12px 10px; border-bottom:1px solid #e5e8ec; background: white; }
     tr:last-child td { border-bottom: none; }
-    
+    tbody tr:nth-child(odd) td { background-color: #f7f9fc; } /* Phân biệt dòng */
+
+
     /* MODAL */
     .modal{
         display:none; position:fixed; inset:0;
-        background:rgba(0,0,0,.6);
+        background:rgba(0,0,0,.5);
         justify-content:center; align-items:center; z-index:2000;
     }
     .modal-content{
         background:white; padding:30px; width:400px;
-        border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.3);
+        border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,.3);
     }
     .close-btn{ float:right; cursor:pointer; font-size:24px; color:#aaa; transition: color 0.2s; }
-    .close-btn:hover { color: #dc3545; } /* Màu đỏ hiện đại */
-    .modal-content h3 { color: #007bff; margin-top: 0; border-bottom: none; padding-bottom: 0; }
-    .modal-content p { margin: 10px 0; font-size: 15px; }
-    .modal-content b { color: #333; display: inline-block; min-width: 90px; font-weight: 600; }
+    .close-btn:hover { color: #f00; }
+    .modal-content h3 { color: #0d6efd; margin-top: 0; }
+    .modal-content p { margin: 8px 0; font-size: 15px; }
+    .modal-content b { color: #333; display: inline-block; min-width: 90px; }
 </style>
 </head>
 <body>
@@ -258,7 +245,7 @@
                 <div class="form-group"><label>Email</label><input id="email" type="email"></div>
                 <div class="form-group"><label>Địa chỉ</label><input id="dia_chi"></div>
                 
-                <div class="full"><hr style="border: 0; border-top: 1px dashed #e9ecef; margin: 15px 0 15px 0;"></div>
+                <div class="full"><hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0 10px 0;"></div>
 
                 <div class="form-group"><label>Khoa khám (*)</label><select id="id_khoa" required></select></div>
                 <div class="form-group"><label>Ngày khám (*)</label><input type="date" id="ngay_kham" required></div>
@@ -314,19 +301,16 @@ function closeInfo(){
 }
 
 /* ================= PAGE ACTION ================= */
-// Đã sửa lại đường dẫn theo cấu trúc phổ biến
 function goChangePassword(){
-    // Giả định đường dẫn relative đến file change-password.html
-    window.location.href = "../change-password.html"; 
+    window.location.href = "../change-password.html";
 }
 function logout(){
     // Xóa session/token khi đăng xuất
     localStorage.removeItem("user");
-    // Giả định đường dẫn relative đến file login.html
     window.location.href = "../login.html";
 }
 
-/* =================== LOGIC GỐC CỦA BẠN (ĐÃ GIỮ NGUYÊN) =================== */
+/* =================== LOGIC GỐC CỦA BẠN (ĐÃ TÍCH HỢP) =================== */
 
 const API_URL = "http://localhost:3000/api";
 const id_khoaEl = document.getElementById("id_khoa");
@@ -354,14 +338,15 @@ if (userString) {
         document.getElementById("lt_hoten").textContent = userObject.ho_ten || 'N/A';
         document.getElementById("lt_sdt").textContent = userObject.phone || 'N/A';
         document.getElementById("lt_email").textContent = userObject.email || 'N/A';
-        document.getElementById("lt_id").textContent = userObject.id_letan || userObject.id; 
+        document.getElementById("lt_id").textContent = userObject.id_letan || userObject.id; // Giả định có id_letan
         document.getElementById("lt_tk").textContent = userObject.username || 'N/A';
     } catch (e) {
         console.error("Lỗi parse JSON từ Local Storage:", e);
     }
 } else {
-    console.log("Không tìm thấy thông tin Lễ tân.");
-    // Thêm logic redirect nếu cần
+    // Nếu không có user, chuyển hướng về login
+    console.log("Không tìm thấy thông tin Lễ tân, chuyển hướng về Login.");
+    // window.location.href = "../nhanvien/login.html"; 
 }
 
 
@@ -386,7 +371,7 @@ async function loadDoctors() {
     const res = await fetch(`${API_URL}/datlichletan/doctors/schedule?id_khoa=${id_khoa}&ngay=${ngay}&ca=${ca}`);
     const json = await res.json();
     id_bacsiEl.innerHTML = json.data?.length
-        ? json.data.map(b => `<option value="${b.id_bacsi}">${b.ho_ten} (${b.so_luong_con_lai} chỗ)</option>`).join("") 
+        ? json.data.map(b => `<option value="${b.id_bacsi}">${b.ho_ten} (${b.so_luong_con_lai} chỗ)</option>`).join("") // Thêm thông tin số lượng
         : '<option value="">Không có bác sĩ</option>';
 }
 
@@ -394,6 +379,7 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!id_bacsiEl.value) return alert("Vui lòng chọn bác sĩ");
 
+    // Thêm validation cơ bản cho SĐT
     if (sdt.value.length < 9) return alert("Số điện thoại không hợp lệ");
 
     const payload = {
@@ -409,7 +395,7 @@ form.addEventListener("submit", async (e) => {
         ca_kham: ca_kham.value,
         ly_do: ly_do.value,
         id_letan: currentLetanId,
-        gio_hen: null 
+        gio_hen: null // Logic tính toán giờ hẹn nên nằm ở Server/Service
     };
 
     const res = await fetch(`${API_URL}/datlichletan/create`, {
@@ -476,6 +462,7 @@ async function checkinByPhone() {
 }
 
 async function loadDatLich() {
+    // Có thể lọc danh sách đặt lịch theo ID Lễ tân hoặc ngày hôm nay nếu cần
     const today = new Date().toISOString().split('T')[0];
     const res = await fetch(`${API_URL}/datlichletan?ngay=${today}`); 
     const json = await res.json();
