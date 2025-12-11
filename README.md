@@ -88,39 +88,39 @@ DHTS Hospital là hệ thống quản lý khám bệnh trực tuyến được x
    
 Bước 1: Cài dependencies
 
-cd backend/src
+    cd backend/src
 
 Bước 2: Tạo database MySQL
 
-Tạo database với tên: hospital_db
+    Tạo database với tên: hospital_db
 
-Import file: schema12.sql
+    Import file: schema12.sql
 
 Bước 3 – Cấu hình file .env
 
 Ví dụ:
 
-DB_HOST=localhost
+  DB_HOST=localhost
 
-DB_USER=root
+  DB_USER=root
 
-DB_PASSWORD=
+  DB_PASSWORD=
 
-DB_NAME=hospital_db
+  DB_NAME=hospital_db
 
-PORT=3000
+  PORT=3000
 
 Bước 4: Chạy server
 
-node server 
+    node server 
 
 #### 2. Thiết lập Front-end 
 
-frontend/index.html
+  frontend/index.html
 
-→ hoặc sử dụng Live Server (VS Code)
+  → hoặc sử dụng Live Server (VS Code)
 
-  hoặc truy cập http://localhost:3000
+    hoặc truy cập http://localhost:3000
 
 ## 👨‍💻 Nhóm phát triển
 
