@@ -1,10 +1,12 @@
-DHTS Hospital – Hệ thống quản lý khám bệnh 
+# DHTS Hospital – Hệ thống quản lý khám bệnh 
 
-Giới thiệu
+## Giới thiệu
+
 DHTS Hospital là hệ thống quản lý khám bệnh trực tuyến được xây dựng theo mô hình Client – Server, hỗ trợ bệnh nhân tra cứu hồ sơ khám chữa bệnh và hỗ trợ nhân viên y tế quản lý thông tin hồ sơ, lịch làm việc và tài khoản.
+
 Dự án được phát triển phục vụ học phần Phát triển Dự án Công nghệ Phần mềm theo phương pháp Agile/Scrum, đảm bảo đầy đủ quy trình từ phân tích, thiết kế, phát triển, kiểm thử đến triển khai.
 
-Tính năng chính
+## Tính năng chính
 
 - Dành cho bệnh nhân
   + Xem các thông tin dịch vụ, bài viết, các bác sĩ,...
@@ -30,7 +32,7 @@ Tính năng chính
   + Phân quyền người dùng theo role
   + Bảo mật cơ bản + xác thực
   
- Công nghệ sử dụng
+ ## Công nghệ sử dụng
 
 - Back-end
   + Node.js
@@ -44,11 +46,12 @@ Tính năng chính
   + Bootstrap
   + AJAX / Fetch API
 
-📂 Cấu trúc thư mục
-
+ ## Cấu trúc thư mục
+``` 
 ├── DHST Hospital (Thư mục gốc của Dự án)
 │
 ├── backend/
+
 │   ├── config/
 │   ├── node_modules/
 │   ├── src/
@@ -80,8 +83,8 @@ Tính năng chính
 ├── schema12.sql
 ├── package.json 
 └── package-lock.json 
-
-Nhóm phát triển - thành viên
+```
+## Nhóm phát triển - thành viên
 
 Nhóm 9:  
 - Chu Bá Tâm
