@@ -82,12 +82,4 @@ DHTS Hospital là hệ thống quản lý khám bệnh trực tuyến được x
 ├── package.json 
 └── package-lock.json 
 ```
-## Nhóm phát triển - thành viên
-
-Nhóm 9:  
-- Chu Bá Tâm
-- Cao Thu Huệ
-- Đỗ Thị Hồng Duyên
-- Nguyễn Quang Sáng
-- Nguyễn Văn Dương
 
