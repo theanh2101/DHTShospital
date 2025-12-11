@@ -2,9 +2,7 @@
 
 ## Giới thiệu
 
-DHTS Hospital là hệ thống quản lý khám bệnh trực tuyến được xây dựng theo mô hình Client – Server, hỗ trợ bệnh nhân tra cứu hồ sơ khám chữa bệnh và hỗ trợ nhân viên y tế quản lý thông tin hồ sơ, lịch làm việc và tài khoản.
-
-Dự án được phát triển phục vụ học phần Phát triển Dự án Công nghệ Phần mềm theo phương pháp Agile/Scrum, đảm bảo đầy đủ quy trình từ phân tích, thiết kế, phát triển, kiểm thử đến triển khai.
+DHTS Hospital là hệ thống quản lý khám bệnh trực tuyến được xây dựng theo mô hình Client – Server, hỗ trợ bệnh nhân đặt lịch khám, tra cứu hồ sơ khám chữa bệnh và hỗ trợ nhân viên y tế quản lý thông tin hồ sơ, lịch làm việc và tài khoản.
 
 ## Tính năng chính
 
