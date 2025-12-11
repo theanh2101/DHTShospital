@@ -2,11 +2,11 @@
 const db = require("../../config/db");
 
 const DatLichLeTanModel = {
-  // Lấy toàn bộ lịch tạo bởi lễ tân (view/overview)
+  // Lấy toàn bộ lịch tạo bởi lễ tân
   async getAll() {
     const sql = `
-      SELECT dl.*,
-             bn.ho_ten AS ten_benhnhan, bn.phone AS sdt_benhnhan,
+      SELECT dl.*, 
+             bn.ho_ten AS ten_benhnhan, bn.phone AS sdt_benhnhan, 
              b.ho_ten AS ten_bacsi, k.ten_khoa, lt.ho_ten AS ten_letan
       FROM dat_lich_letan dl
       LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
@@ -14,23 +14,9 @@ const DatLichLeTanModel = {
       LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
       LEFT JOIN letan lt ON dl.id_letan = lt.id_letan
       WHERE dl.nguon_dat = 'LeTan'
-      ORDER BY dl.created_at ASC
+      ORDER BY dl.created_at DESC
     `;
     const [rows] = await db.query(sql);
-    return rows;
-  },
-
-  async getByStatus(status) {
-    const sql = `
-      SELECT dl.*, bn.ho_ten AS ten_benhnhan, bn.phone AS sdt_benhnhan, b.ho_ten AS ten_bacsi, k.ten_khoa
-      FROM dat_lich_letan dl
-      LEFT JOIN benhnhan bn ON dl.id_benhnhan = bn.id_benhnhan
-      LEFT JOIN bacsi b ON dl.id_bacsi = b.id_bacsi
-      LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
-      WHERE dl.trang_thai = ? AND dl.nguon_dat = 'LeTan'
-      ORDER BY dl.created_at ASC
-    `;
-    const [rows] = await db.query(sql, [status]);
     return rows;
   },
 
@@ -47,6 +33,7 @@ const DatLichLeTanModel = {
     return rows[0] || null;
   },
 
+  // ✅ LOGIC MỚI: Tìm tất cả lịch hẹn Online theo SĐT (trả về mảng)
   async findOnlineByPhone(sdt) {
     const sql = `
       SELECT dl.*, k.ten_khoa, b.ho_ten AS ten_bacsi
@@ -54,14 +41,13 @@ const DatLichLeTanModel = {
       LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
       LEFT JOIN bacsi b ON dl.id_bacsi = b.id_bacsi
       WHERE dl.sdt = ? AND dl.trang_thai = 'CHO_XAC_NHAN'
-      ORDER BY dl.createdAt DESC LIMIT 1
+      ORDER BY dl.createdAt DESC
     `;
     const [rows] = await db.query(sql, [sdt]);
-    return rows[0] || null;
+    return rows; 
   },
 
   async insertDatLichLeTan(connection, data) {
-    // data: { id_letan, id_benhnhan, id_khoa, ngay, gio_hen, ca_kham, id_bacsi, ly_do, trang_thai }
     const conn = connection || db;
     const sql = `INSERT INTO dat_lich_letan 
       (id_letan, id_benhnhan, id_khoa, ngay, gio_hen, ca_kham, id_bacsi, ly_do, trang_thai, nguon_dat, created_at)
@@ -88,7 +74,7 @@ const DatLichLeTanModel = {
     return res;
   },
 
-  // Lấy bác sĩ theo lịch làm việc (khoa, ngày, ca) từ lichlamviec và lichlamviec_bacsi
+  // Lấy bác sĩ theo lịch làm việc
   async getDoctorsBySchedule(id_khoa, ngay, ca) {
     const sql = `
       SELECT b.id_bacsi, b.ho_ten
@@ -101,17 +87,32 @@ const DatLichLeTanModel = {
     return rows;
   },
 
-  // Kiểm tra xem đã tồn tại benhnhan theo sdt, nếu không tạo mới
+  // ✅ LOGIC MỚI QUAN TRỌNG: 
+  // Tìm hoặc Tạo bệnh nhân (Phân biệt bằng TÊN nếu trùng SĐT)
   async findOrCreateBenhNhan(connection, { ho_ten, sdt, email, ngay_sinh, gioi_tinh, dia_chi }) {
     const conn = connection || db;
-    const [rows] = await conn.query("SELECT id_benhnhan FROM benhnhan WHERE phone = ? LIMIT 1", [sdt]);
-    if (rows.length > 0) {
-      return rows[0].id_benhnhan;
+    
+    // 1. Tìm tất cả người có cùng SĐT
+    const [rows] = await conn.query("SELECT * FROM benhnhan WHERE phone = ?", [sdt]);
+    
+    // 2. Lọc trong danh sách đó xem có ai trùng TÊN không (so sánh không phân biệt hoa thường)
+    // Trim khoảng trắng thừa
+    const normalizedName = ho_ten.trim().toLowerCase();
+    
+    const existingPatient = rows.find(p => p.ho_ten.toLowerCase() === normalizedName);
+
+    if (existingPatient) {
+        console.log(`[DB] Đã tìm thấy bệnh nhân cũ: ${existingPatient.ho_ten} (ID: ${existingPatient.id_benhnhan})`);
+        return existingPatient.id_benhnhan;
     }
-    // tạo id_benhnhan theo chuẩn BNxxxx
+
+    // 3. Nếu không trùng tên -> Tạo bệnh nhân MỚI (Dù trùng SĐT)
+    // Ví dụ: SĐT 0988... đã có "Nguyen Van A", giờ thêm "Nguyen Van B" -> Tạo ID mới
     const id = `BN${Date.now().toString().slice(-6)}`;
+    console.log(`[DB] Tạo bệnh nhân mới trùng SĐT: ${ho_ten} (ID: ${id})`);
+    
     await conn.query(
-      `INSERT INTO benhnhan (id_benhnhan, ho_ten, phone, email, ngay_sinh, gioi_tinh, dia_chi)
+      `INSERT INTO benhnhan (id_benhnhan, ho_ten, phone, email, ngay_sinh, gioi_tinh, dia_chi) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [id, ho_ten, sdt, email || null, ngay_sinh || null, gioi_tinh || null, dia_chi || null]
     );

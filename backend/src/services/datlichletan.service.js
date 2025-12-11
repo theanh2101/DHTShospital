@@ -4,68 +4,53 @@ const DatLichLeTanModel = require("../models/datlichletan.model");
 const pool = require("../../config/db");
 
 const DatLichLeTanService = {
-
-  /**
-   * Lấy danh sách bác sĩ + số lịch của họ trong ngày/ca => phục vụ round-robin
-   */
+  // Round-robin load balancing
+  // ĐÃ SỬA: Chỉ lấy bác sĩ có trong lịch làm việc của Ngày và Ca đó
   async getDoctorsRoundRobin(id_khoa, ngay, ca_kham) {
     const conn = await pool.getConnection();
     try {
-      // 1) Lấy danh sách bác sĩ của khoa
-      const [doctors] = await conn.query(
-        `SELECT id_bacsi, ho_ten 
-         FROM bacsi 
-         WHERE id_khoa = ?`,
-        [id_khoa]
-      );
+      // BƯỚC 1: Lấy danh sách bác sĩ ĐƯỢC PHÂN CÔNG trong ngày và ca này
+      // (Thay vì lấy toàn bộ bác sĩ của khoa)
+      const doctors = await DatLichLeTanModel.getDoctorsBySchedule(id_khoa, ngay, ca_kham);
 
-      if (!doctors.length) return [];
+      // Nếu không có bác sĩ nào trực ca này, trả về rỗng ngay
+      if (!doctors || doctors.length === 0) return [];
 
-      // 2) Đếm số lịch mỗi bác sĩ đang có trong ngày + ca
+      // BƯỚC 2: Đếm số lượng bệnh nhân hiện tại của từng bác sĩ trong ca đó để cân bằng tải
       const [countRows] = await conn.query(
-        `SELECT id_bacsi, COUNT(*) as so_lich
-         FROM dat_lich_letan
-         WHERE id_khoa = ? AND ngay = ? AND ca_kham = ?
+        `SELECT id_bacsi, COUNT(*) as so_lich 
+         FROM dat_lich_letan 
+         WHERE id_khoa = ? AND ngay = ? AND ca_kham = ? 
          GROUP BY id_bacsi`,
         [id_khoa, ngay, ca_kham]
       );
 
+      // Tạo map đếm số lịch: { 'BS001': 2, 'BS002': 0 }
       const countMap = {};
       countRows.forEach(r => countMap[r.id_bacsi] = r.so_lich);
 
-      // 3) Thêm số lịch vào object bác sĩ
-      doctors.forEach(d => {
-        d.so_lich = countMap[d.id_bacsi] || 0;
-      });
+      // Gán số lịch vào danh sách bác sĩ lấy được ở Bước 1
+      doctors.forEach(d => { d.so_lich = countMap[d.id_bacsi] || 0; });
 
-      // 4) Sắp xếp người ít lịch nhất lên đầu (round-robin by load)
+      // Sắp xếp bác sĩ theo số lịch tăng dần (ưu tiên người ít việc hơn)
       doctors.sort((a, b) => a.so_lich - b.so_lich);
 
       return doctors;
-
     } finally {
       conn.release();
     }
   },
 
-  /**
-   * Lễ tân load danh sách bác sĩ (frontend để hiển thị)
-   */
   async getDoctorsBySchedule(id_khoa, ngay, ca) {
-    // Trả danh sách bác sĩ sorted theo round robin
     return await this.getDoctorsRoundRobin(id_khoa, ngay, ca);
   },
 
-  /**
-   * Tạo lịch từ lễ tân
-   * Nếu id_bacsi không truyền → tự chọn theo round-robin
-   */
   async create(payload) {
     const conn = await pool.getConnection();
     try {
       await conn.beginTransaction();
-
-      // 1) tìm hoặc tạo bệnh nhân
+      
+      // 1) Tìm hoặc tạo bệnh nhân (Logic mới hỗ trợ trùng SĐT khác tên)
       const id_benhnhan = await DatLichLeTanModel.findOrCreateBenhNhan(conn, {
         ho_ten: payload.ho_ten,
         sdt: payload.sdt,
@@ -75,62 +60,41 @@ const DatLichLeTanService = {
         dia_chi: payload.dia_chi,
       });
 
-      // 2) Nếu lễ tân KHÔNG chọn bác sĩ → gán tự động theo round robin
+      // 2) Tự động chọn bác sĩ nếu chưa có
       let id_bacsi_final = payload.id_bacsi || null;
-
       if (!id_bacsi_final) {
-        const doctors = await this.getDoctorsRoundRobin(
-          payload.id_khoa,
-          payload.ngay,
-          payload.ca_kham
-        );
-
-        if (!doctors.length)
-          throw new Error("Không có bác sĩ nào phù hợp để phân công.");
-
-        id_bacsi_final = doctors[0].id_bacsi; // chọn bác sĩ ít lịch nhất
+        // Gọi hàm đã sửa ở trên để tìm bác sĩ trực
+        const doctors = await this.getDoctorsRoundRobin(payload.id_khoa, payload.ngay, payload.ca_kham);
+        if (!doctors.length) throw new Error("Không có bác sĩ nào trực trong ca này.");
+        id_bacsi_final = doctors[0].id_bacsi;
       }
 
-      // 3) Insert dat_lich_letan
-      const datLichData = {
-        id_letan: payload.id_letan,
+      // 3) Insert lịch
+      // LƯU Ý: payload.id_letan bắt buộc phải tồn tại trong bảng 'letan' của DB
+      // nếu không sẽ bị lỗi Foreign Key Constraint như bạn gặp phải.
+      const insertId = await DatLichLeTanModel.insertDatLichLeTan(conn, {
+        ...payload,
         id_benhnhan,
-        id_khoa: payload.id_khoa,
-        ngay: payload.ngay,
-        gio_hen: payload.gio_hen || null,
-        ca_kham: payload.ca_kham,
         id_bacsi: id_bacsi_final,
-        ly_do: payload.ly_do || null,
-        trang_thai: "DA_TAO_HOSO",
-      };
+        trang_thai: "DA_TAO_HOSO"
+      });
 
-      const insertId = await DatLichLeTanModel.insertDatLichLeTan(conn, datLichData);
-
-      // 4) Tạo hồ sơ khám
+      // 4) Tạo hồ sơ
       const [hsRes] = await conn.query(
-        `INSERT INTO ho_so_kham (id_datlich, id_benhnhan, id_bacsi, trang_thai, ngay_tao)
-         VALUES (?, ?, ?, 'CHO_KHAM', NOW())`,
+        `INSERT INTO ho_so_kham (id_datlich, id_benhnhan, id_bacsi, trang_thai, ngay_tao) VALUES (?, ?, ?, 'CHO_KHAM', NOW())`,
         [insertId, id_benhnhan, id_bacsi_final]
       );
-
-      const id_hoso = hsRes.insertId;
-
-      // 5) Cập nhật id_hoso vào dat_lich
+      
+      await conn.query(`UPDATE dat_lich_letan SET id_hoso = ? WHERE id_datlich = ?`, [hsRes.insertId, insertId]);
+      
+      // 5) Log phiên giao dịch
       await conn.query(
-        `UPDATE dat_lich_letan SET id_hoso = ? WHERE id_datlich = ?`,
-        [id_hoso, insertId]
-      );
-
-      // 6) Log session lễ tân
-      await conn.query(
-        `INSERT INTO reception_sessions (id_letan, id_datlich, loai_giao_dich, ngay_thuc_hien)
-         VALUES (?, ?, 'TAO_HOSO', NOW())`,
+        `INSERT INTO reception_sessions (id_letan, id_datlich, loai_giao_dich, ngay_thuc_hien) VALUES (?, ?, 'TAO_HOSO', NOW())`,
         [payload.id_letan, insertId]
       );
 
       await conn.commit();
-      return { id_datlich: insertId, id_hoso };
-
+      return { id_datlich: insertId, id_hoso: hsRes.insertId };
     } catch (err) {
       await conn.rollback();
       throw err;
@@ -139,31 +103,23 @@ const DatLichLeTanService = {
     }
   },
 
-  /**
-   * Check-in theo SĐT
-   */
+  // ✅ LOGIC MỚI: Check-in trả về TẤT CẢ kết quả khớp SĐT
   async checkinByPhone({ sdt }) {
     if (!sdt) throw new Error("Thiếu SĐT");
 
-    // ưu tiên lịch online
-    const online = await DatLichLeTanModel.findOnlineByPhone(sdt);
-    if (online) return { type: "online", data: online };
+    // 1. Tìm các đơn đặt lịch Online (Chờ xác nhận)
+    const onlineAppointments = await DatLichLeTanModel.findOnlineByPhone(sdt);
+    
+    // 2. Tìm danh sách hồ sơ bệnh nhân cũ trong DB
+    const [patients] = await db.query(`SELECT * FROM benhnhan WHERE phone = ?`, [sdt]);
 
-    // nếu không có, tìm bệnh nhân trong DB
-    const [bn] = await db.query(
-      `SELECT * FROM benhnhan WHERE phone = ? LIMIT 1`,
-      [sdt]
-    );
-
-    if (bn.length) return { type: "patient", data: bn[0] };
-
-    return null;
+    return {
+        online: onlineAppointments, // Mảng lịch online
+        patients: patients          // Mảng bệnh nhân cũ
+    };
   },
 
   async getAll() { return await DatLichLeTanModel.getAll(); },
-  async getById(id) { return await DatLichLeTanModel.getById(id); },
-  async getByStatus(status) { return await DatLichLeTanModel.getByStatus(status); },
-
 };
 
 module.exports = DatLichLeTanService;
