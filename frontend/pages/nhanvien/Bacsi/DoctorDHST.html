@@ -401,8 +401,8 @@
             <div class="sidebar-footer">
                 <div class="btn-group-action">
                     <button class="btn-outline" onclick="window.location.href='../change-password.html'" title="Đổi mật khẩu">
-    🔑 Đổi MK
-</button>
+                        🔑 Đổi MK
+                    </button>
                     <button class="btn-danger" onclick="logout()" title="Đăng xuất">
                         🚪 Thoát
                     </button>
@@ -525,6 +525,13 @@
                             <span id="appointmentDate" style="color:var(--primary-dark); font-weight:bold; margin-left: 10px;">...</span>
                         </div>
                     </div>
+                </div> <div style="margin-bottom: 25px; padding: 15px; background: #fff; border: 1px solid #e9ecef; border-radius: 12px;">
+                    <h4 style="margin: 0 0 10px 0; color: var(--primary); display:flex; align-items:center; gap:8px;">
+                        <span>📜 Lịch sử khám bệnh gần đây</span>
+                    </h4>
+                    <div id="historyList" style="max-height: 150px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 13px; border: 1px solid #dee2e6;">
+                        <div class="muted" style="text-align:center; padding:10px;">Đang tải dữ liệu...</div>
+                    </div>
                 </div>
 
                 <div style="margin-bottom: 30px;">
@@ -595,19 +602,16 @@
         const thongkeDataEl = document.getElementById('thongkeData');
 
         window.onload = async () => {
-            // Hiển thị ngày hiện tại lên Header
             const now = new Date();
             document.getElementById('currentDateDisplay').textContent = now.toLocaleDateString('vi-VN');
-
             await checkAuthAndInit();
         };
 
         async function checkAuthAndInit() {
             const userStr = localStorage.getItem('user');
-            
             if (!userStr) {
                 alert("Vui lòng đăng nhập.");
-                window.location.href = "http://localhost:3000/nhanvien/login.html";
+                window.location.href = "../login.html"; // Sửa thành relative path
                 return;
             }
 
@@ -802,10 +806,44 @@
             document.getElementById('ghichu').value = medicalRecord.ghi_chu || '';
             document.getElementById('ketquaxetnghiem').value = ''; 
 
+            // QUAN TRỌNG: Gọi hàm load lịch sử khám
+            if (currentPatientId) {
+                loadPatientHistory(currentPatientId);
+            } else {
+                document.getElementById('historyList').innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Khách mới - Chưa có lịch sử.</div>';
+            }
+
             const drugList = prescription.toa_thuoc || [];
             renderPrescriptionTable(drugList);
 
             document.getElementById('patientModal').style.display = "flex";
+        }
+
+        // HÀM LẤY LỊCH SỬ KHÁM
+        async function loadPatientHistory(patientId) {
+            const historyContainer = document.getElementById('historyList');
+            historyContainer.innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Đang tải dữ liệu...</div>';
+
+            const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/patient/visits/${patientId}`);
+
+            if (res.data && res.data.length > 0) {
+                let html = '';
+                res.data.forEach(item => {
+                    html += `
+                        <div style="margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 8px;">
+                            <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                                <span style="color:#007bff">${item.ngay_kham}</span>
+                                <span>${item.ten_khoa || 'Khoa khám'}</span>
+                            </div>
+                            <div style="margin-top:4px;"><b>BS:</b> ${item.ten_bacsi || '---'}</div>
+                            <div style="margin-top:4px;"><i>🏥 Chẩn đoán: ${item.chuan_doan || 'Chưa có kết luận'}</i></div>
+                        </div>
+                    `;
+                });
+                historyContainer.innerHTML = html;
+            } else {
+                historyContainer.innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Chưa có lịch sử khám nào.</div>';
+            }
         }
 
         function renderPrescriptionTable(list) {
@@ -937,7 +975,7 @@
             localStorage.removeItem('user');
             localStorage.removeItem('role');
             localStorage.removeItem('doctorId');
-            window.location.href = "http://localhost:3000/nhanvien/login.html";
+            window.location.href = "../login.html"; // Sửa thành relative path
         }
 
         window.onclick = function(event) {
