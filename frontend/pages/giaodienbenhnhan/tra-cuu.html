@@ -973,62 +973,60 @@ function selectPatient(patientObject) {
 }
 
 
-//--- Bước 4: Tải và Hiển thị Danh sách Lần khám (GET /api/patient/visits/:patientId)---
+/* === Hàm loadVisits (Bước 4) - hiển thị danh sách lần khám === */
 async function loadVisits(patientId, patientName) {
-document.getElementById('visitHistoryTitle').textContent = `LỊCH SỬ KHÁM của: ${patientName || 'Bệnh nhân'}`;
-visitListDiv.innerHTML = '<p style="text-align:center;">Đang tải lịch sử khám...</p>';
+    document.getElementById('visitHistoryTitle').textContent = `LỊCH SỬ KHÁM của: ${patientName || 'Bệnh nhân'}`;
+    visitListDiv.innerHTML = '<p style="text-align:center;">Đang tải lịch sử khám...</p>';
 
-// ==========================================================
-// LOGIC HIỂN THỊ THÔNG TIN BỆNH NHÂN ĐẦY ĐỦ 
-// ==========================================================
-if (selectedPatientData && selectedPatientData.id_benhnhan) {
-    document.getElementById('bnHoTen').textContent = selectedPatientData.ho_ten;
-    document.getElementById('bnPhone').textContent = currentPhoneNumber; // Lấy SĐT từ biến global
-    document.getElementById('bnNgaySinh').textContent = formatDate(selectedPatientData.ngay_sinh);
-    document.getElementById('bnGioiTinh').textContent = selectedPatientData.gioi_tinh || 'N/A';
-    document.getElementById('bnBHYT').textContent = selectedPatientData.so_bhyt || 'N/A';
-    document.getElementById('bnID').textContent = selectedPatientData.id_benhnhan;
+    // Hiển thị thông tin bệnh nhân tóm tắt (nếu có)
+    if (selectedPatientData && selectedPatientData.id_benhnhan) {
+        document.getElementById('bnHoTen').textContent = selectedPatientData.ho_ten || '...';
+        document.getElementById('bnPhone').textContent = currentPhoneNumber || '...';
+        document.getElementById('bnNgaySinh').textContent = formatDate(selectedPatientData.ngay_sinh) || '...';
+        document.getElementById('bnGioiTinh').textContent = selectedPatientData.gioi_tinh || 'N/A';
+        document.getElementById('bnBHYT').textContent = selectedPatientData.so_bhyt || 'N/A';
+        document.getElementById('bnID').textContent = selectedPatientData.id_benhnhan || '...';
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/visits/${patientId}`);
+        const data = await response.json();
+        const visits = Array.isArray(data.visits) ? data.visits : [];
+
+        if (visits.length === 0) {
+            visitListDiv.innerHTML = `<p class="error-message">Hồ sơ này chưa có lịch sử khám nào được ghi nhận.</p>`;
+        } else {
+            // NOTE: backend trả field tóm tắt chẩn đoán là 'ket_qua' (theo file bạn gửi),
+            // nên dùng v.ket_qua khi hiển thị tóm tắt. (Nếu SQL đổi thì cân đối lại)
+            visitListDiv.innerHTML = visits.map(v => `
+                <div class="visit-item" data-id="${v.id_lichkham}" onclick="loadVisitDetails(${v.id_lichkham}, '${formatDate(v.ngay_kham)}')">
+                    <div class="item-info">
+                        <strong>Ngày: ${formatDate(v.ngay_kham)} - Khoa: ${v.ten_khoa || 'N/A'}</strong>
+                        <p>BS. ${v.ten_bacsi || 'N/A'} | Tóm tắt: ${v.ket_qua ? (v.ket_qua.length>40 ? v.ket_qua.substring(0,40)+'...' : v.ket_qua) : 'Đang cập nhật'}</p>
+                    </div>
+                    <div class="item-action"><i class="fas fa-file-alt"></i> Chi tiết</div>
+                </div>
+            `).join('');
+        }
+
+        goToStep(4);
+
+    } catch (error) {
+        visitListDiv.innerHTML = `<p class="error-message">Lỗi tải dữ liệu lịch sử khám. Vui lòng kiểm tra Server.</p>`;
+        console.error('Lỗi khi tải lịch sử khám:', error);
+        goToStep(4);
+    }
 }
-// ==========================================================
 
-try {
-const response = await fetch(`${API_BASE_URL}/visits/${patientId}`);
-const data = await response.json();
-const visits = data.visits || []; 
-
-if (visits.length === 0) {
-visitListDiv.innerHTML = `<p class="error-message">Hồ sơ này chưa có lịch sử khám nào được ghi nhận.</p>`;
-} else {
-visitListDiv.innerHTML = visits.map(v => `
-<div class="visit-item" data-id="${v.id_lichkham}" onclick="loadVisitDetails(${v.id_lichkham}, '${formatDate(v.ngay_kham)}')">
-<div class="item-info">
-<strong>Ngày: ${formatDate(v.ngay_kham)} - Khoa: ${v.ten_khoa || 'N/A'}</strong>
-<p>BS. ${v.ten_bacsi || 'N/A'} | Tóm tắt: ${v.ket_qua ? v.ket_qua.substring(0, 40) + '...' : 'Đang cập nhật'}</p>
-</div>
-<div class="item-action"><i class="fas fa-file-alt"></i> Chi tiết</div>
-</div>
-`).join('');
-}
-goToStep(4);
-} catch (error) {
-visitListDiv.innerHTML = `<p class="error-message">Lỗi tải dữ liệu lịch sử khám. Vui lòng kiểm tra Server.</p>`;
-console.error('Lỗi khi tải lịch sử khám:', error);
-goToStep(4);
-}
-}
-
-//Quay lại Bước 3 (Chọn BN)
-document.getElementById('btnBackToPatients').addEventListener('click', () => goToStep(3));
-
-
-//--- Bước 5: Tải và Hiển thị Chi tiết Hồ sơ (Hoàn chỉnh)---
+/* === Hàm loadVisitDetails (Bước 5) - HIỂN THỊ CHI TIẾT HỒ SƠ === */
 async function loadVisitDetails(lichKhamId, ngayKham) {
+    // Tiêu đề
     document.getElementById('detailTitle').textContent = `CHI TIẾT HỒ SƠ KHÁM BỆNH - Ngày ${ngayKham}`;
-    
-    // Đặt trạng thái loading/clear cho các cột
+
+    // Đặt trạng thái loading
     document.getElementById('detailChanDoan').textContent = 'Đang tải...';
     document.getElementById('detailTrieuChung').textContent = 'Đang tải...';
-    document.getElementById('detailThuocKeDonText').textContent = 'Đang tải...'; // Dòng tóm tắt thuốc mới
+    document.getElementById('detailThuocKeDonText').textContent = 'Đang tải...';
     document.getElementById('detailGhiChu').textContent = 'Đang tải...';
     document.getElementById('dtTenBS').textContent = 'Đang tải...';
     document.getElementById('dtChuyenKhoa').textContent = 'Đang tải...';
@@ -1037,19 +1035,20 @@ async function loadVisitDetails(lichKhamId, ngayKham) {
     document.getElementById('noMedication').style.display = 'none';
     document.getElementById('medicationTable').style.display = 'none';
 
-    // HIỂN THỊ THÔNG TIN BỆNH NHÂN (Lấy từ selectedPatientData)
+    // Hiển thị thông tin bệnh nhân từ selectedPatientData (nếu có)
     if (selectedPatientData && selectedPatientData.id_benhnhan) {
-        document.getElementById('dtHoTen').textContent = selectedPatientData.ho_ten;
-        document.getElementById('dtPhone').textContent = currentPhoneNumber; 
-        document.getElementById('dtNgaySinh').textContent = formatDate(selectedPatientData.ngay_sinh);
+        document.getElementById('dtHoTen').textContent = selectedPatientData.ho_ten || '...';
+        document.getElementById('dtPhone').textContent = currentPhoneNumber || '...';
+        document.getElementById('dtNgaySinh').textContent = formatDate(selectedPatientData.ngay_sinh) || '...';
         document.getElementById('dtGioiTinh').textContent = selectedPatientData.gioi_tinh || 'N/A';
     }
-    document.getElementById('dtMaHoSo').textContent = `REC-${lichKhamId.toString().padStart(3, '0')}`;
+    // Mã hồ sơ hiển thị đẹp
+    document.getElementById('dtMaHoSo').textContent = `REC-${String(lichKhamId).padStart(3,'0')}`;
 
     try {
         const response = await fetch(`${API_BASE_URL}/visit-details/${lichKhamId}`);
         const data = await response.json();
-        const details = data.details; 
+        const details = data && data.details ? data.details : null;
 
         if (!details) {
             document.getElementById('detailChanDoan').textContent = 'Không tìm thấy chi tiết hồ sơ.';
@@ -1058,61 +1057,55 @@ async function loadVisitDetails(lichKhamId, ngayKham) {
             document.getElementById('detailGhiChu').textContent = 'Không có';
             document.getElementById('dtTenBS').textContent = 'N/A';
             document.getElementById('dtChuyenKhoa').textContent = 'N/A';
-        } else {
-            // 1. Cập nhật chi tiết bệnh án và BS
-            document.getElementById('detailChanDoan').textContent = details.chan_doan || 'Chưa cập nhật';
-            document.getElementById('detailTrieuChung').textContent = details.trieu_chung || 'Chưa cập nhật';
-            document.getElementById('detailGhiChu').textContent = details.ghi_chu || 'Không có';
-            
-            // Thông tin Bác sĩ 
-            document.getElementById('dtTenBS').textContent = `BS. ${details.ten_bacsi || 'N/A'}`;
-            document.getElementById('dtChuyenKhoa').textContent = details.chuyen_khoa || 'N/A';
-            
-            // 2. Cập nhật Đơn thuốc (Tóm tắt và Bảng)
-            let medicationArray = [];
-            let medicationSummary = 'Không kê đơn';
-            
-            if (details.thuoc_ke_don) {
-                try {
-                    medicationArray = JSON.parse(details.thuoc_ke_don);
-                } catch (e) {
-                    if (typeof details.thuoc_ke_don === 'string' && details.thuoc_ke_don.trim()) {
-                        medicationArray.push({
-                            ten_thuoc: details.thuoc_ke_don,
-                            lieu_luong: 'Xem chi tiết',
-                            cach_dung: 'Theo hướng dẫn BS',
-                            thoi_gian: 'Đủ liệu trình'
-                        });
-                    }
-                }
-            }
-            
-            if (medicationArray.length > 0) {
-                // Tạo Tóm tắt Thuốc (dành cho bố cục cột)
-                medicationSummary = medicationArray.map(m => m.ten_thuoc).join(', ');
-                
-                // Hiển thị Bảng Thuốc chi tiết
-                document.getElementById('medicationTable').style.display = 'table';
-                medicationBody.innerHTML = medicationArray.map(m => `
-                    <tr>
-                        <td>${m.ten_thuoc || 'N/A'}</td>
-                        <td>${m.lieu_luong || 'N/A'}</td>
-                        <td>${m.cach_dung || 'N/A'}</td>
-                        <td>${m.thoi_gian || 'N/A'}</td>
-                    </tr>
-                `).join('');
-            } else {
-                document.getElementById('noMedication').style.display = 'block';
-            }
-            
-            // Cập nhật dòng tóm tắt thuốc vào cột mới
-            document.getElementById('detailThuocKeDonText').textContent = medicationSummary;
+            document.getElementById('medicationTable').style.display = 'none';
+            document.getElementById('noMedication').style.display = 'block';
+            goToStep(5);
+            return;
         }
+
+        // ==== CHỈ ĐỔI CHỖ NÀY: dùng 'chuan_doan' (khớp backend) ====
+        document.getElementById('detailChanDoan').textContent = details.chuan_doan ?? 'Không có dữ liệu';
+
+        // TRIỆU CHỨNG
+        document.getElementById('detailTrieuChung').textContent = details.trieu_chung ?? 'Không có dữ liệu';
+
+        // GHI CHÚ
+        document.getElementById('detailGhiChu').textContent = details.ghi_chu ?? 'Không có dữ liệu';
+
+        // BÁC SĨ / CHUYÊN KHOA
+        document.getElementById('dtTenBS').textContent = details.ten_bacsi ?? (selectedPatientData.ten_bacsi || 'N/A');
+        document.getElementById('dtChuyenKhoa').textContent = details.chuyen_khoa ?? (selectedPatientData.chuyen_khoa || 'N/A');
+
+        // ==== THUỐC KÊ ĐƠN: backend trả MẢNG (ARRAY) => KHÔNG DÙNG JSON.parse ====
+        const dsThuoc = Array.isArray(details.thuoc_ke_don) ? details.thuoc_ke_don : [];
+
+        if (dsThuoc.length === 0) {
+            document.getElementById('medicationTable').style.display = 'none';
+            document.getElementById('noMedication').style.display = 'block';
+            document.getElementById('detailThuocKeDonText').textContent = 'Không có thuốc kê đơn.';
+        } else {
+            document.getElementById('noMedication').style.display = 'none';
+            document.getElementById('medicationTable').style.display = 'table';
+            medicationBody.innerHTML = dsThuoc.map(t => `
+                <tr>
+                    <td>${t.ten_thuoc || 'N/A'}</td>
+                    <td>${t.lieu_luong || 'N/A'}</td>
+                    <td>${t.cach_dung || 'N/A'}</td>
+                    <td>${t.so_ngay != null ? t.so_ngay : 'N/A'}</td>
+                </tr>
+            `).join('');
+
+            // Dòng tóm tắt thuốc
+            const medicationSummary = dsThuoc.map(m => m.ten_thuoc || '').filter(Boolean).join(', ');
+            document.getElementById('detailThuocKeDonText').textContent = medicationSummary || 'Có thuốc kê đơn.';
+        }
+
         goToStep(5);
+
     } catch (error) {
+        console.error('Lỗi khi tải chi tiết hồ sơ:', error);
         document.getElementById('detailChanDoan').textContent = 'Lỗi tải chi tiết hồ sơ từ Server.';
         document.getElementById('detailTrieuChung').textContent = '';
-        console.error('Lỗi khi tải chi tiết hồ sơ:', error);
         goToStep(5);
     }
 }

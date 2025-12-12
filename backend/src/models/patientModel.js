@@ -28,16 +28,16 @@ exports.getVisitsByPatientId = async (patientId) => {
 
     const [rows] = await db.execute(
         `SELECT 
-            hsk.id_hoso AS id_lichkham,       -- ID hồ sơ = ID lần khám
-            dl.ngay AS ngay_dat,              -- Ngày đặt lịch
-            dl.khung_gio,                     -- Thời gian đặt
-            k.ten_khoa,                       -- Khoa khám
-            bs.ho_ten AS ten_bacsi,           -- Bác sĩ phụ trách
-            hsk.ngay_tao AS ngay_kham,        -- Ngày khám (ngày tạo hồ sơ)
-            hsk.chuan_doan AS ket_qua,        -- Kết quả chẩn đoán
-            hsk.trang_thai                    -- Trạng thái hồ sơ
+            hsk.id_hoso AS id_lichkham,
+            dl.ngay AS ngay_dat,
+            dl.gio_hen AS khung_gio,
+            k.ten_khoa,
+            bs.ho_ten AS ten_bacsi,
+            hsk.ngay_tao AS ngay_kham,
+            hsk.chuan_doan AS ket_qua,
+            hsk.trang_thai
         FROM ho_so_kham hsk
-        JOIN dat_lich dl ON hsk.id_datlich = dl.id_datlich
+        JOIN dat_lich_letan dl ON hsk.id_datlich = dl.id_datlich   -- FIX ĐÚNG BẢNG
         JOIN khoa k ON dl.id_khoa = k.id_khoa
         LEFT JOIN bacsi bs ON hsk.id_bacsi = bs.id_bacsi
         WHERE hsk.id_benhnhan = ?
@@ -52,54 +52,61 @@ exports.getVisitsByPatientId = async (patientId) => {
 exports.getVisitDetails = async (lichKhamId) => {
     console.log(`[DB] Đang lấy chi tiết Hồ sơ Khám Bệnh cho ID_HOSO: ${lichKhamId}`);
 
-    const [rows] = await db.query(`
+    const [rows] = await db.query(
+        `
         SELECT
-            hsk.chuan_doan AS chan_doan, 
+            hsk.id_hoso,
+            hsk.chuan_doan AS chuan_doan,
             hsk.trieu_chung, 
             hsk.ghi_chu,
-            
             hsk.ngay_tao AS ngay_kham, 
+
+            -- Bác sĩ
             bs.ho_ten AS ten_bacsi, 
             k.ten_khoa AS chuyen_khoa, 
-            
-            -- CÁC CỘT BỆNH NHÂN ĐƯỢC SELECT
+
+            -- Bệnh nhân
             bn.ho_ten AS ho_ten_bn,
             bn.ngay_sinh AS ngay_sinh_bn,
             bn.gioi_tinh AS gioi_tinh_bn,
             bn.phone AS sdt_bn, 
-            bn.email AS email_bn, 
+            bn.email AS email_bn,
+
+            -- Lịch khám (LẤY ĐÚNG BẢNG dat_lich_letan)
+            dl.ngay AS ngay_dat,
+            dl.gio_hen,
             
-            -- Thuốc kê đơn (Logic GHÉP CHUỖI)
+            -- Đơn thuốc (JSON)
             (
-                SELECT 
-                    GROUP_CONCAT(
-                        CONCAT(
-                            ct.ten_thuoc, 
-                            ' (', ct.lieu_luong, ' x ', ct.so_ngay, ' ngày)'
-                        ) 
-                        SEPARATOR '; '
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'ten_thuoc', ct.ten_thuoc,
+                        'lieu_luong', ct.lieu_luong,
+                        'so_ngay', ct.so_ngay,
+                        'cach_dung', ct.cach_dung
                     )
+                )
                 FROM toa_thuoc tt
-                    JOIN chi_tiet_thuoc ct ON tt.id_toa = ct.id_toa
+                JOIN chi_tiet_thuoc ct ON tt.id_toa = ct.id_toa
                 WHERE tt.id_hoso = hsk.id_hoso
             ) AS thuoc_ke_don
-            
+
         FROM ho_so_kham hsk
         
-        JOIN dat_lich dl ON hsk.id_datlich = dl.id_datlich
+        JOIN dat_lich_letan dl ON hsk.id_datlich = dl.id_datlich   -- FIX QUAN TRỌNG NHẤT
         LEFT JOIN benhnhan bn ON hsk.id_benhnhan = bn.id_benhnhan 
         LEFT JOIN bacsi bs ON hsk.id_bacsi = bs.id_bacsi
         LEFT JOIN khoa k ON dl.id_khoa = k.id_khoa
         
         WHERE hsk.id_hoso = ?
-        
-        -- 💡 FIX LỖI: Đưa tất cả các cột BN và BS/Khoa vào GROUP BY 
-        GROUP BY 
-            hsk.id_hoso, bn.ho_ten, bn.ngay_sinh, bn.gioi_tinh, bn.phone, bn.email, 
-            bs.ho_ten, k.ten_khoa, hsk.ngay_tao
-            
-    `, [lichKhamId]);
 
-    console.log(`[DB] Đã lấy chi tiết hồ sơ thành công.`);
+        GROUP BY hsk.id_hoso
+        `,
+        [lichKhamId]
+    );
+
+    console.log(`[DB] Chi tiết hồ sơ trả về:`, rows[0]);
+
     return rows[0]; 
 };
+

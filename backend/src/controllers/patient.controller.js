@@ -94,7 +94,7 @@ exports.getPatientVisits = async (req, res) => {
                 ngay_kham: formatDbDate(v.ngay_kham),
                 khoa: v.ten_khoa,
                 bacsi: v.ten_bacsi,
-                chan_doan_tom_tat: v.chan_doan || 'Chưa cập nhật'
+                chan_doan_tom_tat: v.ket_qua || 'Chưa cập nhật'
             }))
         });
     } catch (err) {
