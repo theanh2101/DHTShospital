@@ -53,3 +53,12 @@ router.post('/save_toa', controller.savePrescription);
 router.post('/save_benhan', controller.saveMedicalRecord);
 
 module.exports = router;
+
+
+// ... các routes khác
+router.post('/save_toa', controller.savePrescription);
+
+// 👇 THÊM DÒNG NÀY ĐỂ API LỊCH SỬ HOẠT ĐỘNG 👇
+router.get('/patient/visits/:id', controller.getPatientHistory);
+
+module.exports = router;
