@@ -944,7 +944,6 @@ function renderPatientList(patients) {
 patientListDiv.innerHTML = patients.map(p => `
     <div class="patient-item" data-id="${p.id_benhnhan}" 
          onclick="selectPatientFromList('${p.id_benhnhan}')">
-                                            // ^         ^ <--- THÊM DẤU NHÁY ĐƠN
     <div class="item-info">
 <strong>${p.ho_ten}</strong>
 <p>Ngày sinh: ${formatDate(p.ngay_sinh)} | Giới tính: ${p.gioi_tinh || 'N/A'}</p>
@@ -1199,6 +1198,22 @@ document.getElementById('btnDownload').addEventListener('click', async () => {
             btn.style.borderBottom = '4px solid var(--primary-dark)';
         }, 3000);
     }
+});
+// ===== QUAY LẠI CHỌN HỒ SƠ (BƯỚC 3) =====
+document.getElementById('btnBackToPatients').addEventListener('click', () => {
+    if (!currentPatients || currentPatients.length === 0) {
+        alert('Không có danh sách hồ sơ để quay lại.');
+        return;
+    }
+
+    // Render lại danh sách bệnh nhân
+    renderPatientList(currentPatients);
+
+    // Reset visit list
+    visitListDiv.innerHTML = '';
+
+    // Quay lại bước 3
+    goToStep(3);
 });
 </script>
 

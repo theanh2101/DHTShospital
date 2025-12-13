@@ -5,62 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản lý bác sĩ - DHST Hospital</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
     <style>
+        /* --- VARIABLES & BASE RESET --- */
         :root{
-            --primary:#2563eb; --accent:#38bdf8; --bg:#f9fafb; --card:#fff;
-            --text:#1e293b; --muted:#6b7280; --radius:14px; --shadow:0 10px 30px rgba(0,0,0,0.08);
+            --primary: #2563eb; 
+            --accent: #38bdf8; 
+            --bg: #f4f6f9; 
+            --card: #fff;
+            --text: #1e293b; 
+            --muted: #64748b; 
+            --radius: 12px; 
+            --shadow: 0 4px 15px rgba(0,0,0,0.05);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
         *{box-sizing:border-box;font-family:"Inter",sans-serif;margin:0;padding:0;}
         body{background:var(--bg);color:var(--text);}
-
-        /* Main Content - Căn lề trái để tránh Sidebar (do sidebar.html dùng position:fixed) */
+        
+        /* --- LAYOUT --- */
         .main {
-            margin-left: 250px; /* Khớp với width của sidebar */
-            padding: 32px;
+            margin-left: 250px; 
+            padding: 30px;
             min-height: 100vh;
             transition: margin-left .3s;
         }
-
-        header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
-        header h1{font-size:26px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;}
-        header .small{color:var(--muted);}
-
-        .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-        padding:26px;margin-bottom:30px;animation:fadeIn .4s ease;}
-        .card h2{font-size:18px;color:var(--text);display:flex;align-items:center;gap:10px;}
-        .card h2 i{color:var(--primary);}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
-
-        .table-wrap{overflow-x:auto;margin-top:16px;}
-        table{width:100%;border-collapse:collapse;}
-        thead th{background:linear-gradient(90deg,var(--primary),#1e40af);color:#fff;
-        padding:12px 16px;text-align:left;font-weight:600;}
-        tbody td{padding:12px 16px;border-bottom:1px solid #f1f5f9;}
-        tr:hover td{background:#f8fafc;}
-
-        /* Thanh chức năng */
-        .card-header {
-            display:flex; justify-content:space-between; align-items:center;
-            flex-wrap:wrap; gap:10px; margin-bottom:10px;
-        }
-        .actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        select, input {
-            padding:10px 12px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px;
-        }
-        select { min-width:180px; }
-        input { width:220px; }
-        .btn-search {
-            background:var(--primary); color:#fff; border:none; border-radius:10px;
-            padding:10px 14px; cursor:pointer; transition:.25s;
-            display:flex; align-items:center; justify-content:center;
-        }
-        .btn-search:hover { opacity:0.9; transform:translateY(-2px); }
-
-        /* Responsive */
         @media (max-width: 900px) {
             .main { margin-left: 0; padding: 20px; }
-            #sidebar-placeholder { display: none; } /* Hoặc xử lý menu mobile nếu cần */
+            #sidebar-placeholder { display: none; }
         }
+
+        /* --- HEADER & TITLE --- */
+        header{
+            display:flex;justify-content:space-between;align-items:center;
+            margin-bottom:28px;padding-bottom:10px; border-bottom:1px solid #e2e8f0;
+        }
+        header h1{
+            font-size:24px;font-weight:800;
+            color:var(--primary);display:flex;align-items:center;gap:10px;
+        }
+        header .small{color:var(--muted); font-size:14px; font-weight:500;}
+
+        /* --- CARD STYLES --- */
+        .card{
+            background:var(--card);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            padding:24px; 
+            margin-bottom:25px;
+            border: 1px solid #e2e8f0; 
+        }
+        .card h2{font-size:17px;color:var(--text);display:flex;align-items:center;gap:8px;font-weight:700;}
+        .card h2 i{color:var(--primary);}
+
+        /* --- ACTIONS & FILTERS --- */
+        .card-header {
+            display:flex; justify-content:space-between; align-items:center;
+            flex-wrap:wrap; gap:15px; margin-bottom:15px;
+        }
+        .actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        
+        select, input[type="text"] {
+            padding:10px 14px; 
+            border:1px solid #cbd5e1; 
+            border-radius:8px; 
+            font-size:14px;
+            transition: border-color .2s;
+            outline:none;
+            background: #fff;
+        }
+        select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        select { min-width:200px; }
+        input[type="text"] { width:250px; }
+        
+        .btn-search {
+            background:var(--primary); color:#fff; border:none; border-radius:8px;
+            padding:10px 18px; cursor:pointer; transition:.3s ease;
+            display:flex; align-items:center; justify-content:center; gap:5px;
+            font-weight:600;
+        }
+        .btn-search:hover { background: #1e40af; box-shadow: var(--shadow); }
+        .btn-search i { font-size: 14px; }
+
+        /* --- TABLE STYLES --- */
+        .table-wrap{overflow-x:auto;margin-top:10px;}
+        table{width:100%;border-collapse:separate; border-spacing:0;}
+        
+        /* Table Header */
+        thead th{
+            background: var(--primary); 
+            color:#fff;
+            padding:12px 18px;
+            text-align:left;
+            font-weight:600;
+            font-size:13px;
+            text-transform: uppercase;
+        }
+        thead tr th:first-child { border-top-left-radius: 8px; }
+        thead tr th:last-child { border-top-right-radius: 8px; }
+
+        /* Table Body */
+        tbody tr:nth-child(even) { background: #f8fafc; } /* Zebra stripes */
+        tbody tr:hover td { background: #eef2ff; cursor: pointer; }
+        tbody td{
+            padding:12px 18px;
+            border-bottom:1px solid #f1f5f9;
+            font-size:14px;
+            color: var(--text);
+        }
+        
+        /* Border radius cho hàng cuối cùng */
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:last-child td:first-child { border-bottom-left-radius: 8px; }
+        tbody tr:last-child td:last-child { border-bottom-right-radius: 8px; }
+
     </style>
 </head>
 <body>
@@ -69,39 +129,42 @@
 
     <main class="main">
         <header>
-            <h1><i class="fas fa-user-md"></i> Quản lý bác sĩ</h1>
-            <div class="small">Xin chào, Admin  👋 </div>
+            <h1><i class="fas fa-user-md"></i> Quản lý Bác sĩ</h1>
+            <div class="small">Xin chào, Admin 👋</div>
         </header>
 
         <section class="card">
             <div class="card-header">
-                <h2><i class="fas fa-list"></i> Danh sách bác sĩ</h2>
+                <h2><i class="fas fa-hospital-user"></i> Danh sách Nhân sự Y tế</h2>
                 <div class="actions">
                     <select id="filterKhoa">
-                        <option value="">-- Tất cả khoa --</option>
+                        <option value="">-- Tất cả Khoa --</option>
                     </select>
-                    <input id="searchInput" type="text" placeholder="Nhập mã hoặc tên bác sĩ...">
-                    <button id="searchBtn" class="btn-search"><i class="fas fa-search"></i></button>
+                    <input id="searchInput" type="text" placeholder="Tìm Mã BS hoặc Tên...">
+                    <button id="searchBtn" class="btn-search">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
                 </div>
             </div>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:90px">Mã BS</th>
-                            <th>Họ và tên</th>
-                            <th>Khoa</th>
-                            <th>Học vị</th>
-                            <th>Chức vụ</th>
+                            <th style="width:100px">Mã BS</th>
+                            <th>Họ và Tên</th>
+                            <th>Khoa Chuyên Môn</th>
+                            <th>Học Vị</th>
+                            <th>Chức Vụ</th>
                         </tr>
                     </thead>
-                    <tbody id="doctorTbody"><tr><td colspan="5">Đang tải...</td></tr></tbody>
-                </table>
+                    <tbody id="doctorTbody"><tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu...</td></tr></tbody>
+                    </table>
             </div>
         </section>
     </main>
 
     <script>
+        // ================= KHAI BÁO CỐ ĐỊNH =================
         const API_DOCTOR = "http://localhost:3000/api/listdoctor";
         const API_KHOA = "http://localhost:3000/api/khoa";
         const tbody = document.getElementById("doctorTbody");
@@ -110,14 +173,14 @@
         const searchBtn = document.getElementById("searchBtn");
         let allDoctors = [];
 
-        // ================= SIDEBAR LOADER =================
+        // ================= SIDEBAR LOADER (Giữ nguyên logic của bạn) =================
         async function loadSidebar() {
             try {
                 const res = await fetch('sidebar.html');
                 if (res.ok) {
                     const html = await res.text();
                     document.getElementById('sidebar-placeholder').innerHTML = html;
-                    initSidebarEvents(); // Gắn sự kiện sau khi HTML được chèn
+                    initSidebarEvents(); 
                 }
             } catch (err) {
                 console.error("Lỗi tải sidebar:", err);
@@ -125,7 +188,6 @@
         }
 
         function initSidebarEvents() {
-            // 1. Xử lý Toggle Submenu (Quản lý nhân viên)
             const toggle = document.getElementById("toggleNhanVien");
             if (toggle) {
                 toggle.onclick = (e) => {
@@ -137,7 +199,6 @@
                 };
             }
 
-            // 2. Xử lý Đăng xuất
             const logoutBtn = document.getElementById("logoutBtn");
             if (logoutBtn) {
                 logoutBtn.onclick = () => {
@@ -149,64 +210,68 @@
                 };
             }
 
-            // 3. Highlight Active Link & Mở Submenu cha
-            const currentPath = "manage.bacsi.html"; // Tên file hiện tại
+            const currentPath = "manage.bacsi.html"; 
             const links = document.querySelectorAll('.nav a, .submenu a');
             
             links.forEach(link => {
                 const href = link.getAttribute('href');
                 if (href && href.includes(currentPath)) {
-                    // Active chính link này
                     link.classList.add('active');
                     
-                    // Nếu nằm trong submenu, hãy mở submenu cha ra
                     const submenu = link.closest('.submenu');
                     if (submenu) {
                         submenu.classList.add('show');
                         const group = submenu.closest('.submenu-group');
                         if (group) {
                             group.classList.add('open');
-                            // Active luôn cả nút toggle cha nếu muốn
-                            // group.querySelector('#toggleNhanVien').classList.add('active'); 
                         }
                     }
                 }
             });
         }
-
-        // ================= BUSINESS LOGIC (Giữ nguyên) =================
+        
+        // ================= BUSINESS LOGIC =================
         
         // Load danh sách khoa
         async function loadKhoa() {
             try {
                 const res = await fetch(API_KHOA);
                 const list = await res.json();
-                list.forEach(k => {
+                
+                filterKhoa.innerHTML = '<option value="">-- Tất cả Khoa --</option>'; 
+                
+                const khoaList = Array.isArray(list) ? list : (list.data || []); 
+                
+                khoaList.forEach(k => {
                     const opt = document.createElement("option");
-                    opt.value = k.ten_khoa;
+                    opt.value = k.ten_khoa; 
                     opt.textContent = k.ten_khoa;
                     filterKhoa.appendChild(opt);
                 });
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Lỗi tải khoa:", err); }
         }
 
         // Load danh sách bác sĩ
         async function loadDoctors() {
+            // Đã đổi colspan từ 6 về 5
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu...</td></tr>'; 
             try {
                 const res = await fetch(API_DOCTOR);
                 const result = await res.json();
-                allDoctors = result.data || result || [];
+                allDoctors = Array.isArray(result) ? result : (result.data || []);
                 renderDoctors(allDoctors);
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="5">Không thể tải dữ liệu.</td></tr>`;
+                console.error("Lỗi tải bác sĩ:", err);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--danger);">Không thể tải dữ liệu bác sĩ. Vui lòng kiểm tra API.</td></tr>`;
             }
         }
 
-        // Render bảng
+        // Render bảng (Đã loại bỏ cột Trạng thái)
         function renderDoctors(list) {
             tbody.innerHTML = "";
             if (!list.length) {
-                tbody.innerHTML = `<tr><td colspan="5">Không tìm thấy bác sĩ nào.</td></tr>`;
+                // Đã đổi colspan từ 6 về 5
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Không tìm thấy bác sĩ nào theo điều kiện lọc.</td></tr>`;
                 return;
             }
             list.forEach(bs => {
@@ -222,14 +287,15 @@
                     <td>${name}</td>
                     <td>${dept}</td>
                     <td>${degree}</td>
-                    <td>${position}</td>`;
+                    <td>${position}</td>
+                `;
                 tr.style.cursor = "pointer";
                 tr.onclick = () => window.location.href = `chitiet.bacsi.html?id=${id}`;
                 tbody.appendChild(tr);
             });
         }
 
-        // Lọc và Tìm kiếm
+        // Lọc và Tìm kiếm (Logic giữ nguyên)
         function filterData() {
             const keyword = searchInput.value.trim().toLowerCase();
             const selectedKhoa = filterKhoa.value.toLowerCase();
@@ -247,13 +313,13 @@
             renderDoctors(filtered);
         }
 
+        // ================= GẮN SỰ KIỆN VÀ KHỞI TẠO =================
         filterKhoa.addEventListener("change", filterData);
         searchBtn.addEventListener("click", filterData);
         searchInput.addEventListener("keydown", e => { if (e.key === "Enter") filterData(); });
 
-        // Init
         document.addEventListener("DOMContentLoaded", async () => {
-            loadSidebar(); // Gọi hàm tải sidebar
+            loadSidebar(); 
             await loadKhoa();
             await loadDoctors();
         });

@@ -533,7 +533,28 @@
                         <div class="muted" style="text-align:center; padding:10px;">Đang tải dữ liệu...</div>
                     </div>
                 </div>
+                <div style="border-top: 4px solid #f0f2f5; padding-top: 25px;">
+                    <h3 style="color: var(--primary); border-bottom: none;">🩺 Kết quả chẩn đoán</h3>
 
+                    <div class="form-group">
+                        <label for="trieuchung">Triệu chứng lâm sàng</label>
+                        <textarea id="trieuchung" rows="2" placeholder="Mô tả triệu chứng..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chuandoan">Chẩn đoán bệnh</label>
+                        <textarea id="chuandoan" rows="2" placeholder="Kết luận chẩn đoán..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ketquaxetnghiem">Kết quả xét nghiệm (nếu có)</label>
+                        <textarea id="ketquaxetnghiem" rows="2" placeholder="Chi tiết kết quả..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ghichu">Ghi chú / Dặn dò</label>
+                        <textarea id="ghichu" rows="2" placeholder="Lời dặn của bác sĩ..."></textarea>
+                    </div>
                 <div style="margin-bottom: 30px;">
                     <h3 style="color: var(--primary); display: flex; justify-content: space-between; align-items: center; border-bottom: none; margin-bottom: 10px;">
                         <span>💊 Toa thuốc</span>
@@ -557,30 +578,6 @@
                         <button type="button" class="btn-primary" onclick="savePrescription()" style="background: var(--primary-dark);">💾 Lưu riêng toa thuốc</button>
                     </div>
                 </div>
-
-                <div style="border-top: 4px solid #f0f2f5; padding-top: 25px;">
-                    <h3 style="color: var(--primary); border-bottom: none;">🩺 Kết quả chẩn đoán</h3>
-
-                    <div class="form-group">
-                        <label for="trieuchung">Triệu chứng lâm sàng</label>
-                        <textarea id="trieuchung" rows="2" placeholder="Mô tả triệu chứng..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="chuandoan">Chẩn đoán bệnh</label>
-                        <textarea id="chuandoan" rows="2" placeholder="Kết luận chẩn đoán..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ketquaxetnghiem">Kết quả xét nghiệm (nếu có)</label>
-                        <textarea id="ketquaxetnghiem" rows="2" placeholder="Chi tiết kết quả..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ghichu">Ghi chú / Dặn dò</label>
-                        <textarea id="ghichu" rows="2" placeholder="Lời dặn của bác sĩ..."></textarea>
-                    </div>
-
                     <div style="text-align: right; margin-top: 30px;">
                         <button type="button" class="btn-primary" onclick="saveMedicalRecord()" style="padding: 12px 30px; font-size: 16px; box-shadow: 0 4px 15px rgba(0,123,255,0.4);">
                             💾 LƯU BỆNH ÁN & HOÀN TẤT

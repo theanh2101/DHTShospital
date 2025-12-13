@@ -5,61 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản lý lễ tân - DHST Hospital</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --primary:#2563eb; --accent:#38bdf8; --bg:#f3f6fb; --card:#fff;
-            --text:#1e293b; --muted:#6b7280; --radius:16px; --shadow:0 10px 25px rgba(0,0,0,0.06);
+        /* --- VARIABLES & BASE RESET (Đã điều chỉnh để khớp với Bác sĩ) --- */
+        :root{
+            --primary: #2563eb; 
+            --accent: #38bdf8; 
+            --bg: #f4f6f9; /* Đồng bộ với trang Bác sĩ */
+            --card: #fff;
+            --text: #1e293b; 
+            --muted: #64748b; 
+            --radius: 12px; /* Đồng bộ với trang Bác sĩ */
+            --shadow: 0 4px 15px rgba(0,0,0,0.05); /* Đồng bộ với trang Bác sĩ */
+            --success: #10b981;
+            --danger: #ef4444;
         }
         *{box-sizing:border-box;font-family:"Inter",sans-serif;margin:0;padding:0;}
         body{background:var(--bg);color:var(--text);}
         
-        /* ✅  Cập nhật Main Content để tránh Sidebar Fixed */
+        /* --- LAYOUT & MAIN --- */
         .main {
-            margin-left: 250px; /* Khớp với width của sidebar */
-            padding: 36px;
+            margin-left: 250px; 
+            padding: 30px; /* Đồng bộ với trang Bác sĩ */
             min-height: 100vh;
             transition: margin-left .3s;
         }
 
-        /* Header */
-        header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
-        header h1{font-size:28px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:10px;}
-        header .small{color:var(--muted);font-weight:500;}
-        
-        /* Card */
-        .card{
-            background:var(--card);border-radius:var(--radius);
-            box-shadow:var(--shadow);padding:28px;margin-bottom:30px;
-            animation:fadeIn .4s ease; border:1px solid #e2e8f0;
+        /* --- HEADER & TITLE --- */
+        header{
+            display:flex;justify-content:space-between;align-items:center;
+            margin-bottom:28px;padding-bottom:10px; border-bottom:1px solid #e2e8f0; /* Thêm border-bottom */
         }
-        @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
-        
-        .card-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
-        .card-header h2{font-size:18px;display:flex;align-items:center;gap:10px;color:var(--text);}
+        header h1{
+            font-size:24px; /* Đồng bộ với Bác sĩ */
+            font-weight:800; /* Đồng bộ với Bác sĩ */
+            color:var(--primary);display:flex;align-items:center;gap:10px;
+        }
+        header .small{color:var(--muted); font-size:14px; font-weight:500;}
+
+        /* --- CARD STYLES --- */
+        .card{
+            background:var(--card);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            padding:24px; /* Đồng bộ với Bác sĩ */
+            margin-bottom:25px;
+            border: 1px solid #e2e8f0; /* Đồng bộ với Bác sĩ */
+        }
+        .card-header {
+            display:flex; justify-content:space-between; align-items:center;
+            flex-wrap:wrap; gap:15px; margin-bottom:15px; /* Điều chỉnh khoảng cách */
+        }
+        .card-header h2{font-size:17px;color:var(--text);display:flex;align-items:center;gap:8px;font-weight:700;}
         .card-header h2 i{color:var(--primary);}
         
-        .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-        input{
-            padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;width:240px;
-            background:#fff;
-        }
-        .btn{
-            background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;
-            border:none;border-radius:10px;padding:10px 16px;cursor:pointer;
-            font-weight:600;transition:.25s;
-        }
-        .btn:hover{opacity:.9;transform:translateY(-2px);}
+        /* --- ACTIONS & FILTERS (Đồng bộ Input/Button) --- */
+        .actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
         
-        /* Table */
-        .table-wrap{overflow-x:auto;}
-        table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;}
-        thead th{
-            background:linear-gradient(90deg,var(--primary),#1e40af);
-            color:#fff;padding:12px 16px;text-align:left;font-weight:600;
+        input[type="text"] {
+            padding:10px 14px; 
+            border:1px solid #cbd5e1; 
+            border-radius:8px; /* Đồng bộ */
+            font-size:14px;
+            transition: border-color .2s;
+            outline:none;
+            background: #fff;
+            width:250px; /* Đồng bộ */
         }
-        tbody td{padding:12px 16px;border-bottom:1px solid #e5e7eb;}
-        tbody tr:nth-child(even){background:#f8fafc;}
-        tbody tr:hover td{background:#eef2ff;}
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        
+        .btn{ /* Đổi tên class từ .btn cũ sang .btn-search để đồng bộ style */
+            background:var(--primary); color:#fff; border:none; border-radius:8px;
+            padding:10px 18px; cursor:pointer; transition:.3s ease;
+            display:flex; align-items:center; justify-content:center; gap:5px;
+            font-weight:600;
+        }
+        .btn:hover { background: #1e40af; box-shadow: var(--shadow); }
+
+        /* --- TABLE STYLES (Đồng bộ) --- */
+        .table-wrap{overflow-x:auto;margin-top:10px;}
+        table{width:100%;border-collapse:separate; border-spacing:0;}
+        
+        /* Table Header */
+        thead th{
+            background: var(--primary); /* Màu nền đậm */
+            color:#fff;
+            padding:12px 18px;
+            text-align:left;
+            font-weight:600;
+            font-size:13px;
+            text-transform: uppercase;
+        }
+        thead tr th:first-child { border-top-left-radius: 8px; }
+        thead tr th:last-child { border-top-right-radius: 8px; }
+
+        /* Table Body */
+        tbody tr:nth-child(even) { background: #f8fafc; } /* Zebra stripes */
+        tbody tr:hover td { background: #eef2ff; cursor: pointer; }
+        tbody td{
+            padding:12px 18px;
+            border-bottom:1px solid #f1f5f9;
+            font-size:14px;
+            color: var(--text);
+        }
+        
+        /* Border radius cho hàng cuối cùng */
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:last-child td:first-child { border-bottom-left-radius: 8px; }
+        tbody tr:last-child td:last-child { border-bottom-right-radius: 8px; }
 
         /* Responsive */
         @media (max-width: 900px) {
@@ -74,31 +128,31 @@
     
     <main class="main">
         <header>
-            <h1><i class="fas fa-concierge-bell"></i> Quản lý lễ tân</h1>
-            <div class="small">Xin chào, Admin  👋 </div>
+            <h1><i class="fas fa-concierge-bell"></i> Quản lý Lễ tân</h1>
+            <div class="small">Xin chào, Admin 👋 </div>
         </header>
         
         <section class="card">
             <div class="card-header">
-                <h2><i class="fas fa-list"></i> Danh sách lễ tân</h2>
+                <h2><i class="fas fa-list-alt"></i> Danh sách Nhân viên Lễ tân</h2>
                 <div class="actions">
                     <input id="searchInput" type="text" placeholder="Nhập mã hoặc tên lễ tân...">
                     <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Tìm kiếm</button>
-                </div>
+                    </div>
             </div>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:90px">Mã LT</th>
+                            <th style="width:100px">Mã LT</th>
                             <th>Họ và tên</th>
-                            <th>Số điện thoại</th>
-                            <th>Email</th>
+                            <th style="width:160px">Số điện thoại</th>
+                            <th style="width:250px">Email</th>
                             <th>Địa chỉ</th>
                         </tr>
                     </thead>
                     <tbody id="letanTbody">
-                        <tr><td colspan="5">Đang tải...</td></tr>
+                        <tr><td colspan="5" style="text-align:center;">Đang tải...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -163,7 +217,7 @@
             });
         }
 
-        // ====== 2. BUSINESS LOGIC (Giữ nguyên) ======
+        // ====== 2. BUSINESS LOGIC ======
         const API_LETAN = "http://localhost:3000/api/letan";
         const tbody = document.getElementById("letanTbody");
         const searchInput = document.getElementById("searchInput");
@@ -171,19 +225,21 @@
         let allLetan = [];
 
         async function loadLetan() {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu...</td></tr>`;
             try {
                 const res = await fetch(API_LETAN);
                 const json = await res.json();
                 allLetan = json.data || json || [];
                 renderLetan(allLetan);
             } catch {
-                tbody.innerHTML = `<tr><td colspan="5">Không thể tải dữ liệu.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--danger);">Không thể tải dữ liệu. Vui lòng kiểm tra API.</td></tr>`;
             }
         }
 
         function renderLetan(list) {
+            tbody.innerHTML = "";
             if (!list.length) {
-                tbody.innerHTML = `<tr><td colspan="5">Không tìm thấy lễ tân nào.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--muted);">Không tìm thấy lễ tân nào.</td></tr>`;
                 return;
             }
             tbody.innerHTML = list.map(lt => `

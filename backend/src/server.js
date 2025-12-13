@@ -30,7 +30,7 @@ const DoctorDHSTRoutes = require("./routes/DoctorDHST.routes");
 const hoSoRoutes = require("./routes/hoso.routes");//Sáng
 const datLichLeTanRoutes = require("./routes/datlichletan.routes");//Sáng
 const changePassRoutes = require("./routes/changePassword.routes");//Sáng
-// nếu file routes nằm trong src/routes/datlichletan.routes.js
+const thongKeRoutes = require('./routes/thongke.routes');
 app.use("/api/datlichletan", datLichLeTanRoutes);//Sáng
 
 
@@ -62,10 +62,11 @@ app.use("/api/listdoctor", listDoctorRoutes);
 app.use("/api/lichlamviec", lichLamViecRoutes);
 app.use("/api/letan", letanRoutes);
 app.use("/api/DoctorDHST", DoctorDHSTRoutes);
-app.use("/api/hoso", hoSoRoutes);//Sáng
+app.use("/api/hoso", hoSoRoutes);
 app.use(express.json());
 app.use("/letan", datLichLeTanRoutes);
 app.use("/api/auth/change-password", changePassRoutes);
+app.use('/api/thongke', thongKeRoutes);
 // ================== XỬ LÝ LỖI ==================
 app.use((req, res) => {
   res.status(404).json({ message: `Không tìm thấy route: ${req.originalUrl}` });

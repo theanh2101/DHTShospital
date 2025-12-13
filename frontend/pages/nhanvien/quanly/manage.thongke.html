@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thống kê tổng hợp - DHST Hospital</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f9fafb;
+            --card: #fff;
+            --text: #1e293b;
+            --radius: 16px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * { box-sizing: border-box; font-family: "Inter", sans-serif; margin: 0; padding: 0; }
+        body { display: flex; min-height: 100vh; background: var(--bg); color: var(--text); }
+        .sidebar { width: 250px; background: #1e293b; min-height: 100vh; display: none; } 
+        .main {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            margin-left: 250px; 
+        }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        header h1 { font-size: 26px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        header .small { color: var(--secondary); font-weight: 500; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.2s;
+            border-left: 5px solid transparent;
+        }
+
+        .stat-card:hover { transform: translateY(-5px); }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-info h3 { font-size: 14px; color: var(--secondary); margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
+        .stat-info .count { font-size: 28px; font-weight: 800; color: var(--text); }
+
+        /* Màu sắc riêng cho từng thẻ */
+        .card-doctor { border-left-color: var(--primary); }
+        .card-doctor .stat-icon { background: #eff6ff; color: var(--primary); }
+
+        .card-receptionist { border-left-color: var(--warning); }
+        .card-receptionist .stat-icon { background: #fffbeb; color: var(--warning); }
+
+        .card-patient { border-left-color: var(--success); }
+        .card-patient .stat-icon { background: #f0fdf4; color: var(--success); }
+
+        /* Chart Section */
+        .chart-container {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap; 
+            gap: 15px;
+        }
+        
+        .chart-header h2 { font-size: 18px; font-weight: 700; color: var(--text); }
+        
+        .chart-filters {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            font-size: 14px;
+            background: var(--card);
+        }
+
+        /* Loading Overlay */
+        .loading {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.8);
+            display: flex; justify-content: center; align-items: center; z-index: 50;
+            font-size: 20px; color: var(--primary); font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .main { margin-left: 0; padding: 20px; }
+            .sidebar { display: none; }
+            .chart-header { flex-direction: column; align-items: flex-start; }
+            .chart-filters { flex-direction: column; align-items: flex-start; width: 100%; }
+            .chart-filters .filter-select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar-placeholder"></div>
+
+    <main class="main">
+        <header>
+            <h1><i class="fas fa-chart-line"></i> Thống kê tổng hợp</h1>
+            <div class="small">Cập nhật lúc: <span id="currentTime">--:--</span></div>
+        </header>
+
+        <div id="loading" class="loading" style="display: none;"><i class="fas fa-spinner fa-spin"></i> &nbsp; Đang tải dữ liệu...</div>
+
+        <div class="stats-grid">
+            <div class="stat-card card-doctor">
+                <div class="stat-icon"><i class="fas fa-user-md"></i></div>
+                <div class="stat-info">
+                    <h3>Tổng số Bác sĩ</h3>
+                    <div class="count" id="countBacsi">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card card-receptionist">
+                <div class="stat-icon"><i class="fas fa-concierge-bell"></i></div>
+                <div class="stat-info">
+                    <h3>Tổng số Lễ tân</h3>
+                    <div class="count" id="countLetan">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card card-patient">
+                <div class="stat-icon"><i class="fas fa-procedures"></i></div>
+                <div class="stat-info">
+                    <h3 id="labelBenhNhanTotal">Tổng lượt khám (7 ngày gần nhất)</h3>
+                    <div class="count" id="countBenhNhanTotal">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2><i class="fas fa-chart-bar"></i> Số lượng bệnh nhân đến khám</h2>
+                <div class="chart-filters">
+                    <select id="khoaFilter" class="filter-select">
+                        <option value="all">Tất cả các Khoa</option>
+                    </select>
+                    <select id="chartFilter" class="filter-select">
+                        <option value="1day">Hôm nay</option>
+                        <option value="7days" selected>7 ngày gần nhất</option>
+                        <option value="30days">30 ngày gần nhất</option>
+                    </select>
+                </div>
+            </div>
+            <div style="height: 400px; width: 100%;">
+                <canvas id="patientChart"></canvas>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // =========================================================================
+        // KHAI BÁO BIẾN VÀ HÀM TIỆN ÍCH
+        // =========================================================================
+        
+        // --- CẤU HÌNH API GỐC ---
+        const API_BASE = "http://localhost:3000/api";
+        // --- API endpoints ---
+        const API_DOCTOR = API_BASE + "/listdoctor"; 
+        const API_LETAN = API_BASE + "/letan";      
+        const API_KHOA_LIST = API_BASE + "/khoa"; 
+        const API_PATIENT_STATS = API_BASE + "/thongke/patient-by-day"; // API thống kê lượt khám
+
+        // --- DOM Elements ---
+        const countBacsiEl = document.getElementById("countBacsi");
+        const countLetanEl = document.getElementById("countLetan");
+        const countBenhNhanTotalEl = document.getElementById("countBenhNhanTotal");
+        const labelBenhNhanTotalEl = document.getElementById("labelBenhNhanTotal");
+        
+        const loadingEl = document.getElementById("loading");
+        const khoaFilterEl = document.getElementById("khoaFilter");
+        const chartFilterEl = document.getElementById("chartFilter");
+        let myChart = null;
+
+        // Hàm fetch an toàn (Giúp bắt lỗi kết nối API)
+        async function safeFetch(url, options = {}) {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok) {
+                    console.error(`API Error: ${res.status} ${res.statusText} for URL: ${url}`);
+                    return { error: true, status: res.status, message: res.statusText };
+                }
+                return await res.json();
+            } catch (err) {
+                console.error("Fetch Error (Network/CORS):", err);
+                return { error: true, message: err.message };
+            }
+        }
+
+        // Hiệu ứng nhảy số
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Hàm tiện ích để định dạng ngày (YYYY-MM-DD)
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // =========================================================================
+        // XỬ LÝ DỮ LIỆU VÀ GIAO DIỆN
+        // =========================================================================
+
+        // --- ĐIỀN CÁC NGÀY BỊ THIẾU VỚI COUNT = 0 ---
+        function fillMissingDates(data, startDate, endDate) {
+            const dateMap = new Map();
+            data.forEach(item => dateMap.set(item.date, item.count));
+
+            const filledData = [];
+            let currentDate = new Date(startDate);
+            
+            // Đảm bảo endDate là cuối ngày
+            const endOfDay = new Date(endDate);
+            endOfDay.setHours(23, 59, 59, 999); 
+
+            // Lặp qua tất cả các ngày trong phạm vi [startDate, endDate]
+            while (currentDate <= endOfDay) {
+                const dateStr = formatDate(currentDate);
+                filledData.push({
+                    date: dateStr,
+                    count: dateMap.get(dateStr) || 0 // Lấy count từ API, nếu không có thì là 0
+                });
+                // Di chuyển sang ngày tiếp theo
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return filledData;
+        }
+
+
+        // --- LOAD SIDEBAR (Chỉ là placeholder, bạn cần file sidebar.html) ---
+        async function loadSidebar() {
+            try {
+                const response = await fetch('sidebar.html'); 
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById('sidebar-placeholder').innerHTML = html;
+                    // Nếu bạn có file sidebar.js riêng, bạn cần gọi hàm attachSidebarEvents() ở đây.
+                }
+            } catch (error) {
+                console.warn('Lỗi tải sidebar.html. Dashboard vẫn sẽ hoạt động nhưng không có menu bên trái.', error);
+            }
+        }
+
+        // --- LOAD BỘ LỌC KHOA ---
+        async function loadKhoaFilter() {
+            try {
+                const res = await safeFetch(API_KHOA_LIST);
+                const khoaList = res.data || (Array.isArray(res) ? res : []); 
+
+                // Xóa và thêm option "Tất cả các Khoa"
+                khoaFilterEl.innerHTML = '<option value="all">Tất cả các Khoa</option>';
+
+                if (khoaList.length > 0) {
+                    khoaList.forEach(khoa => {
+                        const option = document.createElement('option');
+                        option.value = khoa.id_khoa;
+                        option.textContent = khoa.ten_khoa;
+                        khoaFilterEl.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error("Lỗi tải danh sách Khoa:", error);
+            }
+        }
+        
+        // --- FETCH DỮ LIỆU BỆNH NHÂN THEO NGÀY ---
+        async function fetchPatientDataForChart(timeRange, idKhoa) {
+            const endDate = new Date();
+            const startDate = new Date();
+            
+            let daysToSubtract = 7; 
+            if (timeRange === '30days') {
+                daysToSubtract = 30;
+            } else if (timeRange === '1day') {
+                daysToSubtract = 0; // Hôm nay, chỉ cần 1 ngày
+            }
+            
+            // Thiết lập ngày bắt đầu (startDate)
+            startDate.setDate(endDate.getDate() - daysToSubtract);
+            
+            const startStr = formatDate(startDate);
+            const endStr = formatDate(endDate);
+
+            let apiUrl = `${API_PATIENT_STATS}?startDate=${startStr}&endDate=${endStr}`;
+            if (idKhoa) {
+                apiUrl += `&id_khoa=${idKhoa}`;
+            }
+
+            try {
+                const res = await safeFetch(apiUrl);
+                
+                let data = [];
+                if (!res.error) {
+                    data = Array.isArray(res) ? res : (res.data && Array.isArray(res.data) ? res.data : []);
+                }
+                
+                // Trả về dữ liệu, ngày bắt đầu và ngày kết thúc thực tế (để fillMissingDates sử dụng)
+                return { data: data, startDate: new Date(startStr), endDate: new Date(endStr) };
+
+            } catch (error) {
+                return { data: [], startDate: new Date(startStr), endDate: new Date(endStr) };
+            }
+        }
+
+        // --- VẼ BIỂU ĐỒ (CHART.JS) ---
+        function renderChart(data) {
+            const ctx = document.getElementById('patientChart').getContext('2d');
+            
+            const labels = data.map(item => item.date);
+            const values = data.map(item => item.count);
+
+            if (myChart) myChart.destroy();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(37, 99, 235, 0.5)');
+            gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng bệnh nhân',
+                        data: values,
+                        borderColor: '#2563eb',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#2563eb',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b', titleColor: '#fff', bodyColor: '#fff', padding: 10, displayColors: false,
+                            callbacks: {
+                                title: (items) => {
+                                    const date = new Date(items[0].label);
+                                    // Định dạng ngày cho Tooltip
+                                    return date.toLocaleDateString('vi-VN', {weekday: 'long', day: '2-digit', month: '2-digit'});
+                                },
+                                label: (context) => ` ${context.parsed.y} lượt khám`,
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { borderDash: [5, 5], color: '#e2e8f0' },
+                            ticks: { font: { family: 'Inter' }, precision: 0 } 
+                        },
+                        x: {
+                            type: 'time', 
+                            time: { unit: 'day', tooltipFormat: 'dd/MM/yyyy' },
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // --- LOGIC CHÍNH: TẢI VÀ CẬP NHẬT DASHBOARD ---
+        async function loadDashboardData() {
+            loadingEl.style.display = 'flex'; // Hiện Loading
+
+            const timeRange = chartFilterEl.value;
+            const idKhoa = khoaFilterEl.value === 'all' ? null : khoaFilterEl.value;
+
+            try {
+                // 1. Load Khoa nếu chưa load (để đảm bảo bộ lọc có dữ liệu)
+                if (khoaFilterEl.options.length <= 1) { 
+                    await loadKhoaFilter();
+                }
+
+                // 2. Load số lượng Bác sĩ & Lễ tân
+                const [resDoc, resLetan] = await Promise.all([
+                    safeFetch(API_DOCTOR),
+                    safeFetch(API_LETAN)
+                ]);
+
+                const totalDocs = Array.isArray(resDoc) ? resDoc.length : (resDoc.data ? resDoc.data.length : 0);
+                animateValue(countBacsiEl, parseInt(countBacsiEl.textContent), totalDocs, 800);
+
+                const totalLetan = Array.isArray(resLetan) ? resLetan.length : (resLetan.data ? resLetan.data.length : 0);
+                animateValue(countLetanEl, parseInt(countLetanEl.textContent), totalLetan, 800);
+                
+                // 3. Lấy dữ liệu Biểu đồ và Ngày bắt đầu/kết thúc thực tế
+                const { data: apiData, startDate, endDate } = await fetchPatientDataForChart(timeRange, idKhoa); 
+                
+                // 4. Điền dữ liệu cho các ngày bị thiếu (Sửa lỗi biểu đồ bị đứt đoạn)
+                const chartData = fillMissingDates(apiData, startDate, endDate);
+                
+                // 5. TÍNH TỔNG VÀ CẬP NHẬT THẺ THỐNG KÊ
+                const totalCount = chartData.reduce((sum, item) => sum + item.count, 0);
+
+                let labelText = 'Tổng lượt khám';
+                if (timeRange === '1day') {
+                    labelText = 'Tổng lượt khám (Hôm nay)';
+                } else if (timeRange === '7days') {
+                    labelText = 'Tổng lượt khám (7 ngày gần nhất)';
+                } else if (timeRange === '30days') {
+                    labelText = 'Tổng lượt khám (30 ngày gần nhất)';
+                }
+                
+                labelBenhNhanTotalEl.textContent = labelText;
+                animateValue(countBenhNhanTotalEl, parseInt(countBenhNhanTotalEl.textContent), totalCount, 800);
+
+                // 6. Vẽ biểu đồ
+                renderChart(chartData);
+
+            } catch (err) {
+                console.error("LỖI TẢI DASHBOARD TỔNG HỢP:", err);
+            } finally {
+                loadingEl.style.display = 'none'; // Ẩn Loading
+            }
+        }
+
+
+        // =========================================================================
+        // KHỞI TẠO VÀ GẮN SỰ KIỆN
+        // =========================================================================
+        document.addEventListener("DOMContentLoaded", () => {
+            // Cập nhật giờ
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('currentTime').textContent = now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            }, 1000);
+
+            loadSidebar();
+            
+            // Lần đầu load dữ liệu
+            loadDashboardData();
+
+            // Gắn sự kiện thay đổi bộ lọc
+            khoaFilterEl.addEventListener('change', loadDashboardData);
+            chartFilterEl.addEventListener('change', loadDashboardData);
+        });
+
+    </script>
+</body>
+</html>
