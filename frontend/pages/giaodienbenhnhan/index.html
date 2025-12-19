@@ -991,6 +991,140 @@ background: #007acc; /* Xanh đậm hơn khi hover */
     line-height: 1;
 }
 
+
+
+/* ===== HERO SLIDER CLEAN ===== */
+.hero-banner {
+    position: relative;
+    height: 640px;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Slide ảnh */
+.hero-slider,
+.hero-slider .slide {
+    position: absolute;
+    inset: 0;
+}
+
+.hero-slider .slide {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.hero-slider .slide.active {
+    opacity: 1;
+}
+
+.hero-slider img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(78%);
+}
+
+/* Box chữ trung tâm */
+.hero-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    max-width: 820px;
+    width: calc(100% - 40px);
+
+    background: rgba(255,255,255,0.92);
+    padding: 40px 50px;
+    border-radius: 14px;
+
+    text-align: center;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+}
+
+/* Text */
+.hero-center-text h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: #004c9b;
+    margin-bottom: 12px;
+}
+
+.hero-center-text h2 {
+    font-size: 22px;
+    color: #0a66c2;
+    font-weight: 500;
+    margin-bottom: 18px;
+}
+
+.hero-center-text p {
+    font-size: 17px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 26px;
+}
+
+/* Buttons */
+.banner-action-group {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    padding: 12px 26px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.primary-button {
+    background: #0a66c2;
+    color: #fff;
+}
+
+.secondary-button {
+    border: 2px solid #0a66c2;
+    color: #0a66c2;
+    background: transparent;
+}
+
+.primary-button:hover {
+    background: #074a8d;
+}
+
+.secondary-button:hover {
+    background: #0a66c2;
+    color: #fff;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .hero-banner { height: 520px; }
+
+    .hero-center-text {
+        padding: 26px 24px;
+    }
+
+    .hero-center-text h1 { font-size: 30px; }
+    .hero-center-text h2 { font-size: 18px; }
+    .hero-center-text p  { font-size: 15px; }
+}
+
+@keyframes heroFadeUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+
+
 </style>
 </head>
 
@@ -1027,26 +1161,48 @@ background: #007acc; /* Xanh đậm hơn khi hover */
 </header>
 
 <main id="main-content">
-    <section class="hero-banner">
-        <div class="container hero-content">
-            <div class="banner-info">
-                <h1>BỆNH VIỆN ĐA KHOA DHST</h1>
-                <h2>Y học tiên tiến - Chăm sóc tận tâm</h2>
-                <p>DHST Healthcare là bệnh viện đa khoa hàng đầu, ứng dụng công nghệ hiện đại và quy tụ đội ngũ chuyên gia, bác sĩ giàu kinh nghiệm, cam kết mang lại dịch vụ chăm sóc sức khỏe chất lượng cao nhất cho cộng đồng.</p>
-                <div class="banner-action-group">
-                    <a href="dat-lich.html" class="action-button primary-button">
-                        <i class="fas fa-calendar-alt"></i> Đặt lịch khám ngay
-                    </a>
-                    <a href="dich-vu.html" class="action-button secondary-button">
-                        <i class="fas fa-notes-medical"></i> Xem dịch vụ
-                    </a>
-                </div>
-            </div>
-            <div class="banner-image-container">
-                <img src="bia.jpg" class="main-img" alt="Bệnh viện DHST Healthcare">
-            </div>
+   <section class="hero-banner">
+    <div class="hero-slider">
+
+        <div class="slide active">
+            <img src="tt1.png" alt="DHST Healthcare">
         </div>
-    </section>
+
+        <div class="slide">
+            <img src="tt2.png" alt="DHST Healthcare">
+        </div>
+
+        <div class="slide">
+            <img src="tt3.png" alt="DHST Healthcare">
+        </div>
+
+        <div class="slide">
+            <img src="tt4.png" alt="DHST Healthcare">
+        </div>
+
+        <div class="slide">
+            <img src="tt5.png" alt="DHST Healthcare">
+        </div>
+
+    </div>
+
+    <div class="hero-center-text">
+        <h1>BỆNH VIỆN ĐA KHOA DHST</h1>
+        <h2>Y học tiên tiến - Chăm sóc tận tâm</h2>
+        <p>
+            Ứng dụng công nghệ hiện đại – đội ngũ bác sĩ chuyên môn cao – mang đến dịch vụ y tế chuẩn quốc tế cho cộng đồng.
+        </p>
+
+        <div class="banner-action-group">
+            <a href="dat-lich.html" class="action-button primary-button">
+                <i class="fas fa-calendar-alt"></i> Đặt lịch khám ngay
+            </a>
+            <a href="dich-vu.html" class="action-button secondary-button">
+                <i class="fas fa-notes-medical"></i> Xem dịch vụ
+            </a>
+        </div>
+    </div>
+</section>
 
     <section class="shortcuts-v2">
         <a href="https://zalo.me/0382773307" class="action-box-link" target="_blank">
@@ -1311,6 +1467,19 @@ background: #007acc; /* Xanh đậm hơn khi hover */
   userInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") sendMessage();
   });
+
+
+
+  let index = 0;
+const slides = document.querySelectorAll('.hero-slider .slide');
+
+function autoSlide() {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+    index = (index + 1) % slides.length;
+}
+
+setInterval(autoSlide, 3500); 
 </script>
 </body>
 </html>

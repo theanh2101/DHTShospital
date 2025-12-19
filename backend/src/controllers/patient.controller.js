@@ -187,7 +187,7 @@ doc.moveDown(1.5);
         doc.moveDown();
 
         doc.fontSize(13).text('ĐƠN THUỐC KÊ ĐƠN', { underline: true });
-        doc.fontSize(13).text('III. ĐƠN THUỐC', { underline: true });
+        
 doc.moveDown(0.5);
 
 const tableX = 50;
