@@ -120,99 +120,135 @@ exports.getVisitDetails = async (req, res) => {
 };
 
 // --- 5️⃣ Xuất PDF hồ sơ khám bệnh ---
+
+
+
+
 exports.downloadVisitPdf = async (req, res) => {
-    const { lichKhamId } = req.params;
-
     try {
-        const details = await patientModel.getVisitDetails(lichKhamId);
-        console.log("details from model:", details);
+        const details = await patientModel.getVisitDetails(req.params.lichKhamId);
 
-        if (!details) {
-            return res.status(404).json({ message: "Không tìm thấy dữ liệu hồ sơ để tạo PDF." });
-        }
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename=hoso.pdf');
 
-        // --- Chuẩn bị dữ liệu ---
-        const patientName = details.ten_benhnhan || 'Khong_ro_ten';
-        const doctorName = details.ten_bacsi || 'Không rõ';
-        const chuyenKhoa = details.ten_khoa || 'Không rõ';
-        const ngayKhamFormatted = formatDbDate(details.ngay_kham);
-
-        // --- Tên file PDF ---
-        const rawFilename = `HoSoKhamBenh_${patientName.replace(/\s/g, '_')}_REC-${lichKhamId}.pdf`;
-        const encodedFilename = encodeURIComponent(rawFilename);
-
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodedFilename}`);
-
-        // --- Tạo tài liệu PDF ---
+        // ✅ 1. TẠO DOC TRƯỚC
         const doc = new PDFDocument({ margin: 50 });
         doc.pipe(res);
+        doc.rect(40, 30, 515, 780).strokeColor('#000').lineWidth(1).stroke();
 
-        // --- Font tiếng Việt ---
-        const fontPath = path.resolve(__dirname, '..', 'vietnam-font.ttf');
+        // ✅ 2. LOAD FONT SAU KHI CÓ DOC
+          const fontPath = path.resolve(__dirname, '..', 'vietnam-font.ttf');
         if (fs.existsSync(fontPath)) {
             doc.registerFont('VN', fontPath);
             doc.font('VN');
         } else {
-            console.warn('⚠ Font file không tồn tại, dùng Helvetica.');
+            console.warn('⚠ Không tìm thấy font Unicode, fallback Helvetica');
             doc.font('Helvetica');
         }
 
-        // --- Header ---
-        doc.fontSize(20).fillColor('#000').text('BỆNH ÁN ĐIỆN TỬ DHST HOSPITAL', { align: 'center' }).moveDown(1);
+        // ===== PDF CONTENT =====
+        doc.fontSize(18).text('BỆNH ÁN ĐIỆN TỬ - DHST HOSPITAL', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(10)
+   .text('Địa chỉ: Công nghiệp Hà Nội ,Bắc Từ Liêm , Hà Nội ', { align: 'center' })
+   .text('Hotline: 6868686868', { align: 'center' });
 
-        // --- Thông tin bệnh nhân ---
-        doc.fontSize(14).fillColor('#1565C0').text('THÔNG TIN BỆNH NHÂN:', { underline: true }).moveDown(0.5);
-        doc.fillColor('#000').fontSize(12);
-        doc.text(`- Họ tên: ${details.ho_ten_bn || 'Không rõ tên bệnh nhân'}`);
-        doc.text(`(ID: ${details.id_hoso || 'N/A'})`);
-        doc.text(`- Ngày sinh: ${formatDbDate(details.ngay_sinh_bn)}   Giới tính: ${details.gioi_tinh_bn || 'N/A'}`);
-        doc.text(`- SĐT: ${details.sdt_bn || 'N/A'}`);
-        doc.text(`- Email: ${details.email_bn || 'N/A'}`);
-        doc.moveDown(1);
+doc.moveDown(0.5);
+doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+doc.moveDown();
 
-        // --- Thông tin khám bệnh ---
-        doc.fontSize(14).fillColor('#f4b400').text('THÔNG TIN KHÁM BỆNH:', { underline: true }).moveDown(0.5);
-        doc.fillColor('#000').fontSize(12);
-        doc.text(`- Ngày khám: ${ngayKhamFormatted}`);
-        doc.text(`- Bác sĩ: BS. ${doctorName}   Chuyên khoa: ${chuyenKhoa}`);
-        doc.moveDown(1);
+// ================= TITLE =================
+doc.fontSize(18)
+   .font('VN')
+   .text('BỆNH ÁN NGOẠI TRÚ', { align: 'center', underline: true });
 
-        // --- Chi tiết bệnh án ---
-        doc.fontSize(14).fillColor('#CC0000').text('CHI TIẾT BỆNH ÁN:', { underline: true }).moveDown(0.5);
-        doc.fillColor('#000').fontSize(12);
-        doc.text(`Chẩn đoán: ${details.chuan_doan || 'N/A'}`);
-        doc.text(`Triệu chứng: ${details.trieu_chung || 'N/A'}`);
-        doc.text(`Ghi chú BS: ${details.ghi_chu || 'Không có ghi chú'}`);
-        doc.moveDown(1);
+doc.moveDown(1.5);
 
-        // --- Đơn thuốc kê đơn ---
-        doc.fontSize(14).fillColor('#28a745').text('ĐƠN THUỐC KÊ ĐƠN:', { underline: true }).moveDown(0.5);
-        doc.fillColor('#000');
+        doc.fontSize(13).text('THÔNG TIN BỆNH NHÂN', { underline: true });
+        doc.fontSize(11);
+        doc.text(`Họ tên: ${details.ho_ten_bn}`);
+        doc.text(`Ngày sinh: ${formatDbDate(details.ngay_sinh_bn)}   Giới tính: ${details.gioi_tinh_bn}`);
+        doc.text(`SĐT: ${details.sdt_bn}`);
+        doc.text(`Email: ${details.email_bn}`);
+        doc.moveDown();
 
-        if (details.thuoc_ke_don) {
-            try {
-                const meds = JSON.parse(details.thuoc_ke_don);
-                meds.forEach((m, i) => {
-                    doc.text(`${i + 1}. ${m.ten_thuoc || 'Không rõ'} - ${m.lieu_luong || ''} - ${m.cach_dung || ''}`);
-                });
-            } catch {
-                doc.text(details.thuoc_ke_don);
-            }
-        } else {
-            doc.text('Không có thuốc được kê đơn.');
-        }
+        doc.fontSize(13).text('THÔNG TIN KHÁM BỆNH', { underline: true });
+        doc.fontSize(11);
+        doc.text(`Ngày khám: ${formatDbDate(details.ngay_kham)}`);
+        doc.text(`Bác sĩ: BS. ${details.ten_bacsi}`);
+        doc.text(`Chuyên khoa: ${details.chuyen_khoa}`);
+        doc.moveDown();
 
-        doc.moveDown(2);
-        doc.fontSize(12).fillColor('#777').text('--- Hết hồ sơ khám bệnh ---', { align: 'center' });
-        doc.end();
+        doc.fontSize(13).text('CHI TIẾT BỆNH ÁN', { underline: true });
+        doc.fontSize(11);
+        doc.text(`Chẩn đoán: ${details.chuan_doan}`);
+        doc.text(`Triệu chứng: ${details.trieu_chung}`);
+        doc.text(`Ghi chú: ${details.ghi_chu}`);
+        doc.moveDown();
+
+        doc.fontSize(13).text('ĐƠN THUỐC KÊ ĐƠN', { underline: true });
+        doc.fontSize(13).text('III. ĐƠN THUỐC', { underline: true });
+doc.moveDown(0.5);
+
+const tableX = 50;
+let tableY = doc.y;
+const rowH = 22;
+const colW = [40, 200, 90, 110, 60];
+const headers = ['STT', 'Tên thuốc', 'Liều lượng', 'Cách dùng', 'Số ngày'];
+
+// Header
+let x = tableX;
+headers.forEach((h, i) => {
+    doc.rect(x, tableY, colW[i], rowH).stroke();
+    doc.text(h, x + 4, tableY + 6);
+    x += colW[i];
+});
+
+tableY += rowH;
+
+// Rows
+details.thuoc_ke_don.forEach((t, i) => {
+    x = tableX;
+    const row = [
+        i + 1,
+        t.ten_thuoc,
+        t.lieu_luong,
+        t.cach_dung,
+        t.so_ngay
+    ];
+
+    row.forEach((cell, j) => {
+        doc.rect(x, tableY, colW[j], rowH).stroke();
+        doc.text(String(cell), x + 4, tableY + 6);
+        x += colW[j];
+    });
+
+    tableY += rowH;
+});
+
+
+
+doc.moveDown(3);
+
+doc.text('BÁC SĨ ĐIỀU TRỊ', 380);
+doc.moveDown(3);
+doc.text(`BS. ${details.ten_bacsi}`, 380);
+
+doc.moveDown(2);
+doc.fontSize(9).fillColor('#555')
+   .text('Văn bản này được trích xuất từ Hệ thống Quản lý Bệnh viện DHST',
+         { align: 'center' });
+
+         doc.end();
+doc.moveDown(2);
+
     } catch (err) {
-        console.error('Error downloadVisitPdf:', err);
-        if (!res.headersSent)
-            res.status(500).json({ message: 'Lỗi khi tạo PDF hồ sơ bệnh nhân.' });
+        console.error('❌ Lỗi tạo PDF:', err);
+        if (!res.headersSent) res.status(500).send('Lỗi tạo PDF');
     }
 };
 
+      
 /**
  * ✅ API MỚI: Lấy thông tin bệnh nhân theo số điện thoại (dành cho lễ tân)
  * GET /api/patient/phone/:sdt
