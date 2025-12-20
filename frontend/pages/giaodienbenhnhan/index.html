@@ -61,7 +61,7 @@ ul {list-style: none;}
 
 /* ===== HEADER MỚI ===== */
 .main-header {
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 1000;
     background: var(--bg-light);
@@ -1124,7 +1124,16 @@ background: #007acc; /* Xanh đậm hơn khi hover */
 }
 
 
+.reveal {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 0.8s ease;
+}
 
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
 </style>
 </head>
 
@@ -1141,7 +1150,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
         </div>
         <a href="tel:19001234" class="call-to-action">
             <i class="fas fa-phone-alt"></i>
-            Tổng đài Hỗ trợ: 1900.1234
+            Tổng đài Hỗ trợ: 6868686868
         </a>
     </div>
 
@@ -1161,7 +1170,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
 </header>
 
 <main id="main-content">
-   <section class="hero-banner">
+   <section class="hero-banner reveal">
     <div class="hero-slider">
 
         <div class="slide active">
@@ -1204,7 +1213,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
     </div>
 </section>
 
-    <section class="shortcuts-v2">
+    <section class="shortcuts-v2 reveal">
         <a href="https://zalo.me/0382773307" class="action-box-link" target="_blank">
             <div class="action-card">
                 <i class="fab fa-whatsapp"></i>
@@ -1219,13 +1228,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
                 <p>Đặt lịch khám online chủ động thời gian</p>
             </div>
         </a>
-        <a href="hoi-dap.html" class="action-box-link">
-            <div class="action-card">
-                <i class="fas fa-comments"></i>
-                <h3>Hỏi đáp chuyên gia</h3>
-                <p>Giải đáp thắc mắc về sức khỏe miễn phí</p>
-            </div>
-        </a>
+        
         <a href="tra-cuu.html" class="action-box-link">
             <div class="action-card">
                 <i class="fas fa-poll"></i>
@@ -1238,7 +1241,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
     
         
 
-    <section class="request-schedule-banner">
+    <section class="request-schedule-banner reveal">
         <div class="container banner-content">
              <div class="banner-image-doctors">
                 <img src="bs.png">
@@ -1253,7 +1256,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
         </div>
     </section>
 
-    <section class="consult-banner">
+    <section class="consult-banner reveal">
         <div class="container consult-container">
             <div class="consult-info">
                 <h3>ĐƠN VỊ TƯ VẤN VÀ TIÊM CHỦNG VẮC XIN</h3>
@@ -1271,7 +1274,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
         </div>
     </section>
 
-    <section class="about-section">
+    <section class="about-section reveal">
         <div class="container">
             <h2 class="section-title">CHĂM SÓC SỨC KHỎE TOÀN DIỆN TẠI DHST</h2>
             <p class="section-subtitle">Với hơn 20 năm kinh nghiệm, chúng tôi cam kết mang đến dịch vụ y tế chuẩn mực quốc tế.</p>
@@ -1305,7 +1308,7 @@ background: #007acc; /* Xanh đậm hơn khi hover */
     </section>
 </main>
 
-<footer class="main-footer">
+<footer class="main-footer reveal">
     <div class="container footer-grid">
         <div class="footer-logo-info">
             <div class="logo-text">
@@ -1480,6 +1483,22 @@ function autoSlide() {
 }
 
 setInterval(autoSlide, 3500); 
+
+
+const reveals = document.querySelectorAll(".reveal");
+
+const observer = new IntersectionObserver(
+    entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+            }
+        });
+    },
+    { threshold: 0.2 }
+);
+
+reveals.forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
