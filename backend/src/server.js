@@ -33,10 +33,17 @@ const changePassRoutes = require("./routes/changePassword.routes");//Sáng
 const thongKeRoutes = require('./routes/thongke.routes');
 app.use("/api/datlichletan", datLichLeTanRoutes);//Sáng
 
+const doctorRoutes = require("./routes/doctor.routes");
+
+
 
 // ================== PHỤC VỤ FRONTEND ==================
 //giao dien danh cho benh nhan
 app.use(express.static(path.join(__dirname, "../../frontend/pages/giaodienbenhnhan")));
+
+
+
+
 
 // Khi vào trang chủ -> tự động mở index.html
 app.get("/", (req, res) => {
@@ -67,6 +74,7 @@ app.use(express.json());
 app.use("/letan", datLichLeTanRoutes);
 app.use("/api/auth/change-password", changePassRoutes);
 app.use('/api/thongke', thongKeRoutes);
+app.use("/api/doctors", doctorRoutes);
 // ================== XỬ LÝ LỖI ==================
 app.use((req, res) => {
   res.status(404).json({ message: `Không tìm thấy route: ${req.originalUrl}` });
@@ -81,3 +89,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server chạy tại: http://localhost:${PORT}`);
 });
+
+
