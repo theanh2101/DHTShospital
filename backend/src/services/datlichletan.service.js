@@ -38,7 +38,7 @@ const DatLichLeTanService = {
     try {
       await conn.beginTransaction();
       
-      // 1) Tìm hoặc tạo bệnh nhân
+      // 1) Tìm hoặc tạo bệnh nhân (Kèm BHYT)
       const id_benhnhan = await DatLichLeTanModel.findOrCreateBenhNhan(conn, {
         ho_ten: payload.ho_ten,
         sdt: payload.sdt,
@@ -46,9 +46,10 @@ const DatLichLeTanService = {
         ngay_sinh: payload.ngay_sinh,
         gioi_tinh: payload.gioi_tinh,
         dia_chi: payload.dia_chi,
+        so_bhyt: payload.so_bhyt // ✅ Truyền BHYT
       });
 
-      // 2) Tự động chọn bác sĩ nếu chưa có
+      // 2) Tự động chọn bác sĩ
       let id_bacsi_final = payload.id_bacsi || null;
       if (!id_bacsi_final) {
         const doctors = await this.getDoctorsRoundRobin(payload.id_khoa, payload.ngay, payload.ca_kham);
@@ -56,7 +57,7 @@ const DatLichLeTanService = {
         id_bacsi_final = doctors[0].id_bacsi;
       }
 
-      // 3) Insert lịch Lễ tân
+      // 3) Insert lịch
       const insertId = await DatLichLeTanModel.insertDatLichLeTan(conn, {
         ...payload,
         id_benhnhan,
@@ -72,9 +73,7 @@ const DatLichLeTanService = {
       
       await conn.query(`UPDATE dat_lich_letan SET id_hoso = ? WHERE id_datlich = ?`, [hsRes.insertId, insertId]);
 
-      // ============================================================
-      // [QUAN TRỌNG] 5) NẾU CÓ ID LỊCH ONLINE -> UPDATE TRẠNG THÁI ĐỂ XÓA KHỎI LIST CHỜ
-      // ============================================================
+      // 5) Xử lý xóa lịch Online (nếu có)
       if (payload.id_datlich_online) {
           console.log("Hoàn tất lịch Online:", payload.id_datlich_online);
           await conn.query(
@@ -101,7 +100,6 @@ const DatLichLeTanService = {
 
   async checkinByPhone({ sdt }) {
     if (!sdt) throw new Error("Thiếu SĐT");
-    // Chỉ tìm 'CHO_XAC_NHAN', nên những lịch đã update thành 'DA_TAO_HOSO' sẽ tự biến mất
     const onlineAppointments = await DatLichLeTanModel.findOnlineByPhone(sdt);
     const [patients] = await db.query(`SELECT * FROM benhnhan WHERE phone = ?`, [sdt]);
     return {

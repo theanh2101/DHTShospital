@@ -1,6 +1,6 @@
 const DatLichLeTanService = require("../services/datlichletan.service");
 
-// Hàm helper format ngày chuẩn Local (Fix lỗi bị lùi 1 ngày do lệch múi giờ UTC)
+// Hàm helper format ngày chuẩn Local
 const formatDateLocal = (d) => {
   if (!d) return "";
   const date = new Date(d);
@@ -30,7 +30,7 @@ const DatLichLeTanController = {
     }
   },
 
-  // ✅ CHECK-IN NÂNG CẤP
+  // ✅ CHECK-IN NÂNG CẤP (CÓ BHYT)
   async checkin(req, res) {
     try {
       const { sdt } = req.body;
@@ -51,17 +51,17 @@ const DatLichLeTanController = {
             ho_ten: o.ten_benhnhan,
             sdt: o.sdt,
             mo_ta: `Đặt lịch Online: ${o.ten_khoa || 'Chưa chọn khoa'} - ${formatDateLocal(o.ngay)} (${o.khung_gio})`,
-            // Dữ liệu thô để điền form
             raw_data: {
-                id_datlich_online: o.id_datlich, // [QUAN TRỌNG] ID để xóa sau khi tạo xong
+                id_datlich_online: o.id_datlich,
                 ho_ten: o.ten_benhnhan,
                 sdt: o.sdt,
                 email: o.email,
                 id_khoa: o.id_khoa,
-                ngay: formatDateLocal(o.ngay), // Đã fix ngày
+                ngay: formatDateLocal(o.ngay),
                 ca_kham: getCa(o.khung_gio),
                 id_bacsi: o.id_bacsi,
-                ly_do: o.ly_do
+                ly_do: o.ly_do,
+                so_bhyt: "" // Online chưa có BHYT
             }
         });
       });
@@ -80,8 +80,9 @@ const DatLichLeTanController = {
                 sdt: p.phone,
                 email: p.email,
                 gioi_tinh: p.gioi_tinh,
-                ngay_sinh: formatDateLocal(p.ngay_sinh), // Đã fix ngày
-                dia_chi: p.dia_chi
+                ngay_sinh: formatDateLocal(p.ngay_sinh),
+                dia_chi: p.dia_chi,
+                so_bhyt: p.so_bhyt || "" // ✅ Lấy BHYT từ DB
             }
         });
       });
