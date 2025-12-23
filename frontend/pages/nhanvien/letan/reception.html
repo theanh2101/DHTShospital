@@ -223,10 +223,10 @@ tbody tr:hover { background-color: #f8fafc; }
     background: var(--bg-card);
     padding: 30px;
     width: 100%;
-    max-width: 450px; /* Tăng chiều rộng một chút cho modal list */
+    max-width: 450px;
     border-radius: 12px;
     position: relative;
-    max-height: 90vh; /* Tránh tràn màn hình */
+    max-height: 90vh;
     overflow-y: auto;
 }
 .close-btn {
@@ -245,7 +245,7 @@ tbody tr:hover { background-color: #f8fafc; }
     justify-content: space-between;
 }
 
-/* ================= CSS MỚI (CHO DANH SÁCH BỆNH NHÂN) ================= */
+/* ================= CSS MỚI ================= */
 .list-group {
     display: flex;
     flex-direction: column;
@@ -322,8 +322,7 @@ tbody tr:hover { background-color: #f8fafc; }
         <span class="close-btn" onclick="closeSelectModal()">×</span>
         <h3 style="margin-top:0;">Kết quả tìm kiếm</h3>
         <p>Tìm thấy nhiều hồ sơ với SĐT này. Vui lòng chọn:</p>
-        <div class="list-group" id="userListContainer">
-            </div>
+        <div class="list-group" id="userListContainer"></div>
     </div>
 </div>
 
@@ -365,7 +364,7 @@ tbody tr:hover { background-color: #f8fafc; }
     </div>
 
     <div class="card">
-        <h3>Danh sách lịch hẹn hôm nay</h3>
+        <h3>Danh sách hồ sơ</h3>
         <div class="table-responsive">
             <table id="tableDatLich">
                 <thead>
@@ -420,6 +419,7 @@ const dia_chi = document.getElementById("dia_chi");
 const ly_do = document.getElementById("ly_do");
 
 let currentLetanId = null;
+let currentOnlineId = null; // [MỚI] Lưu ID Online để xóa sau
 
 // 1. Khởi tạo User ID từ LocalStorage
 const userString = localStorage.getItem("user");
@@ -427,40 +427,32 @@ if (userString) {
     try {
         const userObject = JSON.parse(userString);
         currentLetanId = userObject.id_letan || userObject.id; 
-    } catch (e) {
-        console.error("Lỗi parse JSON user:", e);
-    }
+    } catch (e) { console.error("Lỗi parse JSON user:", e); }
 }
 
-// 2. HÀM MỞ MODAL INFO & LẤY DỮ LIỆU TỪ SERVER (ĐÃ SỬA)
+// 2. MODAL INFO
 async function openInfo() {
     document.getElementById("infoModal").style.display = "flex";
-
     if (userString) {
         const u = JSON.parse(userString);
         document.getElementById("lt_tk").textContent = u.username || 'N/A';
     }
-
     if (currentLetanId) {
         try {
             const res = await fetch(`${API_URL}/letan/${currentLetanId}`);
             if (!res.ok) throw new Error("Không thể tải thông tin");
-            
             const data = await res.json();
-            
             document.getElementById("lt_hoten").textContent = data.ho_ten || 'Chưa cập nhật';
             document.getElementById("lt_sdt").textContent = data.phone || 'Chưa cập nhật';
             document.getElementById("lt_email").textContent = data.email || 'Chưa cập nhật';
-            document.getElementById("lt_diachi").textContent = data.diachi || 'Chưa cập nhật'; // Dòng này quan trọng
+            document.getElementById("lt_diachi").textContent = data.diachi || 'Chưa cập nhật';
             document.getElementById("lt_id").textContent = data.id_letan || 'N/A';
-
         } catch (err) {
             console.error("Lỗi tải profile:", err);
             document.getElementById("lt_hoten").textContent = "Lỗi tải dữ liệu";
         }
     }
 }
-
 function closeInfo() { document.getElementById("infoModal").style.display = "none"; }
 
 // 3. Load danh sách Khoa
@@ -485,12 +477,11 @@ async function loadDoctors() {
     : '<option value="">Không có bác sĩ</option>';
 }
 
-// Event change để load bác sĩ
 id_khoaEl.addEventListener("change", loadDoctors);
 ngay_kham.addEventListener("change", loadDoctors);
 ca_kham.addEventListener("change", loadDoctors);
 
-// 5. CHECK-IN LOGIC (ĐÃ NÂNG CẤP XỬ LÝ NHIỀU NGƯỜI)
+// 5. CHECK-IN LOGIC
 async function checkinByPhone() {
     const phone = document.getElementById("checkin_sdt").value.trim();
     if (!phone) return alert("Vui lòng nhập SĐT!");
@@ -503,25 +494,22 @@ async function checkinByPhone() {
         const json = await res.json();
 
         if(!json.success || json.count === 0) {
-            // Không tìm thấy -> Tự động điền SĐT và cho tạo mới
-            alert("SĐT chưa có trong hệ thống. Vui lòng nhập thông tin mới.");
+            alert("SĐT chưa có trong hệ thống hoặc không có lịch Online chờ. Vui lòng nhập thông tin mới.");
             document.getElementById("form-hoso").reset();
             sdt.value = phone;
+            currentOnlineId = null;
             return;
         }
 
-        // NẾU CÓ NHIỀU KẾT QUẢ -> HIỆN MODAL CHỌN
         if(json.count > 1) {
             showSelectModal(json.data);
         } else {
-            // NẾU CHỈ CÓ 1 KẾT QUẢ -> ĐIỀN LUÔN
             fillForm(json.data[0]);
         }
-
     } catch(e) { console.error(e); alert("Lỗi Server"); }
 }
 
-// 6. HÀM HIỂN THỊ MODAL CHỌN
+// 6. SHOW SELECT MODAL
 function showSelectModal(list) {
     const container = document.getElementById("userListContainer");
     container.innerHTML = "";
@@ -547,7 +535,7 @@ function showSelectModal(list) {
         container.appendChild(div);
     });
     
-    // Thêm nút "Tạo người mới"
+    // Nút tạo mới
     const createNewBtn = document.createElement("div");
     createNewBtn.className = "list-item";
     createNewBtn.style.border = "1px dashed #0284c7";
@@ -556,52 +544,57 @@ function showSelectModal(list) {
     createNewBtn.onclick = () => {
         document.getElementById("form-hoso").reset();
         sdt.value = document.getElementById("checkin_sdt").value;
+        currentOnlineId = null;
         closeSelectModal();
     };
     container.appendChild(createNewBtn);
-
     document.getElementById("selectUserModal").style.display = "flex";
 }
-
 function closeSelectModal() { document.getElementById("selectUserModal").style.display = "none"; }
 
-// 7. HÀM ĐIỀN FORM TỰ ĐỘNG
+// 7. FILL FORM
 async function fillForm(item) {
     const d = item.raw_data;
+    
+    // Reset ID trước
+    currentOnlineId = null;
+
     ho_ten.value = d.ho_ten || '';
     sdt.value = d.sdt || '';
     email.value = d.email || '';
     dia_chi.value = d.dia_chi || '';
     gioi_tinh.value = d.gioi_tinh || 'Nam';
-    ngay_sinh.value = d.ngay_sinh || '';
+    ngay_sinh.value = d.ngay_sinh || ''; // Ngày đã được format chuẩn YYYY-MM-DD từ server
 
-    // Nếu là Lịch Online -> Điền luôn thông tin khám
+    // Nếu là Lịch Online
     if(item.type === 'ONLINE') {
+        currentOnlineId = d.id_datlich_online; // [QUAN TRỌNG] Lưu ID để gửi đi
+
         if(d.id_khoa) id_khoaEl.value = d.id_khoa;
-        if(d.ngay) ngay_kham.value = d.ngay;
+        if(d.ngay) ngay_kham.value = d.ngay; // Ngày chuẩn
         if(d.ca_kham) ca_kham.value = d.ca_kham;
         ly_do.value = d.ly_do || '';
         
-        // Phải await loadDoctors xong mới gán id_bacsi
         await loadDoctors();
         if(d.id_bacsi) id_bacsiEl.value = d.id_bacsi;
         
-        alert(`Đã tìm thấy lịch Online!\nBệnh nhân: ${d.ho_ten}`);
+        alert(`Đã chọn lịch Online của: ${d.ho_ten}`);
     } else {
-        // Nếu là bệnh nhân cũ -> Reset phần khám để chọn mới
+        // Bệnh nhân cũ
         ly_do.value = '';
         id_khoaEl.value = '';
         ngay_kham.value = '';
         ca_kham.value = '';
         id_bacsiEl.innerHTML = '<option value="" disabled selected>-- Chọn khoa, ngày & ca --</option>';
-        alert(`Đã tải hồ sơ cũ: ${d.ho_ten}. Vui lòng chọn khoa khám.`);
+        alert(`Đã tải hồ sơ cũ: ${d.ho_ten}.`);
     }
 }
 
-// 8. Submit Form
+// 8. SUBMIT FORM
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!id_bacsiEl.value) return alert("Vui lòng chọn bác sĩ");
+    
     const payload = {
         ho_ten: ho_ten.value,
         gioi_tinh: gioi_tinh.value,
@@ -614,7 +607,8 @@ form.addEventListener("submit", async (e) => {
         ngay: ngay_kham.value,
         ca_kham: ca_kham.value,
         ly_do: ly_do.value,
-        id_letan: currentLetanId
+        id_letan: currentLetanId,
+        id_datlich_online: currentOnlineId // [MỚI] Gửi ID này lên
     };
 
     const res = await fetch(`${API_URL}/datlichletan/create`, {
@@ -626,14 +620,17 @@ form.addEventListener("submit", async (e) => {
     if (data.success) {
         alert("Tạo hồ sơ thành công!");
         form.reset();
+        currentOnlineId = null; // Reset
         id_bacsiEl.innerHTML = '<option value="" disabled selected>-- Chọn khoa, ngày & ca --</option>';
         loadDatLich();
+        // Xóa SĐT ở ô tìm kiếm cho gọn
+        document.getElementById("checkin_sdt").value = "";
     } else alert(data.message || "Tạo thất bại");
 });
 
 // 9. Load danh sách hôm nay
 async function loadDatLich() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD theo local time
     const res = await fetch(`${API_URL}/datlichletan?ngay=${today}`);
     const json = await res.json();
     const tbody = document.querySelector("#tableDatLich tbody");
@@ -647,14 +644,13 @@ async function loadDatLich() {
             <td>${d.sdt_benhnhan||''}</td>
             <td>${d.ten_khoa||''}</td>
             <td>${d.ten_bacsi||''}</td>
-            <td>${d.ngay||''}</td>
+            <td>${d.ngay ? new Date(d.ngay).toLocaleDateString('vi-VN') : ''}</td>
             <td><span style="background:#e0f2fe; color:#0284c7; padding:2px 8px; border-radius:4px; font-size:12px;">${d.ca_kham||''}</span></td>
             <td>${d.trang_thai||''}</td>
         </tr>
     `).join("");
 }
 
-// Init
 loadKhoa();
 loadDatLich();
 </script>
