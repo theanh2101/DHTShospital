@@ -41,9 +41,6 @@ ORDER BY
     date;
         `.trim();
 
-        console.log("[SQL Query]:", query);
-        console.log("[SQL Params]:", params); 
-
         // ⚠️ THAY THẾ 'db.query' bằng hàm thực thi CSDL của bạn
         const [rows] = await db.query(query, params); 
         
