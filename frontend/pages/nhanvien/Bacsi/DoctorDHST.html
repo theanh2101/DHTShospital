@@ -4,614 +4,314 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bảng điều khiển bác sĩ - Healthcare</title>
+    <title>Hệ thống Quản lý Bác sĩ - Medical Pro</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* --- 1. CORE VARIABLES & RESET --- */
+        /* --- CORE VARIABLES --- */
         :root {
-            --primary: #007bff;          /* Xanh dương chủ đạo */
-            --primary-dark: #0056b3;     /* Xanh đậm khi hover */
-            --primary-light: #e6f2ff;    /* Nền xanh rất nhạt */
-            --bg-body: #f4f7fa;          /* Màu nền tổng thể xám xanh */
-            --white: #ffffff;
-            --text-main: #000000;        /* Màu chữ chính */
-            --text-muted: #000000;       /* Màu chữ phụ */
-            --danger: #dc3545;           /* Màu đỏ (nút hủy/đăng xuất) */
-            --warning: #ffc107;
-            --success: #28a745;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-            --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
-            --radius: 12px;              
+            --primary: #007bff; --primary-dark: #0056b3; --primary-light: #eff6ff;
+            --bg-body: #f1f5f9; --white: #ffffff; --text-main: #1e293b; --text-muted: #64748b;
+            --border: #e2e8f0; --radius: 10px; --shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 14px; height: 100vh; overflow: hidden; }
+        .layout { display: flex; height: 100vh; }
 
-        body {
-            margin: 0;
-            font-family: 'Inter', "Segoe UI", Arial, sans-serif;
-            background: var(--bg-body);
-            color: var(--text-main);
-            font-size: 16px;
-            line-height: 1.5;
-        }
-
-        /* --- 2. LAYOUT & SIDEBAR --- */
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        aside {
-            width: 280px;
-            background: var(--white);
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.03);
-            z-index: 10;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo img { width: 140px; }
-
-        .doctor-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border-radius: var(--radius);
-            background: var(--primary-light);
-            margin-bottom: 30px;
-            transition: transform 0.2s;
-        }
-        .doctor-info:hover { transform: translateY(-2px); }
-
-        .doctor-info img {
-            width: 55px; height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--white);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .doctor-info .name { font-weight: 700; color: var(--primary-dark); font-size: 15px; }
-        .doctor-info .muted { font-size: 13px; color: var(--text-muted); }
-
-        /* Navigation */
+        /* --- SIDEBAR --- */
+        aside { width: 260px; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 10; }
+        .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; font-size: 18px; font-weight: 800; color: var(--primary); }
+        .doctor-card { text-align: center; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; background: linear-gradient(to bottom, #f8fafc, #fff); border-radius: 8px; }
+        .doctor-card img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--white); box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
         nav ul { list-style: none; padding: 0; margin: 0; }
-        
-        nav a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            border-radius: 10px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 8px;
-            transition: all 0.2s ease;
-        }
+        nav li { margin-bottom: 5px; }
+        nav a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--text-muted); text-decoration: none; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        nav a:hover { background: var(--bg-body); color: var(--primary); }
+        nav a.active { background: var(--primary); color: var(--white); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15); }
 
-        nav a:hover { background: #f8f9fa; color: var(--primary); }
-        
-        nav a.active {
-            background: var(--primary);
-            color: var(--white);
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-        }
-
-        /* Sidebar Footer (Buttons) */
-        .sidebar-footer {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-
-        .btn-group-action {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Chia đôi không gian */
-            gap: 10px;
-        }
-
-        /* --- 3. MAIN CONTENT --- */
-        main {
-            flex: 1;
-            padding: 30px 40px;
-            overflow-y: auto;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        header h1 {
-            margin: 0;
-            color: var(--primary-dark);
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        /* Sections & Cards */
-        .section {
-            background: var(--white);
-            padding: 25px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
+        /* --- MAIN --- */
+        main { flex: 1; padding: 30px; overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .section { background: var(--white); padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-danger { background: var(--danger); color: white; }
 
-        h3 { margin-top: 0; color: var(--text-main); font-weight: 700; border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-bottom: 20px; }
+        /* --- PROFILE --- */
+        .profile-container { display: grid; grid-template-columns: 280px 1fr; gap: 40px; }
+        .profile-left { text-align: center; border-right: 1px solid var(--border); padding-right: 30px; }
+        .avatar-wrapper { position: relative; width: 160px; height: 160px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 5px solid #fff; box-shadow: var(--shadow); }
+        .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; color: white; font-size: 24px; cursor: pointer; }
+        .profile-container.editing .avatar-overlay { opacity: 1; pointer-events: auto; }
+        .profile-grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 30px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
+        .profile-input { width: 100%; padding: 8px 0; border: none; border-bottom: 1px solid transparent; background: transparent; font-size: 15px; color: var(--text-main); font-weight: 500; pointer-events: none; }
+        .profile-container.editing .profile-input { padding: 8px 12px; border: 1px solid var(--primary); border-radius: 6px; background: #fff; pointer-events: auto; }
 
-        /* --- 4. TABLE STYLES --- */
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 15px;
-        }
+        /* --- STATS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: #fff; padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-info h4 { margin: 0 0 5px 0; color: var(--text-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .stat-info .value { font-size: 28px; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .stat-icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .bg-blue { background: #e0f2fe; color: #0284c7; } .bg-green { background: #dcfce7; color: #16a34a; } .bg-orange { background: #ffedd5; color: #ea580c; }
+        
+        /* --- TABLE --- */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; }
+        thead th { background: #f8fafc; color: var(--text-muted); padding: 15px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+        tbody td { padding: 15px; border-bottom: 1px solid var(--border); }
+        .status { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .status.cho_xac_nhan { background: #fff7ed; color: #c2410c; } .status.da_checkin { background: #eff6ff; color: #1d4ed8; } .status.dang_kham { background: #fef9c3; color: #a16207; border: 1px solid #fde047; } .status.hoan_thanh { background: #f0fdf4; color: #15803d; }
 
-        thead th {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 15px;
-            text-align: left;
-            font-weight: 700;
-            border-bottom: 2px solid var(--white);
-        }
-        thead th:first-child { border-top-left-radius: 8px; }
-        thead th:last-child { border-top-right-radius: 8px; }
+        /* History Style */
+        .history-item { padding: 10px; border-bottom: 1px dashed #ccc; cursor: pointer; transition: 0.2s; border-radius: 6px; }
+        .history-item:hover { background: #e0f2fe; }
+        .history-item:last-child { border-bottom: none; }
 
-        tbody td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            color: #444;
-            vertical-align: middle;
-        }
-
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: #fafbff; }
-
-        /* Status Badges */
-        .status {
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: capitalize;
-            display: inline-block;
-            min-width: 90px;
-            text-align: center;
-        }
-        .status.cho_xac_nhan { background: #fff8e1; color: #b78a02; }
-        .status.da_ta_ho_so { background: #e3f2fd; color: #1565c0; }
-        .status.da_checkin { background: #e0f7fa; color: #006064; }
-        .status.dang_kham { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .status.da_kham, .status.hoan_thanh { background: #e8f5e9; color: #2e7d32; }
-        .status.huy { background: #ffebee; color: #c62828; }
-
-        /* --- 5. FORMS & INPUTS --- */
-        .filter {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        input[type="text"], input[type="date"], input[type="number"], select, textarea {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            background: #fff;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
-        }
-
-        /* --- 6. BUTTONS --- */
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-secondary:hover { background: #5a6268; }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-            width: 100%; /* Full width in sidebar */
-        }
-        .btn-danger:hover { background: #bd2130; }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #dee2e6;
-            color: var(--text-main);
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            width: 100%;
-            text-align: center;
-        }
-        .btn-outline:hover { background: #e9ecef; border-color: #cbd3da; }
-
-        a.name-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            position: relative;
-        }
-        a.name-link:hover { text-decoration: underline; }
-
-        /* --- 7. MODAL --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px); /* Hiệu ứng mờ nền hiện đại */
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            width: 900px;
-            max-width: 95vw;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .close {
-            float: right;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #aaa;
-            background: #f1f3f5;
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .close:hover { color: #000; background: #e9ecef; }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 25px;
-            padding: 25px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            border: 1px solid #e9ecef;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
+        /* --- MODAL --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 950px; max-width: 95vw; height: 90vh; border-radius: 12px; display: flex; flex-direction: column; }
+        .modal-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+        .modal-body { padding: 25px; overflow-y: auto; flex: 1; }
+        .modal-footer { padding: 15px 25px; border-top: 1px solid var(--border); text-align: right; }
+        .patient-highlight { background: var(--primary-light); padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border: 1px solid #bfdbfe; }
+        .modal-grid { display: grid; grid-template-columns: 4fr 6fr; gap: 30px; }
+        textarea, .modal input, .modal select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; }
+        
+        /* STYLE CHO READONLY INPUT */
+        .modal input[readonly], .modal select[disabled] { 
+            background: #fff; color: #000; cursor: default; border-color: #e2e8f0; opacity: 1;
         }
         
-        .patient-name-highlight {
-            color: var(--primary-dark);
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-
+        /* History Detail Modal */
+        .history-read-only-content label { color: var(--primary); font-weight: 700; margin-top: 10px; display: block; }
+        .history-read-only-content .field-value { padding: 10px; background: #f8fafc; border: 1px solid #eee; border-radius: 6px; margin-bottom: 10px; }
     </style>
 </head>
 
 <body>
     <div class="layout">
         <aside>
-            <div>
-                <div class="logo">
-                    <img src="logo.jpg" alt="logo">
-                </div>
-                
-                <div class="doctor-info">
-                    <img id="doctorAvatar" src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="avatar">
-                    <div>
-                        <div class="name" id="doctorName">Đang tải...</div>
-                        <div class="muted" id="doctorKhoa">...</div>
-                    </div>
-                </div>
-
-                <nav>
-                    <ul>
-                        <li><a class="active" onclick="showSection('lich', this)">📅 Lịch & Bệnh nhân</a></li>
-                        <li><a onclick="showSection('hoso', this)">🩺 Hồ sơ cá nhân</a></li>
-                        <li><a onclick="showSection('thongke', this)">📊 Thống kê</a></li>
-                    </ul>
-                </nav>
+            <div class="brand"><i class="fa-solid fa-hospital-user"></i> MEDIC PRO</div>
+            <div class="doctor-card">
+                <img id="doctorAvatar" src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png">
+                <div style="font-weight: 700; color: #334155;" id="doctorName">Đang tải...</div>
+                <div style="font-size: 12px; color: #64748b;" id="doctorKhoa">...</div>
             </div>
-
-            <div class="sidebar-footer">
-                <div class="btn-group-action">
-                    <button class="btn-outline" onclick="window.location.href='../change-password.html'" title="Đổi mật khẩu">
-                        🔑 Đổi MK
-                    </button>
-                    <button class="btn-danger" onclick="logout()" title="Đăng xuất">
-                        🚪 Thoát
-                    </button>
-                </div>
-                <div style="font-size: 12px; color: #999; text-align: center; margin-top: 5px;">Version 1.2.0</div>
+            <nav>
+                <ul>
+                    <li><a class="active" onclick="showSection('lich', this)"><i class="fa-regular fa-calendar-check"></i> Lịch & Bệnh nhân</a></li>
+                    <li><a onclick="showSection('hoso', this)"><i class="fa-solid fa-user-doctor"></i> Hồ sơ cá nhân</a></li>
+                    <li><a onclick="showSection('thongke', this)"><i class="fa-solid fa-chart-line"></i> Báo cáo tổng hợp</a></li>
+                </ul>
+            </nav>
+            <div style="margin-top: auto;">
+                <button class="btn btn-outline" style="width: 100%; margin-bottom: 10px;" onclick="window.location.href='../change-password.html'"><i class="fa-solid fa-key"></i> Đổi mật khẩu</button>
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</button>
             </div>
         </aside>
 
         <main>
             <header>
                 <div>
-                    <h1>Bảng điều khiển bác sĩ</h1>
-                    <div class="muted" style="color: #000000; margin-top: 5px;" id="doctorGreeting">Xin chào</div>
+                    <h1 id="pageTitle" style="color: #0f172a; margin: 0;">Lịch khám bệnh</h1>
+                    <div style="color: #64748b; font-size: 13px; margin-top: 5px;" id="doctorGreeting">Xin chào</div>
                 </div>
-                <div style="font-size: 14px; background: #fff; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    🗓️ Hôm nay: <b id="currentDateDisplay">...</b>
-                </div>
+                <div style="background: white; padding: 8px 15px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px;"><i class="fa-regular fa-clock"></i> Hôm nay: <b id="currentDateDisplay">...</b></div>
             </header>
 
-            <section id="lich" class="section">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-bottom: 20px;">
-                    <h3 style="border:none; margin:0; padding:0;">📅 Danh sách bệnh nhân</h3>
-                    <div class="filter" style="margin:0; padding: 5px 10px; background: transparent;">
-                        <input type="date" id="filterDate" onchange="loadSchedule(this.value)">
-                        <button class="btn-primary" onclick="loadSchedule(document.getElementById('filterDate').value)">🔄 Làm mới</button>
+            <section id="lich" style="display: block;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info"><h4>Tổng số hôm nay</h4><div class="value" id="todayTotal">0</div></div>
+                        <div class="stat-icon-box bg-blue"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info"><h4>Chờ khám</h4><div class="value" id="todayWaiting">0</div></div>
+                        <div class="stat-icon-box bg-orange"><i class="fa-solid fa-hourglass-half"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info"><h4>Đã hoàn thành</h4><div class="value" id="todayDone">0</div></div>
+                        <div class="stat-icon-box bg-green"><i class="fa-solid fa-check-double"></i></div>
                     </div>
                 </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 100px;">STT</th>
-                            <th style="width: 200px;">Mã BN</th>
-                            <th>Tên bệnh nhân</th>
-                            <th style="width: 220px;">Ngày khám</th>
-                            <th style="width: 100px;"></th>
-                            <th style="width: 150px; text-align: center;">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lichTableBody">
-                        <tr>
-                            <td colspan="6" class="muted" style="text-align: center; padding: 30px;">Đang tải dữ liệu...</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+                <div class="section">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 20px;">
+                        <h3 style="margin:0; font-size:16px;">Danh sách bệnh nhân</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="date" id="filterDate" onchange="loadSchedule(this.value)" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                            <button class="btn btn-primary" onclick="loadSchedule(document.getElementById('filterDate').value)"><i class="fa-solid fa-rotate"></i> Làm mới</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th style="width: 50px;">#</th><th style="width: 150px;">Mã BN</th><th>Tên bệnh nhân</th><th>Ngày khám</th><th>Giờ hẹn</th><th style="text-align: center;">Trạng thái</th><th style="width: 100px;">Thao tác</th></tr></thead>
+                        <tbody id="lichTableBody"><tr><td colspan="7" style="text-align: center; padding: 30px; color: #999;">Đang tải dữ liệu...</td></tr></tbody>
+                    </table>
+                </div>
             </section>
 
             <section id="hoso" class="section" style="display:none">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3 style="border:none; margin:0; padding:0;">🩺 Thông tin cá nhân</h3>
+                <div style="display:flex; justify-content:space-between; padding-bottom: 15px; margin-bottom: 25px; border-bottom: 1px solid var(--border);">
+                    <h3 style="margin:0;"><i class="fa-solid fa-id-card" style="color:var(--primary);"></i> Thông tin hồ sơ</h3>
                     <div>
-                        <button class="btn-primary" id="editBtn" onclick="toggleEdit(true)">✏️ Chỉnh sửa</button>
-                        <button class="btn-success" id="saveBtn" style="display:none; padding: 10px 18px; border:none; border-radius:8px; color:white; font-weight:600; cursor:pointer;" onclick="saveDoctorProfile()">💾 Lưu lại</button>
-                        <button class="btn-secondary" id="cancelBtn" style="display:none;" onclick="toggleEdit(false)">❌ Hủy</button>
+                        <button class="btn btn-primary" id="editBtn" onclick="toggleEdit(true)"><i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa</button>
+                        <div id="actionButtons" style="display:none; gap:10px;">
+                            <button class="btn btn-primary" style="background:var(--success);" onclick="saveDoctorProfile()"><i class="fa-solid fa-floppy-disk"></i> Lưu lại</button>
+                            <button class="btn btn-outline" style="border-color:var(--danger); color:var(--danger);" onclick="toggleEdit(false)"><i class="fa-solid fa-xmark"></i> Hủy</button>
+                        </div>
                     </div>
                 </div>
-                
-                <table id="hosoTable">
-                    <tbody>
-                        <tr><td style="width: 200px;"><b>Họ tên:</b></td><td><input id="hosoName" readonly></td></tr>
-                        <tr><td><b>Học vị:</b></td><td><input id="hosoHocVi" readonly></td></tr>
-                        <tr><td><b>Chuyên môn:</b></td><td><input id="hosoChuyenMon" readonly></td></tr>
-                        <tr><td><b>Kinh nghiệm (năm):</b></td><td><input type="number" id="hosoExp" readonly></td></tr>
-                        <tr><td><b>Email:</b></td><td><input type="text" id="hosoEmail" readonly></td></tr>
-                        <tr><td><b>Điện thoại:</b></td><td><input type="text" id="hosoPhone" readonly></td></tr>
-                    </tbody>
-                </table>
+                <div class="profile-container" id="profileContainer">
+                    <div class="profile-left">
+                        <div class="avatar-wrapper">
+                            <img id="profileAvatarDisplay" src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png">
+                            <label for="avatarUpload" class="avatar-overlay" title="Thay đổi ảnh"><i class="fa-solid fa-camera"></i></label>
+                        </div>
+                        <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="previewImage(this)">
+                        <div style="font-weight:700; font-size:16px;" id="displayNameLabel">...</div>
+                        <div style="font-size:13px; color:#999;" id="displayRoleLabel">...</div>
+                    </div>
+                    <div class="profile-right">
+                        <div class="profile-grid-form">
+                            <div class="form-group"><label>Họ và tên</label><input type="text" class="profile-input" id="hosoName" readonly></div>
+                            <div class="form-group"><label>Học vị</label><input type="text" class="profile-input" id="hosoHocVi" readonly></div>
+                            <div class="form-group"><label>Chuyên khoa</label><input type="text" class="profile-input" id="hosoChuyenMon" readonly></div>
+                            <div class="form-group"><label>Kinh nghiệm (năm)</label><input type="number" class="profile-input" id="hosoExp" readonly></div>
+                            <div class="form-group"><label>Email</label><input type="email" class="profile-input" id="hosoEmail" readonly></div>
+                            <div class="form-group"><label>Điện thoại</label><input type="text" class="profile-input" id="hosoPhone" readonly></div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
-            <section id="thongke" class="section" style="display:none">
-                <h3>📊 Thống kê hoạt động</h3>
-                <div id="thongkeData" class="muted">Đang tải...</div>
+            <section id="thongke" style="display:none;">
+                <div class="section">
+                    <h3 style="margin-bottom:20px;">📊 Phân tích xu hướng (Tháng này)</h3>
+                    <div class="charts-wrapper" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                        <div style="background: #fff; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+                            <canvas id="patientTrendChart" height="150"></canvas>
+                        </div>
+                        <div style="background: #fff; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+                            <canvas id="statusPieChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
 
     <div class="modal" id="patientModal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2 style="color: var(--primary-dark); border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-top: 0;">
-                Hồ sơ bệnh án <span style="font-weight: 400; font-size: 0.8em; color: #777;">(Mã: <span id="patientIdHeader">...</span>)</span>
-            </h2>
-            
-            <form id="patientForm" onsubmit="return false;">
-                <div class="form-grid">
-                    <div>
-                        <div class="form-group">
-                            <label>Tên bệnh nhân</label>
-                            <div class="patient-name-highlight" id="patientName">Đang tải...</div>
+            <div class="modal-header">
+                <div><h3 style="margin:0; font-size: 18px; color: var(--primary-dark);">Bệnh án điện tử</h3><span style="font-size: 12px; color: #666;">Mã lượt khám: <span id="modalDatLichId">...</span></span></div>
+                <button onclick="closeModal('patientModal')" style="border:none; background:transparent; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="patientForm" onsubmit="return false;">
+                    <div class="patient-highlight">
+                        <div>
+                            <div style="font-size:11px; color:#666; text-transform:uppercase; font-weight:700;">Bệnh nhân</div>
+                            <div id="patientName" style="font-size: 20px; font-weight: 700; color: #0f172a;">...</div>
+                            <div style="display:flex; gap:10px; font-size:13px; margin-top:5px;"><span><i class="fa-solid fa-phone"></i> <span id="patientPhone">...</span></span><span>|</span><span>Mã BN: <span id="patientIdHeader">...</span></span></div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="patientGender">Giới tính</label>
-                            <select id="patientGender">
-                                <option value="Nam">Nam</option>
-                                <option value="Nu">Nữ</option>
-                                <option value="Khac">Khác</option>
-                            </select>
+                        <div style="text-align: right;"><div style="font-weight:bold; color:var(--primary);">Ngày khám: <span id="appointmentDate">...</span></div></div>
+                    </div>
+                    <div class="modal-grid">
+                        <div>
+                            <h4 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-top:0;">1. Thông tin chung</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label>Giới tính</label>
+                                    <select id="patientGender" disabled>
+                                        <option value="Nam">Nam</option><option value="Nu">Nữ</option><option value="Khac">Khác</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Ngày sinh</label>
+                                    <input type="date" id="patientDOB" readonly>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label>Địa chỉ</label>
+                                <input type="text" id="patientAddress" readonly>
+                            </div>
+                            
+                            <div id="historySection">
+                                <h4 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">2. Lịch sử khám cũ</h4>
+                                <div id="historyList" style="background: #fff; border: 1px solid #ddd; border-radius: 6px; max-height: 200px; overflow-y: auto;"></div>
+                            </div>
                         </div>
-                
-                        <div class="form-group">
-                            <label for="patientDOB">Ngày sinh</label>
-                            <input type="date" id="patientDOB">
+
+                        <div>
+                            <h4 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-top:0;">3. Kết quả khám lâm sàng</h4>
+                            <div style="margin-bottom:15px;"><label>Triệu chứng</label><textarea id="trieuchung" rows="2"></textarea></div>
+                            <div style="margin-bottom:15px;"><label style="color:var(--primary);">Chẩn đoán bệnh</label><textarea id="chuandoan" rows="2"></textarea></div>
+                            <div style="margin-bottom:15px;"><label>Ghi chú / Lời dặn</label><textarea id="ghichu" rows="2"></textarea></div>
                         </div>
                     </div>
                     
-                    <div>
-                        <div class="form-group">
-                            <label>Số điện thoại</label>
-                            <div style="font-weight: 600; padding: 10px 0; border-bottom: 1px dashed #ccc;" id="patientPhone">...</div>
+                    <div style="margin-top: 25px; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+                        <div style="background: #f8fafc; padding: 10px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #eee;">
+                            <h4 style="margin:0;">💊 Chỉ định thuốc</h4>
+                            <div><button type="button" class="btn btn-outline" onclick="addPrescriptionRow()" style="padding: 5px 10px; font-size: 12px;">+ Thêm thuốc</button></div>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="patientAddress">Địa chỉ</label>
-                            <input type="text" id="patientAddress" placeholder="Nhập địa chỉ...">
-                        </div>
-                        
-                        <div class="form-group" style="margin-top: 15px; padding: 10px; background: #e6f2ff; border-radius: 8px; border: 1px solid #b3d7ff;">
-                            <label style="color: var(--primary); margin-bottom: 0;">Ngày khám:</label>
-                            <span id="appointmentDate" style="color:var(--primary-dark); font-weight:bold; margin-left: 10px;">...</span>
-                        </div>
+                        <table id="prescriptionTable" style="margin:0; width:100%;"><thead style="background: #fff;"><tr><th style="width: 35%;">Tên thuốc</th><th style="width: 20%;">Liều lượng</th><th style="width: 10%;">SL</th><th style="width: 25%;">Cách dùng</th><th style="width: 10%;"></th></tr></thead><tbody id="prescriptionTableBody"></tbody></table>
                     </div>
-                </div> <div style="margin-bottom: 25px; padding: 15px; background: #fff; border: 1px solid #e9ecef; border-radius: 12px;">
-                    <h4 style="margin: 0 0 10px 0; color: var(--primary); display:flex; align-items:center; gap:8px;">
-                        <span>📜 Lịch sử khám bệnh gần đây</span>
-                    </h4>
-                    <div id="historyList" style="max-height: 150px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 13px; border: 1px solid #dee2e6;">
-                        <div class="muted" style="text-align:center; padding:10px;">Đang tải dữ liệu...</div>
-                    </div>
-                </div>
-                <div style="border-top: 4px solid #f0f2f5; padding-top: 25px;">
-                    <h3 style="color: var(--primary); border-bottom: none;">🩺 Kết quả chẩn đoán</h3>
-
-                    <div class="form-group">
-                        <label for="trieuchung">Triệu chứng lâm sàng</label>
-                        <textarea id="trieuchung" rows="2" placeholder="Mô tả triệu chứng..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="chuandoan">Chẩn đoán bệnh</label>
-                        <textarea id="chuandoan" rows="2" placeholder="Kết luận chẩn đoán..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ketquaxetnghiem">Kết quả xét nghiệm (nếu có)</label>
-                        <textarea id="ketquaxetnghiem" rows="2" placeholder="Chi tiết kết quả..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ghichu">Ghi chú / Dặn dò</label>
-                        <textarea id="ghichu" rows="2" placeholder="Lời dặn của bác sĩ..."></textarea>
-                    </div>
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: var(--primary); display: flex; justify-content: space-between; align-items: center; border-bottom: none; margin-bottom: 10px;">
-                        <span>💊 Toa thuốc</span>
-                        <button type="button" class="btn-primary" onclick="addPrescriptionRow()" style="background: var(--success); font-size: 13px;">➕ Thêm dòng</button>
-                    </h3>
-                    <div style="background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
-                        <table id="prescriptionTable" style="margin: 0;">
-                            <thead>
-                                <tr>
-                                    <th style="width: 30%; background: #f8f9fa;">Tên thuốc</th>
-                                    <th style="width: 20%; background: #f8f9fa;">Liều lượng</th>
-                                    <th style="width: 15%; background: #f8f9fa;">Số ngày</th>
-                                    <th style="width: 25%; background: #f8f9fa;">Cách dùng</th>
-                                    <th style="width: 10%; background: #f8f9fa; text-align: center;">Xóa</th>
-                                </tr>
-                            </thead>
-                            <tbody id="prescriptionTableBody"></tbody>
-                        </table>
-                    </div>
-                    <div style="text-align: right; margin-top: 10px;">
-                        <button type="button" class="btn-primary" onclick="savePrescription()" style="background: var(--primary-dark);">💾 Lưu riêng toa thuốc</button>
-                    </div>
-                </div>
-                    <div style="text-align: right; margin-top: 30px;">
-                        <button type="button" class="btn-primary" onclick="saveMedicalRecord()" style="padding: 12px 30px; font-size: 16px; box-shadow: 0 4px 15px rgba(0,123,255,0.4);">
-                            💾 LƯU BỆNH ÁN & HOÀN TẤT
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveMedicalRecord()" style="padding: 12px 25px;"><i class="fa-solid fa-check"></i> HOÀN TẤT KHÁM</button></div>
         </div>
     </div>
 
-    <script>
-        // --- 1. BIẾN TOÀN CỤC & KHỞI TẠO ---
+    <div class="modal" id="historyDetailModal" style="z-index: 200;">
+        <div class="modal-content" style="width: 600px; height: auto; max-height: 90vh;">
+            <div class="modal-header" style="background: #e0f2fe;">
+                <div><h3 style="margin:0; color: #0284c7;">Chi tiết lần khám cũ</h3><span style="font-size:12px; color:#555;">Ngày khám: <span id="histDate" style="font-weight:bold;">...</span></span></div>
+                <button onclick="closeModal('historyDetailModal')" style="border:none; background:transparent; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body history-read-only-content">
+                <label>Bác sĩ khám</label><div id="histDoctor" class="field-value">...</div>
+                <label>Triệu chứng</label><div id="histSymptom" class="field-value">...</div>
+                <label>Chẩn đoán</label><div id="histDiagnosis" class="field-value" style="color:#d32f2f; font-weight:bold;">...</div>
+                <label>Lời dặn</label><div id="histNote" class="field-value">...</div>
+                <label>Toa thuốc đã kê</label>
+                <table style="width:100%; margin-top:5px; border:1px solid #eee;">
+                    <thead style="background:#f1f5f9;"><tr><th style="padding:8px;">Tên thuốc</th><th style="padding:8px;">Thời gian (ngày)</th><th style="padding:8px;">Cách dùng</th></tr></thead>
+                    <tbody id="histPrescriptionBody"><tr><td colspan="3" style="text-align:center; padding:10px;">Không có thuốc</td></tr></tbody>
+                </table>
+            </div>
+            <div class="modal-footer" style="background:#f8fafc;"><button class="btn btn-outline" onclick="closeModal('historyDetailModal')">Đóng</button></div>
+        </div>
+    </div>
+
+<script>
         let id_bacsi = null;
         let currentDatlichId = null;
-        let currentPatientId = null;
+        let patientChartInstance = null;
+        let statusChartInstance = null;
 
         const doctorNameEl = document.getElementById('doctorName');
         const doctorKhoaEl = document.getElementById('doctorKhoa');
-        const thongkeDataEl = document.getElementById('thongkeData');
 
         window.onload = async () => {
-            const now = new Date();
-            document.getElementById('currentDateDisplay').textContent = now.toLocaleDateString('vi-VN');
+            document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('vi-VN');
             await checkAuthAndInit();
         };
 
         async function checkAuthAndInit() {
             const userStr = localStorage.getItem('user');
-            if (!userStr) {
-                alert("Vui lòng đăng nhập.");
-                window.location.href = "../login.html"; // Sửa thành relative path
-                return;
-            }
-
+            if (!userStr) { alert("Vui lòng đăng nhập."); window.location.href = "../login.html"; return; }
             const user = JSON.parse(userStr);
             id_bacsi = await getBacsiId(user.id);
 
@@ -623,63 +323,86 @@
             }
         }
 
-        // --- 2. FETCH API HELPERS ---
         async function safeFetch(url, options = {}) {
             try {
                 const res = await fetch(url, options);
-                if (!res.ok) {
-                    console.error(`HTTP Error: ${res.status}`);
-                    return { error: true, status: res.status };
-                }
+                // console.log(`Fetching ${url}`, res); // Debug log
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
                 return await res.json();
-            } catch (err) {
-                console.error("Fetch Error:", err);
-                return { error: true, message: err.message };
-            }
+            } catch (err) { console.error(err); return { error: true }; }
         }
 
         async function getBacsiId(id_taikhoan) {
-            const cachedId = localStorage.getItem('doctorId');
-            if (cachedId) return cachedId;
-
             const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/getBacsiId?id_taikhoan=${id_taikhoan}`);
-            if (res.data && res.data.id_bacsi) {
-                localStorage.setItem('doctorId', res.data.id_bacsi);
-                return res.data.id_bacsi;
-            } else {
-                alert("Không tìm thấy thông tin bác sĩ.");
-                return null;
-            }
+            if (res.data && res.data.id_bacsi) return res.data.id_bacsi;
+            return null;
         }
 
-        // --- 3. PROFILE & THỐNG KÊ ---
+        // --- PROFILE ---
         async function loadProfile() {
             const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/doctorProfile?id_bacsi=${id_bacsi}`);
-            if (res.data) {
-                const d = res.data;
-                doctorNameEl.textContent = d.ho_ten;
-                doctorKhoaEl.textContent = d.ten_khoa;
-                document.getElementById('doctorGreeting').textContent = `Chúc bác sĩ ${d.ho_ten} một ngày làm việc hiệu quả!`;
-                
-                document.getElementById('hosoName').value = d.ho_ten || '';
-                document.getElementById('hosoHocVi').value = d.hoc_vi || '';
-                document.getElementById('hosoChuyenMon').value = d.chuyen_mon || '';
-                document.getElementById('hosoExp').value = d.nam_kinh_nghiem || '';
-                document.getElementById('hosoEmail').value = d.email || '';
-                document.getElementById('hosoPhone').value = d.phone || '';
+            if (res.error) return;
+            const d = res.data;
+            doctorNameEl.textContent = d.ho_ten || '---';
+            doctorKhoaEl.textContent = d.ten_khoa || '---';
+            document.getElementById('displayNameLabel').textContent = d.ho_ten || '';
+            document.getElementById('displayRoleLabel').textContent = d.ten_khoa || '';
+
+            document.getElementById('hosoName').value = d.ho_ten||'';
+            document.getElementById('hosoHocVi').value = d.hoc_vi||'';
+            document.getElementById('hosoChuyenMon').value = d.chuyen_mon||'';
+            document.getElementById('hosoExp').value = d.nam_kinh_nghiem||'';
+            document.getElementById('hosoEmail').value = d.email||'';
+            document.getElementById('hosoPhone').value = d.phone||'';
+
+            let avatarSrc = "https://cdn-icons-png.flaticon.com/512/3774/3774299.png";
+            if (d.hinh_anh) {
+                if (typeof d.hinh_anh === 'string') {
+                    avatarSrc = (!d.hinh_anh.startsWith('data:') && !d.hinh_anh.startsWith('http')) ? `data:image/jpeg;base64,${d.hinh_anh}` : d.hinh_anh;
+                } else if (d.hinh_anh.data) {
+                    const base64String = btoa(new Uint8Array(d.hinh_anh.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+                    avatarSrc = `data:image/jpeg;base64,${base64String}`;
+                }
             }
+            document.getElementById('profileAvatarDisplay').src = avatarSrc;
+            document.getElementById('doctorAvatar').src = avatarSrc;
         }
 
         function toggleEdit(enable) {
-            const inputs = document.querySelectorAll("#hosoTable input");
-            inputs.forEach(i => i.readOnly = !enable);
-            document.getElementById('editBtn').style.display = enable ? "none" : "inline-block";
-            document.getElementById('saveBtn').style.display = enable ? "inline-block" : "none";
-            document.getElementById('cancelBtn').style.display = enable ? "inline-block" : "none";
-            if (!enable) loadProfile();
+            const container = document.getElementById('profileContainer');
+            if (enable) {
+                container.classList.add('editing');
+                document.getElementById('editBtn').style.display = 'none';
+                document.getElementById('actionButtons').style.display = 'flex';
+                document.querySelectorAll('.profile-input').forEach(i => i.removeAttribute('readonly'));
+            } else {
+                container.classList.remove('editing');
+                document.getElementById('editBtn').style.display = 'inline-flex';
+                document.getElementById('actionButtons').style.display = 'none';
+                document.querySelectorAll('.profile-input').forEach(i => i.setAttribute('readonly', true));
+                loadProfile();
+            }
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { document.getElementById('profileAvatarDisplay').src = e.target.result; }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         async function saveDoctorProfile() {
+            const avatarInput = document.getElementById('avatarUpload');
+            let base64Image = null;
+            if (avatarInput.files && avatarInput.files[0]) {
+                const reader = new FileReader();
+                reader.readAsDataURL(avatarInput.files[0]);
+                reader.onload = async function () { base64Image = reader.result.split(',')[1]; await sendUpdateProfile(base64Image); };
+            } else { await sendUpdateProfile(null); }
+        }
+
+        async function sendUpdateProfile(img) {
             const body = {
                 id_bacsi: id_bacsi,
                 ho_ten: document.getElementById('hosoName').value,
@@ -689,298 +412,327 @@
                 email: document.getElementById('hosoEmail').value,
                 phone: document.getElementById('hosoPhone').value
             };
+            if (img) body.hinh_anh = img;
+            const res = await fetch("http://localhost:3000/api/DoctorDHST/update", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+            if (res.ok) { alert("Cập nhật thành công!"); toggleEdit(false); loadProfile(); }
+        }
 
-            const res = await fetch("http://localhost:3000/api/DoctorDHST/update", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
+        // --- SCHEDULE ---
+// --- HÀM TẢI LỊCH KHÁM (ĐÃ NÂNG CẤP) ---
+        async function loadSchedule(date) {
+            const tbody = document.getElementById("lichTableBody");
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#999;">Đang tải...</td></tr>`;
+            
+            const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/schedule?id_bacsi=${id_bacsi}&ngay=${date}`);
+            tbody.innerHTML = "";
+            let data = res.data || [];
+
+            // 1. SẮP XẾP: Đẩy 'HOAN_THANH' xuống đáy cùng
+            data.sort((a, b) => {
+                const getPriority = (item) => {
+                    const status = (item.raw_status || item.trang_thai).toUpperCase();
+                    if (status === 'DANG_KHAM') return 1; // Đang khám ưu tiên số 1
+                    if (['DA_TAO_HOSO', 'DA_CHECKIN', 'CHO_KHAM', 'CHO_XAC_NHAN'].includes(status)) return 2; // Chờ khám số 2
+                    return 3; // Đã xong đẩy xuống số 3 (cuối cùng)
+                };
+                const pA = getPriority(a), pB = getPriority(b);
+                if (pA !== pB) return pA - pB;
+                return a.id_datlich - b.id_datlich;
             });
 
-            if (res.ok) {
-                alert("Cập nhật thành công!");
-                toggleEdit(false);
-                loadProfile();
-            } else {
-                alert("Lỗi cập nhật hồ sơ.");
-            }
-        }
+            // Cập nhật thống kê
+            const total = data.length;
+            const waiting = data.filter(i => ['CHO_XAC_NHAN','DA_TAO_HOSO','DA_CHECKIN','DANG_KHAM','CHO_KHAM'].includes((i.raw_status||i.trang_thai).toUpperCase())).length;
+            const done = data.filter(i => ['HOAN_THANH','DA_KHAM'].includes((i.raw_status||i.trang_thai).toUpperCase())).length;
 
-        async function loadThongKe() {
-            const today = new Date().toISOString().split('T')[0];
-            const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/thongke/today?id_bacsi=${id_bacsi}`);
-            
-            if (res.data) {
-                const { so_benh_nhan, da_kham } = res.data;
-                thongkeDataEl.innerHTML = `
-                    <div style="padding: 20px; background: #e6f2ff; border-radius: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">${so_benh_nhan}</div>
-                            <div style="color: #666; font-size: 13px; text-transform: uppercase;">Tổng bệnh nhân</div>
-                        </div>
-                        <div style="border-left: 1px solid #cce5ff; border-right: 1px solid #cce5ff;">
-                            <div style="font-size: 24px; font-weight: bold; color: var(--success);">${da_kham}</div>
-                            <div style="color: #666; font-size: 13px; text-transform: uppercase;">Đã khám</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: var(--warning);">${so_benh_nhan - da_kham}</div>
-                            <div style="color: #666; font-size: 13px; text-transform: uppercase;">Chờ khám</div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                thongkeDataEl.textContent = "Không có dữ liệu.";
-            }
-        }
+            animateValue("todayTotal", 0, total, 500);
+            animateValue("todayWaiting", 0, waiting, 500);
+            animateValue("todayDone", 0, done, 500);
 
-        // --- 4. LỊCH KHÁM ---
-        async function loadSchedule(date = "") {
-            const tbody = document.getElementById("lichTableBody");
-            tbody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align:center; padding: 20px;">Đang tải...</td></tr>`;
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">Không có lịch khám.</td></tr>`; return; }
 
-            const selectedDate = date || document.getElementById('filterDate').value;
-            const url = `http://localhost:3000/api/DoctorDHST/schedule?id_bacsi=${id_bacsi}&ngay=${selectedDate}`;
-            const res = await safeFetch(url);
+            // 2. HIỂN THỊ: Xử lý nút bấm
+            data.forEach((bn, index) => {
+                const rawStatus = (bn.raw_status || bn.trang_thai).toLowerCase();
+                let statusClass = 'cho_xac_nhan', statusText = bn.trang_thai;
+                let isCompleted = false; // Cờ đánh dấu đã xong
 
-            tbody.innerHTML = "";
-            if (!res.data || res.data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="muted" style="text-align:center; padding: 20px;">Không có lịch khám nào trong ngày này.</td></tr>`;
-                return;
-            }
+                // Xác định trạng thái
+                if(rawStatus.includes('hoan_thanh') || rawStatus.includes('da_kham')) {
+                    statusClass = 'hoan_thanh';
+                    statusText = "Đã khám xong";
+                    isCompleted = true; // Đánh dấu là đã xong
+                } else if(rawStatus.includes('dang_kham')) {
+                    statusClass = 'dang_kham';
+                } else if(rawStatus.includes('checkin') || rawStatus.includes('tao_hoso')) {
+                    statusClass = 'da_checkin';
+                }
 
-            res.data.forEach((bn, index) => {
+                if (rawStatus.includes('tao_hoso') || statusText === 'Đã có hồ sơ') statusText = "Chờ khám";
+
                 const tr = document.createElement("tr");
-                const rawStatus = bn.raw_status || 'cho_xac_nhan';
-                const statusClass = rawStatus.toLowerCase().replace(/ /g, '_');
+                
+                // Hiệu ứng mờ cho dòng đã xong
+                if (isCompleted) { 
+                    tr.style.opacity = '0.5'; 
+                    tr.style.background = '#f1f5f9'; 
+                }
+                if (statusClass === 'dang_kham') { 
+                    tr.style.background = '#fffbeb'; 
+                    tr.style.borderLeft = '4px solid #f59e0b'; 
+                }
+
+                // XỬ LÝ NÚT BẤM (BUTTON)
+                let actionBtn = `<button class="btn btn-primary" style="padding:6px 10px; font-size:12px;" onclick="openPatient('${bn.id_datlich}')">Khám</button>`;
+                
+                if (isCompleted) {
+                    // Nếu đã xong -> đổi thành nút xám và vô hiệu hóa click
+                    actionBtn = `<button class="btn btn-outline" disabled style="padding:6px 10px; font-size:12px; cursor:not-allowed; background:#e2e8f0; color:#94a3b8; border:1px solid #cbd5e1;">Đã xong</button>`;
+                }
 
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td><b>${bn.id_benhnhan}</b></td>
-                    <td><a class="name-link" onclick="openPatient('${bn.id_datlich}')">${bn.ten_benhnhan}</a></td>
+                    <td style="font-weight:600;">${bn.ten_benhnhan}</td>
                     <td>${bn.ngay}</td>
-                    <td>${bn.khung_gio}</td>
-                    <td style="text-align: center;"><span class="status ${statusClass}">${bn.trang_thai}</span></td>
+                    <td>${bn.khung_gio||'---'}</td>
+                    <td style="text-align:center;"><span class="status ${statusClass}">${statusText}</span></td>
+                    <td>${actionBtn}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- 5. MODAL & LOGIC BỆNH ÁN ---
+        function safeDate(dateStr) {
+            if (!dateStr) return '---';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '---';
+            return d.toLocaleDateString('vi-VN');
+        }
+
+       // --- HÀM MỞ HỒ SƠ (PHIÊN BẢN FINAL - DEBUG) ---
         async function openPatient(idDatLich) {
+            console.log("🟢 Đang mở lượt khám:", idDatLich);
             currentDatlichId = idDatLich;
+            document.getElementById('modalDatLichId').innerText = idDatLich;
+            
+            // 1. Gọi API lấy chi tiết lượt khám hiện tại
             const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/full_detail?id_datlich=${idDatLich}`);
             
-            if (res.error || !res.data) {
-                alert("Không thể tải thông tin chi tiết!");
-                return;
-            }
+            if (res.error || !res.data) { alert("Lỗi tải thông tin."); return; }
+            const { patient, medicalRecord, prescription, appointment } = res.data;
 
-            const { appointment, patient, medicalRecord, prescription } = res.data;
-            const isNewCustomer = (!patient.id || patient.id === 'N/A');
-            currentPatientId = isNewCustomer ? null : patient.id;
-
-            document.getElementById('patientIdHeader').textContent = isNewCustomer ? 'Khách Mới' : patient.id;
-            document.getElementById('patientName').textContent = patient.ho_ten || appointment.ten_goc || '---';
-            document.getElementById('patientPhone').textContent = patient.sdt || appointment.sdt_goc || '---';
+            // 🔥 TỰ ĐỘNG TÌM ID BỆNH NHÂN (Thử mọi trường hợp có thể)
+            // Ưu tiên id_benhnhan trong bảng appointment (dat_lich_letan) vì nó luôn đúng
+            const patientId = appointment?.id_benhnhan || patient?.id_benhnhan || patient?.id; 
             
-            const dateStr = appointment.ngay_kham ? new Date(appointment.ngay_kham).toLocaleDateString('vi-VN') : '---';
-            document.getElementById('appointmentDate').textContent = dateStr;
+            console.log("👉 Mã bệnh nhân tìm thấy:", patientId); 
 
-            document.getElementById('patientGender').value = patient.gioi_tinh || 'Nam';
-            document.getElementById('patientAddress').value = patient.dia_chi || '';
+            // Điền thông tin giao diện
+            document.getElementById('patientName').textContent = patient?.ho_ten || '---';
+            document.getElementById('patientIdHeader').textContent = patientId || '---';
+            document.getElementById('patientPhone').textContent = patient?.sdt || '---';
+            document.getElementById('appointmentDate').textContent = safeDate(appointment?.ngay_kham);
+            document.getElementById('patientGender').value = patient?.gioi_tinh || 'Nam';
+            document.getElementById('patientAddress').value = patient?.dia_chi || '';
+            if (patient?.ngay_sinh) {
+                document.getElementById('patientDOB').value = new Date(patient.ngay_sinh).toISOString().split('T')[0];
+            }
+
+            // --- 2. XỬ LÝ LỊCH SỬ KHÁM ---
+            const histSection = document.getElementById('historySection');
+            const histDiv = document.getElementById('historyList');
             
-            if (patient.ngay_sinh) {
-                const d = new Date(patient.ngay_sinh);
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                document.getElementById('patientDOB').value = `${yyyy}-${mm}-${dd}`;
+            // Hiện khung loading
+            histSection.style.display = 'block'; 
+            histDiv.innerHTML = '<div style="text-align:center; padding:15px; color:#666;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải lịch sử...</div>';
+
+            if (patientId) {
+                // Gọi API lấy lịch sử
+                const histRes = await safeFetch(`http://localhost:3000/api/DoctorDHST/patient/visits/${patientId}?currentDatlichId=${idDatLich}`);
+                console.log("📥 Dữ liệu lịch sử trả về:", histRes.data);
+
+                let rawList = histRes.data || [];
+
+                // Lọc bỏ chính lượt đang mở (so sánh chuỗi để an toàn)
+                const validHistory = rawList.filter(h => String(h.id_datlich) !== String(currentDatlichId));
+
+                if (validHistory.length > 0) {
+                    // Sắp xếp: Mới nhất lên đầu
+                    validHistory.sort((a, b) => new Date(b.ngay_kham) - new Date(a.ngay_kham));
+
+                    histDiv.innerHTML = "";
+                    validHistory.forEach(h => {
+                        const item = document.createElement("div");
+                        item.className = "history-item";
+                        
+                        // Lấy ngày (ưu tiên các trường có thể có)
+                        const rawDate = h.ngay_kham || h.ngay_tao || h.ngay; 
+                        const dateStr = safeDate(rawDate);
+                        
+                        // Lấy chẩn đoán (nếu null thì ghi chưa có)
+                        let chuanDoanText = 'Chưa có kết luận';
+                        if(h.ket_qua && h.ket_qua !== 'null') chuanDoanText = h.ket_qua;
+                        else if(h.chuan_doan && h.chuan_doan !== 'null') chuanDoanText = h.chuan_doan;
+
+                        // ID để xem chi tiết
+                        const idToView = h.id_lichkham || h.id_hoso || h.id_datlich;
+
+                        item.innerHTML = `
+                            <div style="font-weight:bold; color:var(--primary); display:flex; justify-content:space-between;">
+                                <span>📅 ${dateStr}</span>
+                                <span style="font-size:11px; color:#666;">Xem chi tiết <i class="fa-solid fa-chevron-right"></i></span>
+                            </div>
+                            <div style="font-size:12px; margin-top:3px;">
+                                <b>BS:</b> ${h.ten_bacsi || '---'}
+                            </div>
+                            <div style="font-style:italic; font-size:12px; color:#444; margin-top:3px; border-top:1px dashed #eee; padding-top:3px;">
+                                "${chuanDoanText}"
+                            </div>
+                        `;
+                        
+                        if(idToView) item.onclick = () => viewHistoryDetail(idToView);
+                        histDiv.appendChild(item);
+                    });
+                } else {
+                    histDiv.innerHTML = '<div style="text-align:center; padding:15px; color:#64748b; font-style:italic;">Bệnh nhân chưa có lịch sử khám cũ.</div>';
+                }
             } else {
-                document.getElementById('patientDOB').value = '';
+                histDiv.innerHTML = '<div style="text-align:center; padding:15px; color:red;">Không tìm thấy ID Bệnh nhân.</div>';
             }
 
-            document.getElementById('trieuchung').value = medicalRecord.trieu_chung || '';
-            document.getElementById('chuandoan').value = medicalRecord.chuan_doan || '';
-            document.getElementById('ghichu').value = medicalRecord.ghi_chu || '';
-            document.getElementById('ketquaxetnghiem').value = ''; 
-
-            // QUAN TRỌNG: Gọi hàm load lịch sử khám
-            if (currentPatientId) {
-                loadPatientHistory(currentPatientId);
-            } else {
-                document.getElementById('historyList').innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Khách mới - Chưa có lịch sử.</div>';
-            }
-
-            const drugList = prescription.toa_thuoc || [];
-            renderPrescriptionTable(drugList);
+            // Điền form khám (như cũ)
+            document.getElementById('trieuchung').value = medicalRecord?.trieu_chung || "";
+            document.getElementById('chuandoan').value = medicalRecord?.chuan_doan || "";
+            document.getElementById('ghichu').value = medicalRecord?.ghi_chu || "";
+            
+            const tbody = document.getElementById('prescriptionTableBody'); 
+            tbody.innerHTML = "";
+            (prescription?.toa_thuoc || []).forEach(d => addPrescriptionRow(d));
+            if(!prescription?.toa_thuoc?.length) addPrescriptionRow();
 
             document.getElementById('patientModal').style.display = "flex";
         }
 
-        // HÀM LẤY LỊCH SỬ KHÁM
-        async function loadPatientHistory(patientId) {
-            const historyContainer = document.getElementById('historyList');
-            historyContainer.innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Đang tải dữ liệu...</div>';
-
-            const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/patient/visits/${patientId}`);
-
-            if (res.data && res.data.length > 0) {
-                let html = '';
-                res.data.forEach(item => {
-                    html += `
-                        <div style="margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 8px;">
-                            <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                                <span style="color:#007bff">${item.ngay_kham}</span>
-                                <span>${item.ten_khoa || 'Khoa khám'}</span>
-                            </div>
-                            <div style="margin-top:4px;"><b>BS:</b> ${item.ten_bacsi || '---'}</div>
-                            <div style="margin-top:4px;"><i>🏥 Chẩn đoán: ${item.chuan_doan || 'Chưa có kết luận'}</i></div>
-                        </div>
-                    `;
-                });
-                historyContainer.innerHTML = html;
-            } else {
-                historyContainer.innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Chưa có lịch sử khám nào.</div>';
-            }
-        }
-
-        function renderPrescriptionTable(list) {
-            const tbody = document.getElementById('prescriptionTableBody');
-            tbody.innerHTML = ''; 
-
-            if (list.length === 0) {
-                addPrescriptionRow(); 
-            } else {
-                list.forEach(drug => {
-                    addPrescriptionRow(drug);
-                });
-            }
-        }
-
-        function addPrescriptionRow(data = null) {
-            const tbody = document.getElementById('prescriptionTableBody');
-            const row = document.createElement('tr');
+        // --- SUB MODAL (HISTORY DETAIL) ---
+        async function viewHistoryDetail(oldDatLichId) {
+            document.getElementById('histDate').innerText = "Đang tải...";
+            document.getElementById('histDoctor').innerText = "...";
+            document.getElementById('histSymptom').innerText = "...";
+            document.getElementById('histDiagnosis').innerText = "...";
+            document.getElementById('histNote').innerText = "...";
+            document.getElementById('histPrescriptionBody').innerHTML = "";
             
-            const ten = data ? data.ten_thuoc : '';
-            const lieu = data ? data.lieu_luong : '';
-            const ngay = data ? data.so_ngay : '';
-            const cach = data ? data.cach_dung : '';
+            document.getElementById('historyDetailModal').style.display = 'flex';
 
-            row.innerHTML = `
-                <td><input type="text" class="drug-name" value="${ten}" placeholder="Tên thuốc..."></td>
-                <td><input type="text" class="drug-dose" value="${lieu}" placeholder="Sáng/Chiều..."></td>
-                <td><input type="number" class="drug-days" value="${ngay}" placeholder="Số ngày"></td>
-                <td><input type="text" class="drug-usage" value="${cach}" placeholder="Sau ăn..."></td>
-                <td style="text-align: center;">
-                    <button type="button" onclick="this.closest('tr').remove()" style="border:none; background:none; cursor:pointer; font-size:16px; color:#dc3545;">🗑️</button>
-                </td>
-            `;
-            tbody.appendChild(row);
+            // Gọi API chi tiết (dùng history-detail hoặc full_detail tùy backend)
+            // Ở đây tôi dùng history-detail để khớp với router mới bạn tạo
+            const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/patient/history-detail/${oldDatLichId}`);
+            
+            if(res.data) {
+                const d = res.data;
+                
+                document.getElementById('histDate').innerText = safeDate(d.ngay_kham || d.ngay_tao);
+                document.getElementById('histDoctor').innerText = d.ten_bacsi || '---';
+                document.getElementById('histSymptom').innerText = d.trieu_chung || '...';
+                document.getElementById('histDiagnosis').innerText = d.chuan_doan || '...';
+                document.getElementById('histNote').innerText = d.ghi_chu || '...';
+
+                const tbody = document.getElementById('histPrescriptionBody');
+                tbody.innerHTML = "";
+                
+                // Xử lý đơn thuốc (Backend trả về JSON string hoặc array)
+                let drugs = d.thuoc_ke_don || [];
+                if (typeof drugs === 'string') {
+                    try { drugs = JSON.parse(drugs); } catch(e) { drugs = []; }
+                }
+
+                if(drugs.length > 0) {
+                    drugs.forEach(item => {
+                        tbody.innerHTML += `<tr><td style="padding:8px; border-bottom:1px solid #eee;"><b>${item.ten_thuoc}</b><br><small>${item.lieu_luong}</small></td><td style="padding:8px; border-bottom:1px solid #eee;">${item.so_ngay}</td><td style="padding:8px; border-bottom:1px solid #eee;">${item.cach_dung}</td></tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:10px; color:#999;">Không kê đơn thuốc</td></tr>';
+                }
+            }
+        }
+
+        function addPrescriptionRow(d = null) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td><input class="drug-name" value="${d?.ten_thuoc||''}" placeholder="..." style="border:none; width:100%"></td><td><input class="drug-dose" value="${d?.lieu_luong||''}" placeholder="..." style="border:none; width:100%"></td><td><input type="number" class="drug-days" value="${d?.so_ngay||''}" placeholder="..." style="border:none; width:100%"></td><td><input class="drug-usage" value="${d?.cach_dung||''}" placeholder="..." style="border:none; width:100%"></td><td style="text-align:center"><i class="fa-solid fa-trash" style="color:red; cursor:pointer" onclick="this.closest('tr').remove()"></i></td>`;
+            document.getElementById('prescriptionTableBody').appendChild(row);
         }
 
         async function saveMedicalRecord() {
+            const drugs = [];
+            document.querySelectorAll("#prescriptionTableBody tr").forEach(row => {
+                const ten_thuoc = row.querySelector(".drug-name")?.value;
+                const lieu_luong = row.querySelector(".drug-dose")?.value;
+                const so_ngay = row.querySelector(".drug-days")?.value;
+                const cach_dung = row.querySelector(".drug-usage")?.value;
+                if (ten_thuoc && so_ngay) {
+                    drugs.push({ ten_thuoc, lieu_luong, so_ngay, cach_dung });
+                }
+            });
+
             const payload = {
                 id_datlich: currentDatlichId,
                 id_bacsi: id_bacsi,
-                id_benhnhan: currentPatientId, 
                 trieu_chung: document.getElementById('trieuchung').value,
                 chuan_doan: document.getElementById('chuandoan').value,
                 ghi_chu: document.getElementById('ghichu').value,
-                gioi_tinh: document.getElementById('patientGender').value,
-                ngay_sinh: document.getElementById('patientDOB').value,
-                dia_chi: document.getElementById('patientAddress').value
-            };
-
-            const res = await fetch("http://localhost:3000/api/DoctorDHST/save_benhan", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            const json = await res.json();
-
-            if (res.ok) {
-                alert("✅ Lưu bệnh án thành công!");
-                if (json.id_benhnhan) {
-                    currentPatientId = json.id_benhnhan;
-                }
-                const filterDate = document.getElementById('filterDate').value;
-                loadSchedule(filterDate);
-                await openPatient(currentDatlichId);
-            } else {
-                alert("❌ Lỗi: " + (json.error || "Không xác định"));
-            }
-        }
-
-        async function savePrescription() {
-            const rows = document.querySelectorAll('#prescriptionTableBody tr');
-            const drugs = [];
-            
-            rows.forEach(row => {
-                const name = row.querySelector('.drug-name').value.trim();
-                const dose = row.querySelector('.drug-dose').value.trim();
-                const days = row.querySelector('.drug-days').value.trim();
-                const usage = row.querySelector('.drug-usage').value.trim();
-                
-                if (name) {
-                    drugs.push({
-                        ten_thuoc: name,
-                        lieu_luong: dose,
-                        so_ngay: days,
-                        cach_dung: usage
-                    });
-                }
-            });
-
-            if (drugs.length === 0) {
-                alert("Vui lòng nhập ít nhất một loại thuốc.");
-                return;
-            }
-
-            const payload = {
-                id_datlich: currentDatlichId,
-                id_bacsi: id_bacsi,
                 toa_thuoc: drugs
             };
 
-            const res = await fetch("http://localhost:3000/api/DoctorDHST/save_toa", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+            const res = await fetch("http://localhost:3000/api/DoctorDHST/save_benhan", {
+                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
             });
 
             if (res.ok) {
-                alert("✅ Lưu toa thuốc thành công!");
-                await openPatient(currentDatlichId);
+                alert("✅ Hoàn tất khám & lưu bệnh án thành công");
+                closeModal('patientModal');
+                loadSchedule(document.getElementById('filterDate').value);
             } else {
-                alert("❌ Lỗi lưu toa thuốc");
+                alert("❌ Lỗi lưu bệnh án");
             }
+        };
+
+        async function loadCharts() {
+            const res = await safeFetch(`http://localhost:3000/api/DoctorDHST/stats?id_bacsi=${id_bacsi}`);
+            const data = res.data || { chartLabels: [], chartData: [], completed: 0, waiting: 0 };
+            if(patientChartInstance) patientChartInstance.destroy();
+            if(statusChartInstance) statusChartInstance.destroy();
+            const ctx1 = document.getElementById('patientTrendChart').getContext('2d');
+            patientChartInstance = new Chart(ctx1, { type: 'bar', data: { labels: data.chartLabels, datasets: [{ label: 'Lượt khám', data: data.chartData, backgroundColor: '#007bff' }] }, options: { responsive:true, maintainAspectRatio: false } });
+            const ctx2 = document.getElementById('statusPieChart').getContext('2d');
+            statusChartInstance = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Đã xong', 'Chưa xong'], datasets: [{ data: [data.completed, data.waiting], backgroundColor: ['#10b981', '#f59e0b'] }] }, options: { responsive:true, maintainAspectRatio: false } });
         }
 
-        function closeModal() {
-            document.getElementById('patientModal').style.display = "none";
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id); if(!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
         }
-
+        
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        function logout() { localStorage.clear(); window.location.href = "../login.html"; }
         function showSection(id, el) {
-            document.querySelectorAll('main section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('main > section').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'block';
             document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
             el.classList.add('active');
-            if (id === 'thongke') loadThongKe();
+            const map = {'lich':'Lịch khám bệnh', 'hoso':'Hồ sơ bác sĩ', 'thongke':'Báo cáo thống kê'};
+            document.getElementById('pageTitle').textContent = map[id];
+            if(id === 'thongke') loadCharts();
         }
-
-        function logout() {
-            localStorage.removeItem('user');
-            localStorage.removeItem('role');
-            localStorage.removeItem('doctorId');
-            window.location.href = "../login.html"; // Sửa thành relative path
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('patientModal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
+        
+        window.onclick = function(e) { if(e.target == document.getElementById('patientModal')) closeModal('patientModal'); }
     </script>
 </body>
 </html>

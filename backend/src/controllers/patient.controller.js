@@ -10,8 +10,9 @@ const formatDbDate = (dateValue) => {
     if (!dateValue) return 'N/A';
     const date = new Date(dateValue);
     if (isNaN(date.getTime())) {
-        return typeof dateValue === 'string' && dateValue.length <= 10
-            ? dateValue.split('-').reverse().join('/')
+        // Nếu là string dạng ISO hoặc yyyy-mm-dd
+        return typeof dateValue === 'string' && dateValue.length >= 10
+            ? dateValue.substring(0, 10).split('-').reverse().join('/')
             : 'N/A';
     }
     return date.toLocaleDateString('vi-VN', {
@@ -80,11 +81,16 @@ exports.verifyOtpAndGetPatients = async (req, res) => {
 };
 
 // --- 3️⃣ Lấy danh sách các lần khám của bệnh nhân ---
+// 🔥 ĐÃ SỬA: Map đúng tên trường ten_khoa, ten_bacsi để khớp Frontend
 exports.getPatientVisits = async (req, res) => {
     const { patientId } = req.params;
 
     try {
         const visits = await patientModel.getVisitsByPatientId(patientId);
+        
+        // Log kiểm tra data từ Model (có thể xóa sau này)
+        // console.log("Visits from DB:", visits);
+
         if (!visits || visits.length === 0)
             return res.status(404).json({ message: 'Bệnh nhân chưa có lần khám nào.' });
 
@@ -92,9 +98,11 @@ exports.getPatientVisits = async (req, res) => {
             visits: visits.map(v => ({
                 id_lichkham: v.id_lichkham,
                 ngay_kham: formatDbDate(v.ngay_kham),
-                khoa: v.ten_khoa,
-                bacsi: v.ten_bacsi,
-                chan_doan_tom_tat: v.ket_qua || 'Chưa cập nhật'
+                
+                // 👇 CẬP NHẬT: Trả về đúng key mà Frontend đang tìm
+                ten_khoa: v.ten_khoa || 'Khoa Khám Bệnh', 
+                ten_bacsi: v.ten_bacsi || 'Chưa cập nhật',
+                ket_qua: v.ket_qua || 'Đang cập nhật' 
             }))
         });
     } catch (err) {
@@ -120,58 +128,60 @@ exports.getVisitDetails = async (req, res) => {
 };
 
 // --- 5️⃣ Xuất PDF hồ sơ khám bệnh ---
-
-
-
-
 exports.downloadVisitPdf = async (req, res) => {
     try {
         const details = await patientModel.getVisitDetails(req.params.lichKhamId);
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline; filename=hoso.pdf');
+        if (!details) {
+            return res.status(404).send('Không tìm thấy dữ liệu để xuất PDF');
+        }
 
-        // ✅ 1. TẠO DOC TRƯỚC
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename=HoSo_${req.params.lichKhamId}.pdf`);
+
+        // ✅ TẠO DOC
         const doc = new PDFDocument({ margin: 50 });
         doc.pipe(res);
+        
+        // Vẽ khung viền trang
         doc.rect(40, 30, 515, 780).strokeColor('#000').lineWidth(1).stroke();
 
-        // ✅ 2. LOAD FONT SAU KHI CÓ DOC
-          const fontPath = path.resolve(__dirname, '..', 'vietnam-font.ttf');
+        // ✅ LOAD FONT TIẾNG VIỆT
+        const fontPath = path.resolve(__dirname, '..', 'vietnam-font.ttf'); // Đảm bảo đường dẫn font đúng
         if (fs.existsSync(fontPath)) {
             doc.registerFont('VN', fontPath);
             doc.font('VN');
         } else {
-            console.warn('⚠ Không tìm thấy font Unicode, fallback Helvetica');
+            console.warn('⚠ Không tìm thấy font Unicode, fallback Helvetica (sẽ lỗi font tiếng Việt)');
             doc.font('Helvetica');
         }
 
         // ===== PDF CONTENT =====
+        // Header
         doc.fontSize(18).text('BỆNH ÁN ĐIỆN TỬ - DHST HOSPITAL', { align: 'center' });
-        doc.moveDown();
+        doc.moveDown(0.5);
         doc.fontSize(10)
-   .text('Địa chỉ: Công nghiệp Hà Nội ,Bắc Từ Liêm , Hà Nội ', { align: 'center' })
-   .text('Hotline: 6868686868', { align: 'center' });
+           .text('Địa chỉ: Công nghiệp Hà Nội, Bắc Từ Liêm, Hà Nội', { align: 'center' })
+           .text('Hotline: 1900.888.666', { align: 'center' });
 
-doc.moveDown(0.5);
-doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
-doc.moveDown();
+        doc.moveDown(0.5);
+        doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+        doc.moveDown();
 
-// ================= TITLE =================
-doc.fontSize(18)
-   .font('VN')
-   .text('BỆNH ÁN NGOẠI TRÚ', { align: 'center', underline: true });
+        // Title
+        doc.fontSize(18).font('VN').text('BỆNH ÁN NGOẠI TRÚ', { align: 'center', underline: true });
+        doc.moveDown(1.5);
 
-doc.moveDown(1.5);
-
+        // Thông tin Bệnh nhân
         doc.fontSize(13).text('THÔNG TIN BỆNH NHÂN', { underline: true });
         doc.fontSize(11);
         doc.text(`Họ tên: ${details.ho_ten_bn}`);
-        doc.text(`Ngày sinh: ${formatDbDate(details.ngay_sinh_bn)}   Giới tính: ${details.gioi_tinh_bn}`);
+        doc.text(`Ngày sinh: ${formatDbDate(details.ngay_sinh_bn)}    Giới tính: ${details.gioi_tinh_bn}`);
         doc.text(`SĐT: ${details.sdt_bn}`);
-        doc.text(`Email: ${details.email_bn}`);
+        doc.text(`Email: ${details.email_bn || 'Không có'}`);
         doc.moveDown();
 
+        // Thông tin Khám bệnh
         doc.fontSize(13).text('THÔNG TIN KHÁM BỆNH', { underline: true });
         doc.fontSize(11);
         doc.text(`Ngày khám: ${formatDbDate(details.ngay_kham)}`);
@@ -179,6 +189,7 @@ doc.moveDown(1.5);
         doc.text(`Chuyên khoa: ${details.chuyen_khoa}`);
         doc.moveDown();
 
+        // Chi tiết bệnh án
         doc.fontSize(13).text('CHI TIẾT BỆNH ÁN', { underline: true });
         doc.fontSize(11);
         doc.text(`Chẩn đoán: ${details.chuan_doan}`);
@@ -186,73 +197,80 @@ doc.moveDown(1.5);
         doc.text(`Ghi chú: ${details.ghi_chu}`);
         doc.moveDown();
 
+        // Bảng Đơn thuốc
         doc.fontSize(13).text('ĐƠN THUỐC KÊ ĐƠN', { underline: true });
-        
-doc.moveDown(0.5);
+        doc.moveDown(0.5);
 
-const tableX = 50;
-let tableY = doc.y;
-const rowH = 22;
-const colW = [40, 200, 90, 110, 60];
-const headers = ['STT', 'Tên thuốc', 'Liều lượng', 'Cách dùng', 'Số ngày'];
+        if (details.thuoc_ke_don && details.thuoc_ke_don.length > 0) {
+            const tableX = 50;
+            let tableY = doc.y;
+            const rowH = 25; // Tăng chiều cao dòng một chút
+            const colW = [40, 200, 90, 110, 60];
+            const headers = ['STT', 'Tên thuốc', 'Liều lượng', 'Cách dùng', 'Số ngày'];
 
-// Header
-let x = tableX;
-headers.forEach((h, i) => {
-    doc.rect(x, tableY, colW[i], rowH).stroke();
-    doc.text(h, x + 4, tableY + 6);
-    x += colW[i];
-});
+            // Vẽ Header Bảng
+            let x = tableX;
+            doc.font('VN').fontSize(11); // Set lại font size cho bảng
+            headers.forEach((h, i) => {
+                doc.rect(x, tableY, colW[i], rowH).fillAndStroke('#eee', '#000'); // Tô nền header
+                doc.fillColor('#000').text(h, x + 5, tableY + 8);
+                x += colW[i];
+            });
 
-tableY += rowH;
+            tableY += rowH;
 
-// Rows
-details.thuoc_ke_don.forEach((t, i) => {
-    x = tableX;
-    const row = [
-        i + 1,
-        t.ten_thuoc,
-        t.lieu_luong,
-        t.cach_dung,
-        t.so_ngay
-    ];
+            // Vẽ Rows
+            details.thuoc_ke_don.forEach((t, i) => {
+                // Kiểm tra nếu gần hết trang thì add trang mới
+                if (tableY > 750) {
+                    doc.addPage();
+                    tableY = 50;
+                }
 
-    row.forEach((cell, j) => {
-        doc.rect(x, tableY, colW[j], rowH).stroke();
-        doc.text(String(cell), x + 4, tableY + 6);
-        x += colW[j];
-    });
+                x = tableX;
+                const row = [
+                    i + 1,
+                    t.ten_thuoc,
+                    t.lieu_luong,
+                    t.cach_dung,
+                    t.so_ngay
+                ];
 
-    tableY += rowH;
-});
+                row.forEach((cell, j) => {
+                    doc.rect(x, tableY, colW[j], rowH).stroke();
+                    doc.text(String(cell || ''), x + 5, tableY + 8);
+                    x += colW[j];
+                });
 
+                tableY += rowH;
+            });
+        } else {
+            doc.fontSize(11).text('Không có thuốc được kê đơn.', { italic: true });
+        }
 
+        // Chữ ký
+        doc.moveDown(3);
+        const signatureY = doc.y;
+        doc.text('BÁC SĨ ĐIỀU TRỊ', 380, signatureY, { align: 'center', width: 150 });
+        doc.moveDown(4);
+        doc.text(`BS. ${details.ten_bacsi}`, 380, doc.y, { align: 'center', width: 150 });
 
-doc.moveDown(3);
+        // Footer note
+        doc.moveDown(2);
+        doc.fontSize(9).fillColor('#555')
+           .text('Văn bản này được trích xuất từ Hệ thống Quản lý Bệnh viện DHST', 50, 780,
+                 { align: 'center', width: 500 });
 
-doc.text('BÁC SĨ ĐIỀU TRỊ', 380);
-doc.moveDown(3);
-doc.text(`BS. ${details.ten_bacsi}`, 380);
-
-doc.moveDown(2);
-doc.fontSize(9).fillColor('#555')
-   .text('Văn bản này được trích xuất từ Hệ thống Quản lý Bệnh viện DHST',
-         { align: 'center' });
-
-         doc.end();
-doc.moveDown(2);
+        // Kết thúc file PDF
+        doc.end();
 
     } catch (err) {
         console.error('❌ Lỗi tạo PDF:', err);
         if (!res.headersSent) res.status(500).send('Lỗi tạo PDF');
     }
 };
-
       
-/**
- * ✅ API MỚI: Lấy thông tin bệnh nhân theo số điện thoại (dành cho lễ tân)
- * GET /api/patient/phone/:sdt
- */
+// --- API Lấy thông tin bệnh nhân theo SĐT (cho Lễ tân/Admin) ---
 exports.getPatientByPhone = async (req, res) => {
     try {
         const { sdt } = req.params;
@@ -268,7 +286,7 @@ exports.getPatientByPhone = async (req, res) => {
                 id_benhnhan: p.id_benhnhan,
                 ho_ten: p.ho_ten,
                 ngay_sinh: formatDbDate(p.ngay_sinh),
-                gioi_tinh: p.gio_tinh,
+                gioi_tinh: p.gioi_tinh, // Lưu ý: trong DB là gioi_tinh hay gio_tinh? Check lại model
                 email: p.email,
                 dia_chi: p.dia_chi,
                 sdt: p.phone
