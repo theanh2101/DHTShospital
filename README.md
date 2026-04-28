@@ -124,6 +124,6 @@ Bước 4: Chạy server
 
 ## 👨‍💻 Nhóm phát triển
 
-Nhóm 9 – Khoa Công Nghệ Thông Tin
+Nhóm 7 – Khoa Công Nghệ Thông Tin
 Trường Đại học Công nghiệp Hà Nội (HAIU)
 
