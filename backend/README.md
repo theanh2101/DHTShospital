@@ -11,8 +11,6 @@ npm start
 
 ## Cấu hình `.env`
 
-File mẫu nằm tại `backend/.env.example`. Hãy copy thành `backend/.env` rồi điền giá trị thật.
-
 Ví dụ:
 
 ```env
